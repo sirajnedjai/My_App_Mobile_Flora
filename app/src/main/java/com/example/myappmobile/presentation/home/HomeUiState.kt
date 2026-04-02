@@ -1,0 +1,16 @@
+package com.example.myappmobile.presentation.home
+
+import com.example.myappmobile.domain.BannerData
+import com.example.myappmobile.domain.Category
+import com.example.myappmobile.domain.Product
+
+data class HomeUiState(
+    val isLoading: Boolean = true,
+    val banner: BannerData? = null,
+    val categories: List<Category> = emptyList(),
+    val featuredProducts: List<Product> = emptyList(),
+    val newArrivals: List<Product> = emptyList(),
+    val emailInput: String = "",
+    val isSubscribed: Boolean = false,
+    val error: String? = null,
+)

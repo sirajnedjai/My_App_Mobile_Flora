@@ -1,0 +1,240 @@
+package com.example.myappmobile.core.theme
+
+import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+
+val SerifFontFamily = FontFamily.Serif
+val SansFontFamily = FontFamily.Default
+
+val FloraTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontStyle = FontStyle.Italic,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        color = FloraText,
+    ),
+    displayMedium = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 34.sp,
+        lineHeight = 42.sp,
+        letterSpacing = (-0.5).sp,
+        color = FloraText,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        color = FloraText,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        color = FloraText,
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        color = FloraText,
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
+        color = FloraText,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        color = FloraText,
+    ),
+    titleMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        color = FloraText,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        color = FloraTextSecondary,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        color = FloraText,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp,
+        lineHeight = 22.sp,
+        color = FloraTextSecondary,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 13.sp,
+        lineHeight = 20.sp,
+        color = FloraTextMuted,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 13.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 2.sp,
+        color = FloraWhite,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 1.sp,
+        color = FloraTextSecondary,
+    ),
+    labelSmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 1.5.sp,
+        color = FloraTextSecondary,
+    ),
+)
+
+val AtelierTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Light,
+        fontSize = 48.sp,
+        lineHeight = 54.sp,
+        letterSpacing = (-0.5).sp,
+        color = CharcoalDark,
+    ),
+    displayMedium = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Light,
+        fontSize = 36.sp,
+        lineHeight = 42.sp,
+        letterSpacing = (-0.3).sp,
+        color = CharcoalDark,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+        color = CharcoalDark,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 26.sp,
+        lineHeight = 32.sp,
+        color = CharcoalDark,
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        color = CharcoalDark,
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = SerifFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        color = CharcoalDark,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        color = CharcoalDark,
+    ),
+    titleMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        color = CharcoalDark,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        color = CharcoalLight,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 15.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.2.sp,
+        color = CharcoalMid,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 13.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.2.sp,
+        color = CharcoalMid,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.3.sp,
+        color = StoneGray,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        letterSpacing = 1.2.sp,
+        color = CharcoalDark,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 1.sp,
+        color = CharcoalLight,
+    ),
+    labelSmall = TextStyle(
+        fontFamily = SansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 9.sp,
+        lineHeight = 13.sp,
+        letterSpacing = 1.2.sp,
+        color = StoneGray,
+    ),
+)

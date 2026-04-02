@@ -1,0 +1,37 @@
+package com.example.myappmobile.presentation.checkout.payment
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myappmobile.core.di.AppContainer
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class PaymentViewModel : ViewModel() {
+
+    private val repository = AppContainer.orderRepository
+    private val createOrderUseCase = AppContainer.createOrderUseCase
+
+    private val _uiState = MutableStateFlow(
+        PaymentUiState(
+            paymentMethod = repository.checkoutDraft.value.paymentMethod,
+            subtotal = AppContainer.cartRepository.cartItems.value.sumOf { it.price },
+            itemCount = AppContainer.cartRepository.cartItems.value.size,
+        )
+    )
+    val uiState: StateFlow<PaymentUiState> = _uiState.asStateFlow()
+
+    fun onPaymentMethodSelected(method: String) {
+        _uiState.update { it.copy(paymentMethod = method) }
+    }
+
+    fun placeOrder(onPlaced: () -> Unit) {
+        viewModelScope.launch {
+            repository.updatePaymentMethod(_uiState.value.paymentMethod)
+            createOrderUseCase()
+            onPlaced()
+        }
+    }
+}
