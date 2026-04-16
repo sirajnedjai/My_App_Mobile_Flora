@@ -5,6 +5,8 @@ data class Order(
     val reference: String,
     val customerId: String = "",
     val customerName: String = "",
+    val customerEmail: String = "",
+    val customerPhone: String = "",
     val customerLocation: String = "",
     val items: List<OrderItem> = emptyList(),
     val status: OrderStatus = OrderStatus.PENDING,
@@ -18,6 +20,7 @@ data class Order(
     val estimatedDelivery: String = "",
     val artisanPackaging: String = "Complimentary",
     val imageUrl: String = "",
+    val statusHistory: List<OrderStatusEntry> = emptyList(),
 )
 
 data class OrderItem(
@@ -39,6 +42,12 @@ enum class OrderStatus {
         CANCELLED -> "CANCELLED"
     }
 }
+
+data class OrderStatusEntry(
+    val status: OrderStatus,
+    val timestamp: String,
+    val note: String = "",
+)
 
 data class Address(
     val id: String = "",

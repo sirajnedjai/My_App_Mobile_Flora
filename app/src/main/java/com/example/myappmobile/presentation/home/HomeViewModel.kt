@@ -2,6 +2,7 @@ package com.example.myappmobile.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myappmobile.core.access.RoleAccessManager
 import com.example.myappmobile.core.di.AppContainer
 import com.example.myappmobile.data.MockData
 import kotlinx.coroutines.delay
@@ -27,12 +28,14 @@ class HomeViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true) }
             delay(600)
             _uiState.update {
+                val access = RoleAccessManager.capabilities(AppContainer.authRepository.currentUser.value)
                 it.copy(
                     isLoading = false,
                     banner = MockData.banner,
                     categories = MockData.categories,
                     featuredProducts = getProductsUseCase.featured(),
                     newArrivals = getProductsUseCase.newArrivals(),
+                    canUseWishlist = access.canUseWishlist,
                 )
             }
         }
@@ -47,6 +50,7 @@ class HomeViewModel : ViewModel() {
     }
 
     fun onToggleFavorite(productId: String) {
+        if (!_uiState.value.canUseWishlist) return
         viewModelScope.launch {
             productRepository.toggleFavorite(productId)
             _uiState.update { state ->

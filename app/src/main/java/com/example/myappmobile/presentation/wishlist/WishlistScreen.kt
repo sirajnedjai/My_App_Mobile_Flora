@@ -22,14 +22,12 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.ShoppingBag
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,11 +49,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.BuyersOnlyNotice
 import com.example.myappmobile.core.components.FavoriteButton
+import com.example.myappmobile.core.components.OutlineButton
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.ShimmerBox
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.core.navigation.Routes
+import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.FloraBeige
 import com.example.myappmobile.core.theme.FloraBrown
 import com.example.myappmobile.core.theme.FloraDivider
@@ -86,6 +89,7 @@ fun WishlistScreen(
         onProductClick = onProductClick,
         onRemove = viewModel::onRemoveFromWishlist,
         onAddToCart = viewModel::onAddToCart,
+        onSearchQueryChanged = viewModel::onSearchQueryChanged,
         onContinueShopping = onContinueShopping,
         onCartClick = onCartClick,
         onSearchClick = onSearchClick,
@@ -101,6 +105,7 @@ private fun WishlistScreenContent(
     onProductClick: (String) -> Unit,
     onRemove: (String) -> Unit,
     onAddToCart: (String) -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
     onContinueShopping: () -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
@@ -125,12 +130,29 @@ private fun WishlistScreenContent(
     ) { padding ->
         when {
             uiState.isLoading -> WishlistLoadingState(modifier = Modifier.padding(padding))
+            !uiState.isBuyer -> SellerWishlistRestriction(
+                message = uiState.restrictionMessage.orEmpty(),
+                onContinueShopping = onContinueShopping,
+                modifier = Modifier.padding(padding),
+            )
             uiState.isEmpty -> EmptyWishlistState(
+                title = if (uiState.query.isBlank()) {
+                    stringResource(R.string.wishlist_empty_title)
+                } else {
+                    "No items match your search"
+                },
+                subtitle = if (uiState.query.isBlank()) {
+                    stringResource(R.string.wishlist_empty_subtitle)
+                } else {
+                    "Try a different name, studio, or category inside your wishlist."
+                },
                 onContinueShopping = onContinueShopping,
                 modifier = Modifier.padding(padding),
             )
             else -> WishlistList(
+                query = uiState.query,
                 products = uiState.products,
+                onSearchQueryChanged = onSearchQueryChanged,
                 onProductClick = onProductClick,
                 onRemove = onRemove,
                 onAddToCart = onAddToCart,
@@ -151,7 +173,7 @@ fun WishlistHeader(
         title = {
             Column {
                 Text(
-                    text = "Wishlist",
+                    text = stringResource(R.string.wishlist_title),
                     style = MaterialTheme.typography.displaySmall.copy(
                         fontFamily = SerifFontFamily,
                         fontStyle = FontStyle.Italic,
@@ -159,36 +181,30 @@ fun WishlistHeader(
                     color = FloraText,
                 )
                 Text(
-                    text = "Saved pieces curated for later",
+                    text = stringResource(R.string.wishlist_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = FloraTextSecondary,
                 )
             }
         },
         navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = FloraText,
-                )
-            }
+            CircularIconButton(
+                icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.common_back),
+                onClick = onBack,
+            )
         },
         actions = {
-            IconButton(onClick = onSearchClick) {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = "Search",
-                    tint = FloraText,
-                )
-            }
-            IconButton(onClick = onCartClick) {
-                Icon(
-                    imageVector = Icons.Outlined.ShoppingBag,
-                    contentDescription = "Cart",
-                    tint = FloraText,
-                )
-            }
+            CircularIconButton(
+                icon = Icons.Outlined.Search,
+                contentDescription = stringResource(R.string.nav_search),
+                onClick = onSearchClick,
+            )
+            CircularIconButton(
+                icon = Icons.Outlined.ShoppingBag,
+                contentDescription = stringResource(R.string.common_cart),
+                onClick = onCartClick,
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = FloraBeige,
@@ -199,7 +215,9 @@ fun WishlistHeader(
 
 @Composable
 fun WishlistList(
+    query: String,
     products: List<Product>,
+    onSearchQueryChanged: (String) -> Unit,
     onProductClick: (String) -> Unit,
     onRemove: (String) -> Unit,
     onAddToCart: (String) -> Unit,
@@ -212,6 +230,19 @@ fun WishlistList(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = onSearchQueryChanged,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                leadingIcon = {
+                    Icon(Icons.Outlined.Search, contentDescription = null)
+                },
+                placeholder = { Text("Search your wishlist") },
+                shape = RoundedCornerShape(22.dp),
+            )
+        }
         items(products, key = Product::id) { product ->
             WishlistItemCard(
                 product = product,
@@ -221,6 +252,29 @@ fun WishlistList(
                 onAddToCart = { onAddToCart(product.id) },
             )
         }
+    }
+}
+
+@Composable
+private fun SellerWishlistRestriction(
+    message: String,
+    onContinueShopping: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(FloraBeige)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        BuyersOnlyNotice(message = message.ifBlank { "This feature is available for buyers only." })
+        Spacer(modifier = Modifier.height(20.dp))
+        PrimaryButton(
+            text = stringResource(R.string.common_continue_shopping),
+            onClick = onContinueShopping,
+        )
     }
 }
 
@@ -306,20 +360,17 @@ fun WishlistItemCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    OutlinedButton(
+                    OutlineButton(
+                        text = stringResource(R.string.common_remove),
                         onClick = onRemove,
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = FloraText,
-                        ),
-                    ) {
-                        Text("Remove")
-                    }
+                        fillMaxWidth = false,
+                    )
                     PrimaryButton(
-                        text = "Add to Cart",
+                        text = stringResource(R.string.common_add_to_cart),
                         onClick = onAddToCart,
                         modifier = Modifier.weight(1f),
+                        fillMaxWidth = false,
                     )
                 }
             }
@@ -329,6 +380,8 @@ fun WishlistItemCard(
 
 @Composable
 fun EmptyWishlistState(
+    title: String = "",
+    subtitle: String = "",
     onContinueShopping: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -357,21 +410,21 @@ fun EmptyWishlistState(
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Your wishlist is empty",
+            text = title.ifBlank { stringResource(R.string.wishlist_empty_title) },
             style = MaterialTheme.typography.headlineMedium,
             color = FloraText,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "Save beloved pieces from the atelier and return when the moment feels right.",
+            text = subtitle.ifBlank { stringResource(R.string.wishlist_empty_subtitle) },
             style = MaterialTheme.typography.bodyMedium,
             color = FloraTextSecondary,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(24.dp))
         PrimaryButton(
-            text = "Continue Shopping",
+            text = stringResource(R.string.common_continue_shopping),
             onClick = onContinueShopping,
         )
     }
@@ -426,8 +479,10 @@ private fun WishlistScreenPreview() {
         WishlistScreenContent(
             uiState = WishlistUiState(
                 products = MockData.allProducts.take(2).map { it.copy(isFavorited = true) },
+                query = "",
                 isLoading = false,
             ),
+            onSearchQueryChanged = {},
             onBack = {},
             onProductClick = {},
             onRemove = {},

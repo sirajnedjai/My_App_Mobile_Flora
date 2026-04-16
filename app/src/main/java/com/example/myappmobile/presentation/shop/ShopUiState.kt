@@ -1,5 +1,6 @@
 package com.example.myappmobile.presentation.shop
 
+import com.example.myappmobile.data.repository.ShopFilterSelection
 import com.example.myappmobile.domain.Product
 
 data class ShopUiState(
@@ -11,6 +12,12 @@ data class ShopUiState(
     val sortOptions: List<ShopSortUi> = emptyList(),
     val banner: ShopBannerUi? = null,
     val products: List<Product> = emptyList(),
+    val visibleProducts: List<Product> = emptyList(),
+    val visibleCount: Int = 4,
+    val canLoadMore: Boolean = false,
+    val appliedFilters: ShopFilterSelection = ShopFilterSelection(),
+    val activeFiltersSummary: List<String> = emptyList(),
+    val canUseWishlist: Boolean = true,
     val isLoading: Boolean = true,
 )
 

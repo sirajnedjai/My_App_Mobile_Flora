@@ -59,12 +59,12 @@ fun BannerSection(
         ) {
             Text(
                 text = banner.title,
-                style = MaterialTheme.typography.displaySmall.copy(color = White),
+                style = MaterialTheme.typography.displaySmall.copy(color = FloraWhite),
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = banner.subtitle,
-                style = MaterialTheme.typography.bodyMedium.copy(color = White.copy(alpha = 0.85f)),
+                style = MaterialTheme.typography.bodyMedium.copy(color = FloraWhite.copy(alpha = 0.85f)),
             )
             Spacer(Modifier.height(20.dp))
             Surface(
@@ -74,7 +74,7 @@ fun BannerSection(
             ) {
                 Text(
                     text = banner.ctaText,
-                    style = MaterialTheme.typography.labelMedium.copy(color = White),
+                    style = MaterialTheme.typography.labelMedium.copy(color = FloraWhite),
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
                 )
             }

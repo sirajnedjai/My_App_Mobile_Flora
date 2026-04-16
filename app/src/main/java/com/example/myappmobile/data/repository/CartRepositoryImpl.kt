@@ -11,22 +11,45 @@ import kotlinx.coroutines.flow.update
 
 class CartRepositoryImpl : CartRepository {
 
-    private val _cartItems = MutableStateFlow(emptyList<Product>())
-    override val cartItems: StateFlow<List<Product>> = _cartItems.asStateFlow()
+    private val _cartItems = MutableStateFlow(emptyList<CartItem>())
+    override val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
 
     override suspend fun addToCart(product: Product) {
         _cartItems.update { current ->
-            if (current.any { it.id == product.id }) current else current + product
+            val existingItem = current.firstOrNull { it.product.id == product.id }
+            if (existingItem == null) {
+                current + ProductMapper.toCartItem(product)
+            } else {
+                current.map { item ->
+                    if (item.product.id == product.id) item.copy(quantity = item.quantity + 1) else item
+                }
+            }
+        }
+    }
+
+    override suspend fun increaseQuantity(productId: String) {
+        _cartItems.update { current ->
+            current.map { item ->
+                if (item.product.id == productId) item.copy(quantity = item.quantity + 1) else item
+            }
+        }
+    }
+
+    override suspend fun decreaseQuantity(productId: String) {
+        _cartItems.update { current ->
+            current.map { item ->
+                if (item.product.id == productId) item.copy(quantity = (item.quantity - 1).coerceAtLeast(1)) else item
+            }
         }
     }
 
     override suspend fun removeFromCart(productId: String) {
-        _cartItems.update { current -> current.filterNot { it.id == productId } }
+        _cartItems.update { current -> current.filterNot { it.product.id == productId } }
     }
 
     override suspend fun clearCart() {
         _cartItems.value = emptyList()
     }
 
-    override fun getCheckoutItems(): List<CartItem> = cartItems.value.map(ProductMapper::toCartItem)
+    override fun getCheckoutItems(): List<CartItem> = cartItems.value
 }

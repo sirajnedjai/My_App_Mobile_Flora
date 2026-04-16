@@ -2,8 +2,11 @@ package com.example.myappmobile.domain.repository
 
 import com.example.myappmobile.domain.Product
 import com.example.myappmobile.domain.ProductDetails
+import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
+    fun observeAllProducts(): Flow<List<Product>>
+
     suspend fun getFeaturedProducts(): List<Product>
 
     suspend fun getNewArrivals(): List<Product>

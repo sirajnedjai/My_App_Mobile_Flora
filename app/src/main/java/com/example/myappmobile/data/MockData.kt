@@ -3,6 +3,7 @@ package com.example.myappmobile.data
 import com.example.myappmobile.domain.*
 
 object MockData {
+    private const val defaultStoreId = "s1"
 
     val categories = listOf(
         Category("jewelry", "JEWELRY", android.R.drawable.ic_menu_gallery),
@@ -86,6 +87,7 @@ object MockData {
             rating = 5,
             text = "\"The texture is even more beautiful in person. It has a weight and presence that grounds my entire living room.\"",
             isVerified = true,
+            date = "Mar 18, 2026",
         ),
         Review(
             id = "r2",
@@ -93,6 +95,7 @@ object MockData {
             rating = 5,
             text = "\"A true masterpiece of craftsmanship. The glaze catching the light at sunset is magical.\"",
             isVerified = true,
+            date = "Mar 06, 2026",
         ),
         Review(
             id = "r3",
@@ -100,11 +103,13 @@ object MockData {
             rating = 5,
             text = "\"Arrived perfectly packaged. The organic shape makes it feel like it was grown rather than made.\"",
             isVerified = true,
+            date = "Feb 27, 2026",
         ),
     )
 
     val sculptedRippleVase = ProductDetails(
         id = "prv1",
+        sellerId = defaultStoreId,
         name = "The Sculpted\nRipple Vase",
         collectionLabel = "SPRING COLLECTION '24",
         price = 185.0,
@@ -113,8 +118,10 @@ object MockData {
         dimensions = "9\" H × 6\" W",
         images = listOf(
             "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
-            "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400",
-            "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=400",
+            "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800",
+            "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=800",
+            "https://images.unsplash.com/photo-1517705008128-361805f42e86?w=800",
+            "https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=800",
         ),
         artist = artist,
         reviews = reviews,
@@ -133,6 +140,22 @@ object MockData {
                 price = 88.0,
                 imageUrl = "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400",
                 studio = "CLAY & CO",
+                category = ceramicsCategory,
+            ),
+            Product(
+                id = "sim3",
+                name = "Moon Kiln Pitcher",
+                price = 146.0,
+                imageUrl = "https://images.unsplash.com/photo-1517705008128-361805f42e86?w=400",
+                studio = "DUNE CERAMICS",
+                category = ceramicsCategory,
+            ),
+            Product(
+                id = "sim4",
+                name = "Contour Serving Plate",
+                price = 124.0,
+                imageUrl = "https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=400",
+                studio = "ATELIER CLAY",
                 category = ceramicsCategory,
             ),
         ),
@@ -159,6 +182,19 @@ object MockData {
 
     fun findProductById(productId: String): Product? = allProducts.firstOrNull { it.id == productId }
 
+    fun storeIdForProduct(productId: String, studioName: String? = null): String {
+        val normalizedStudio = studioName.orEmpty().trim().uppercase()
+        return when {
+            productId == sculptedRippleVase.id -> defaultStoreId
+            normalizedStudio.contains("FLORA") -> "s1"
+            normalizedStudio.contains("AURUM") -> "s2"
+            normalizedStudio.contains("ALBA") -> "s3"
+            normalizedStudio.contains("ELF-READ") -> "s4"
+            normalizedStudio.contains("OAK & BRASS") -> "s5"
+            else -> defaultStoreId
+        }
+    }
+
     fun productDetailsFor(productId: String): ProductDetails {
         if (productId == sculptedRippleVase.id) {
             return sculptedRippleVase
@@ -167,19 +203,36 @@ object MockData {
         val product = findProductById(productId) ?: return sculptedRippleVase
         return ProductDetails(
             id = product.id,
+            sellerId = storeIdForProduct(product.id, product.studio),
             name = product.name,
             collectionLabel = product.category.name,
             price = product.price,
             story = "A handcrafted piece selected from our atelier catalogue. Each item is made in limited batches and finished by hand.",
             material = "Hand-finished artisan material",
             dimensions = "Details available on request",
-            images = listOf(product.imageUrl) + sculptedRippleVase.images.drop(1),
+            images = galleryImagesFor(product.imageUrl),
             artist = artist.copy(name = product.studio),
             reviews = reviews,
-            similarProducts = allProducts
-                .filter { it.id != product.id && it.category.id == product.category.id }
-                .take(2),
+            similarProducts = relatedProductsFor(product.id, product.category.id),
             isFavorited = product.isFavorited,
         )
+    }
+
+    private fun galleryImagesFor(primaryImageUrl: String): List<String> = buildList {
+        add(primaryImageUrl)
+        addAll(
+            listOf(
+                "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800",
+                "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=800",
+                "https://images.unsplash.com/photo-1517705008128-361805f42e86?w=800",
+                "https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=800",
+            ),
+        )
+    }.distinct().take(5)
+
+    private fun relatedProductsFor(productId: String, categoryId: String): List<Product> {
+        val sameCategory = allProducts.filter { it.id != productId && it.category.id == categoryId }
+        val fallback = allProducts.filter { it.id != productId && it.category.id != categoryId }
+        return (sameCategory + fallback).distinctBy(Product::id).take(6)
     }
 }

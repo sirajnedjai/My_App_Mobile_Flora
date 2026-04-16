@@ -12,5 +12,6 @@ data class HomeUiState(
     val newArrivals: List<Product> = emptyList(),
     val emailInput: String = "",
     val isSubscribed: Boolean = false,
+    val canUseWishlist: Boolean = true,
     val error: String? = null,
 )

@@ -86,7 +86,7 @@ class LoginViewModel : ViewModel() {
 
             LoginEvent.ConsumeLoginSuccess -> {
                 Log.d(TAG, "Login success consumed")
-                _uiState.update { it.copy(isLoginSuccess = false) }
+                _uiState.update { it.copy(isLoginSuccess = false, authenticatedRole = null) }
             }
 
             is LoginEvent.LoginFailed -> {
@@ -140,13 +140,20 @@ class LoginViewModel : ViewModel() {
                 loginUseCase(_uiState.value.email, _uiState.value.password)
                     .onSuccess {
                         Log.d(TAG, "Login successful")
-                        _uiState.update { state -> state.copy(isLoading = false, isLoginSuccess = true) }
+                        _uiState.update { state ->
+                            state.copy(
+                                isLoading = false,
+                                isLoginSuccess = true,
+                                authenticatedRole = if (it.isSeller) "Seller" else "Customer",
+                            )
+                        }
                     }
                     .onFailure { error ->
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
                                 isLoginSuccess = false,
+                                authenticatedRole = null,
                                 generalError = error.message ?: "Login failed. Please try again."
                             )
                         }
@@ -157,6 +164,7 @@ class LoginViewModel : ViewModel() {
                     it.copy(
                         isLoading = false,
                         isLoginSuccess = false,
+                        authenticatedRole = null,
                         generalError = e.message ?: "Login failed. Please try again."
                     )
                 }

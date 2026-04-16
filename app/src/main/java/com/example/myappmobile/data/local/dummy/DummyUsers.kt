@@ -7,8 +7,8 @@ object DummyUsers {
 
     val buyer = User(
         id = "u1",
-        fullName = "Julian Thorne",
-        email = "julian.thorne@flora.com",
+        fullName = "Baha",
+        email = "baha@flora.com",
         phone = "+1 (555) 234-8890",
         avatarUrl = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
         membershipTier = "PREMIUM MEMBER",
@@ -37,8 +37,8 @@ object DummyUsers {
 
     val seller = User(
         id = "s1",
-        fullName = "Sienna Moretti",
-        email = "sienna@flora.com",
+        fullName = "Bachir",
+        email = "bachir@flora.com",
         phone = "+39 055 234-8890",
         avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
         membershipTier = "MASTER CERAMICIST",
@@ -50,7 +50,7 @@ object DummyUsers {
         Address(
             id = "addr1",
             label = "Home — Primary",
-            fullName = "Julian Thorne",
+            fullName = "Baha",
             street = "124 West 22nd St, Apt 4B",
             city = "Chelsea",
             postalCode = "NY 10011",

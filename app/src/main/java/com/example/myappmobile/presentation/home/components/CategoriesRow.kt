@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.*
@@ -29,9 +30,9 @@ fun CategoriesRow(
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
-        modifier = modifier.padding(vertical = 8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.padding(vertical = 12.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         items(categories) { category ->
             CategoryChip(
@@ -50,52 +51,71 @@ private fun CategoryChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Surface(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .width(94.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        ),
     ) {
-        Box(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .size(48.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .background(CreamDark),
-            contentAlignment = Alignment.Center,
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 14.dp),
         ) {
-            val painter = runCatching { painterResource(id = iconRes) }
-                .onFailure { throwable ->
-                    Log.e(
-                        LOGIN_DEBUG,
-                        "Category icon load failed for label=$label iconRes=$iconRes. Falling back safely.",
-                        throwable,
-                    )
-                }
-                .getOrNull()
+            Surface(
+                shape = RoundedCornerShape(20.dp),
+                color = Terracotta.copy(alpha = 0.12f),
+                tonalElevation = 1.dp,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .background(color = Terracotta.copy(alpha = 0.04f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val painter = runCatching { painterResource(id = iconRes) }
+                        .onFailure { throwable ->
+                            Log.e(
+                                LOGIN_DEBUG,
+                                "Category icon load failed for label=$label iconRes=$iconRes. Falling back safely.",
+                                throwable,
+                            )
+                        }
+                        .getOrNull()
 
-            if (painter != null) {
-                Icon(
-                    painter = painter,
-                    contentDescription = label,
-                    tint = CharcoalMid,
-                    modifier = Modifier.size(22.dp),
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Outlined.Storefront,
-                    contentDescription = label,
-                    tint = CharcoalMid,
-                    modifier = Modifier.size(22.dp),
-                )
+                    if (painter != null) {
+                        Icon(
+                            painter = painter,
+                            contentDescription = label,
+                            tint = Terracotta,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.Storefront,
+                            contentDescription = label,
+                            tint = Terracotta,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                }
             }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+            )
         }
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = CharcoalLight,
-        )
     }
 }
 

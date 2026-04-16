@@ -53,7 +53,6 @@ private const val LOGIN_SCREEN_TAG = "LOGIN_DEBUG"
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -62,16 +61,7 @@ fun LoginScreen(
     // Observe login success
     LaunchedEffect(uiState.isLoginSuccess) {
         if (uiState.isLoginSuccess) {
-            Log.d(LOGIN_SCREEN_TAG, "Login success observed, navigating")
-            runCatching { onLoginSuccess() }
-                .onFailure { throwable ->
-                    Log.e(LOGIN_SCREEN_TAG, "Navigation after login failed", throwable)
-                    viewModel.onEvent(
-                        LoginEvent.LoginFailed(
-                            throwable.message ?: "Unable to open the home screen."
-                        )
-                    )
-                }
+            Log.d(LOGIN_SCREEN_TAG, "Login success observed")
             viewModel.onEvent(LoginEvent.ConsumeLoginSuccess)
         }
     }

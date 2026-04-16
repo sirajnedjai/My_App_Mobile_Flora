@@ -1,5 +1,7 @@
 package com.example.myappmobile.domain
 
+import com.example.myappmobile.domain.model.SellerApprovalStatus
+
 data class Product(
     val id: String,
     val name: String,
@@ -13,6 +15,7 @@ data class Product(
 
 data class ProductDetails(
     val id: String,
+    val sellerId: String = "",
     val name: String,
     val collectionLabel: String,
     val price: Double,
@@ -33,6 +36,7 @@ data class ArtistProfile(
     val rating: Float,
     val reviewCount: Int,
     val studioName: String,
+    val sellerApprovalStatus: SellerApprovalStatus = SellerApprovalStatus.PENDING,
 )
 
 data class Review(
@@ -41,6 +45,7 @@ data class Review(
     val rating: Int,
     val text: String,
     val isVerified: Boolean,
+    val date: String = "",
 )
 
 data class Category(

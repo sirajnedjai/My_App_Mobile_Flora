@@ -15,6 +15,7 @@ data class RegisterUiState(
     val selectedAccountType: AccountType = AccountType.BUYER,
     val isLoading: Boolean = false,
     val isRegisterSuccess: Boolean = false,
+    val successMessage: String? = null,
     val fullNameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,

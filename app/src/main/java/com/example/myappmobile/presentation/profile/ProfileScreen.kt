@@ -15,21 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -40,12 +40,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,51 +56,70 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.myappmobile.core.navigation.AppBottomBar
+import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.SmallActionButton
+import com.example.myappmobile.core.localization.LanguageManager
 import com.example.myappmobile.core.theme.FloraBeige
 import com.example.myappmobile.core.theme.FloraBrown
 import com.example.myappmobile.core.theme.FloraDivider
-import com.example.myappmobile.core.theme.FloraError
+import com.example.myappmobile.core.theme.FloraSelectedCard
 import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextMuted
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.FloraTheme
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneFaint
-import com.example.myappmobile.core.theme.White
 import com.example.myappmobile.data.local.dummy.DummyUsers
+import com.example.myappmobile.R
+import com.example.myappmobile.core.localization.AppLanguage
 
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit = {},
-    onMenuClick: () -> Unit = {},
     onSettingClick: (String) -> Unit = {},
-    onDeleteAccountClick: () -> Unit = {},
+    onLogoutClick: () -> Unit = {},
     selectedRoute: String = "profile",
     onBottomNavClick: (String) -> Unit = {},
     viewModel: ProfileViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val showLanguageDialog = remember { mutableStateOf(false) }
 
     ProfileScreenContent(
         uiState = uiState,
         onBack = onBack,
-        onMenuClick = onMenuClick,
-        onSettingClick = onSettingClick,
+        onSettingClick = { settingId ->
+            if (settingId == "application_language") {
+                showLanguageDialog.value = true
+            } else {
+                onSettingClick(settingId)
+            }
+        },
         onDarkModeToggle = viewModel::onDarkModeToggled,
-        onDeleteAccountClick = onDeleteAccountClick,
+        onLogoutClick = onLogoutClick,
         selectedRoute = selectedRoute,
         onBottomNavClick = onBottomNavClick,
     )
+
+    if (showLanguageDialog.value) {
+        LanguageSelectionDialog(
+            selectedLanguageCode = uiState.selectedLanguageCode,
+            onDismiss = { showLanguageDialog.value = false },
+            onSelect = { code ->
+                showLanguageDialog.value = false
+                viewModel.onLanguageSelected(code)
+            },
+        )
+    }
 }
 
 @Composable
 private fun ProfileScreenContent(
     uiState: ProfileUiState,
     onBack: () -> Unit,
-    onMenuClick: () -> Unit,
     onSettingClick: (String) -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
-    onDeleteAccountClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     selectedRoute: String,
     onBottomNavClick: (String) -> Unit,
 ) {
@@ -106,7 +128,6 @@ private fun ProfileScreenContent(
         topBar = {
             ProfileHeader(
                 onBack = onBack,
-                onMenuClick = onMenuClick,
             )
         },
         bottomBar = {
@@ -125,53 +146,49 @@ private fun ProfileScreenContent(
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             item {
-                ProfileCard(user = uiState.user)
+                ProfileCard(
+                    user = uiState.user,
+                    phoneNumber = uiState.phoneNumber,
+                    address = uiState.address,
+                )
             }
 
             item {
                 SettingsSection(
-                    title = "Buyer Account",
+                    title = stringResource(R.string.profile_buyer_account),
                     items = uiState.buyerSettings,
                     onItemClick = onSettingClick,
                 )
             }
 
-            item {
-                SettingsSection(
-                    title = "Seller Dashboard",
-                    items = uiState.sellerSettings,
-                    onItemClick = onSettingClick,
-                )
+            if (uiState.showSellerTools) {
+                item {
+                    SettingsSection(
+                        title = stringResource(R.string.profile_seller_dashboard),
+                        items = uiState.sellerSettings,
+                        onItemClick = onSettingClick,
+                    )
+                }
             }
 
             item {
                 ToggleItem(
                     icon = Icons.Outlined.DarkMode,
-                    title = "Dark Mode",
-                    subtitle = "Switch the atelier into an evening ambiance.",
+                    title = stringResource(R.string.profile_dark_mode),
+                    subtitle = stringResource(R.string.profile_dark_mode_subtitle),
                     checked = uiState.darkModeEnabled,
                     onCheckedChange = onDarkModeToggle,
                 )
             }
 
             item {
-                Surface(
+                SmallActionButton(
+                    text = stringResource(R.string.profile_logout),
+                    onClick = onLogoutClick,
+                    leadingIcon = Icons.AutoMirrored.Outlined.Logout,
+                    danger = true,
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color.Transparent,
-                ) {
-                    Text(
-                        text = "Delete Account & Data",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = FloraError,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(MaterialTheme.shapes.large)
-                            .clickable(onClick = onDeleteAccountClick)
-                            .padding(vertical = 12.dp),
-                    )
-                }
+                )
             }
         }
     }
@@ -181,12 +198,11 @@ private fun ProfileScreenContent(
 @Composable
 fun ProfileHeader(
     onBack: () -> Unit,
-    onMenuClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "Settings",
+                text = stringResource(R.string.profile_settings),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = SerifFontFamily,
                     fontStyle = FontStyle.Italic,
@@ -195,22 +211,11 @@ fun ProfileHeader(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = FloraText,
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = onMenuClick) {
-                Icon(
-                    imageVector = Icons.Outlined.MoreHoriz,
-                    contentDescription = "More options",
-                    tint = FloraText,
-                )
-            }
+            CircularIconButton(
+                icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.common_back),
+                onClick = onBack,
+            )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = FloraBeige,
@@ -220,11 +225,15 @@ fun ProfileHeader(
 }
 
 @Composable
-fun ProfileCard(user: com.example.myappmobile.domain.model.User?) {
+fun ProfileCard(
+    user: com.example.myappmobile.domain.model.User?,
+    phoneNumber: String,
+    address: String,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = White.copy(alpha = 0.72f)),
+        colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.88f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
     ) {
         Column(
@@ -238,7 +247,7 @@ fun ProfileCard(user: com.example.myappmobile.domain.model.User?) {
                     .size(88.dp)
                     .clip(CircleShape)
                     .background(StoneFaint)
-                    .border(2.dp, White.copy(alpha = 0.7f), CircleShape),
+                    .border(2.dp, FloraSelectedCard.copy(alpha = 0.7f), CircleShape),
             ) {
                 AsyncImage(
                     model = user?.avatarUrl,
@@ -263,10 +272,26 @@ fun ProfileCard(user: com.example.myappmobile.domain.model.User?) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = user?.membershipTier ?: "Authenticated Member",
+                text = user?.membershipTier ?: stringResource(R.string.profile_authenticated_member),
                 style = MaterialTheme.typography.labelMedium,
                 color = FloraBrown,
             )
+            if (phoneNumber.isNotBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = phoneNumber,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraTextSecondary,
+                )
+            }
+            if (address.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = address,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraTextMuted,
+                )
+            }
         }
     }
 }
@@ -290,7 +315,7 @@ fun SettingsSection(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = White.copy(alpha = 0.8f)),
+            colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.92f)),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         ) {
             Column(modifier = Modifier.padding(vertical = 6.dp)) {
@@ -327,17 +352,17 @@ fun SettingsItem(
     ) {
         SettingsLeadingIcon(icon = item.icon)
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = FloraText,
-            )
+                    Text(
+                        text = stringResource(item.titleRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = FloraText,
+                    )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = item.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = FloraTextSecondary,
-            )
+                    Text(
+                        text = stringResource(item.subtitleRes),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraTextSecondary,
+                    )
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
@@ -346,6 +371,73 @@ fun SettingsItem(
             modifier = Modifier.size(16.dp),
         )
     }
+}
+
+@Composable
+private fun LanguageSelectionDialog(
+    selectedLanguageCode: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(R.string.language_dialog_title),
+                color = FloraText,
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                LanguageManager.supportedLanguages.forEach { language ->
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = if (selectedLanguageCode == language.code) {
+                            FloraSelectedCard
+                        } else {
+                            Color.Transparent
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(language.code) },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Language,
+                                contentDescription = null,
+                                tint = if (selectedLanguageCode == language.code) FloraBrown else FloraTextSecondary,
+                            )
+                            Column {
+                                Text(
+                                    text = when (language) {
+                                        AppLanguage.ARABIC -> stringResource(R.string.language_arabic)
+                                        AppLanguage.ENGLISH -> stringResource(R.string.language_english)
+                                        AppLanguage.FRENCH -> stringResource(R.string.language_french)
+                                    },
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = FloraText,
+                                )
+                                Text(
+                                    text = stringResource(R.string.language_code_format, language.code),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = FloraTextSecondary,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {},
+        containerColor = FloraBeige,
+    )
 }
 
 @Composable
@@ -359,7 +451,7 @@ fun ToggleItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = White.copy(alpha = 0.8f)),
+        colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.92f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
         Row(
@@ -387,9 +479,9 @@ fun ToggleItem(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = White,
+                    checkedThumbColor = FloraSelectedCard,
                     checkedTrackColor = FloraBrown,
-                    uncheckedThumbColor = White,
+                    uncheckedThumbColor = FloraSelectedCard,
                     uncheckedTrackColor = FloraDivider,
                 ),
             )
@@ -422,15 +514,16 @@ private fun ProfileScreenPreview() {
         ProfileScreenContent(
             uiState = ProfileUiState(
                 user = DummyUsers.elena.copy(membershipTier = "Authenticated Member"),
+                phoneNumber = DummyUsers.elena.phone,
+                address = "West Village, New York",
                 darkModeEnabled = true,
                 buyerSettings = emptyList(),
                 sellerSettings = emptyList(),
             ),
             onBack = {},
-            onMenuClick = {},
             onSettingClick = {},
             onDarkModeToggle = {},
-            onDeleteAccountClick = {},
+            onLogoutClick = {},
             selectedRoute = "profile",
             onBottomNavClick = {},
         )

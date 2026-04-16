@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -25,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.util.PatternsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.PrimaryButton
 
 @Composable
 fun ForgotPasswordScreen(
@@ -74,13 +73,11 @@ fun ForgotPasswordScreen(
                 },
             )
             Spacer(modifier = Modifier.height(24.dp))
-            Button(
+            PrimaryButton(
+                text = "Continue",
                 onClick = onContinue,
                 enabled = uiState.isValid && emailError == null,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Continue")
-            }
+            )
         }
     }
 }
@@ -91,12 +88,11 @@ private fun ForgotPasswordTopBar(onBack: () -> Unit) {
     TopAppBar(
         title = { Text("Forgot Password") },
         navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                )
-            }
+            CircularIconButton(
+                icon = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                onClick = onBack,
+            )
         },
     )
 }

@@ -1,5 +1,6 @@
 package com.example.myappmobile.presentation.seller.about
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
@@ -8,7 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AboutStoreViewModel : ViewModel() {
+class AboutStoreViewModel(
+    savedStateHandle: SavedStateHandle,
+) : ViewModel() {
+    private val sellerId: String = savedStateHandle["sellerId"] ?: "s1"
 
     private val _uiState = MutableStateFlow(AboutStoreUiState())
     val uiState: StateFlow<AboutStoreUiState> = _uiState.asStateFlow()
@@ -16,7 +20,7 @@ class AboutStoreViewModel : ViewModel() {
     init {
         viewModelScope.launch {
             _uiState.value = AboutStoreUiState(
-                store = AppContainer.getStoreDetailsUseCase("s1")
+                store = AppContainer.getStoreDetailsUseCase(sellerId)
             )
         }
     }

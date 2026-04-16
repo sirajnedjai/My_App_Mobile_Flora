@@ -1,10 +1,22 @@
 package com.example.myappmobile.core.di
 
 import com.example.myappmobile.data.repository.AuthRepositoryImpl
+import com.example.myappmobile.data.repository.AccountSettingsRepository
+import com.example.myappmobile.data.repository.AndroidLocalNotificationGateway
 import com.example.myappmobile.data.repository.CartRepositoryImpl
+import com.example.myappmobile.data.repository.NotificationRepository
+import com.example.myappmobile.data.repository.NotificationBackendApi
+import com.example.myappmobile.data.repository.NotificationNavigationRepository
 import com.example.myappmobile.data.repository.OrderRepositoryImpl
+import com.example.myappmobile.data.repository.OrderNotificationService
 import com.example.myappmobile.data.repository.ProductRepositoryImpl
+import com.example.myappmobile.data.repository.ProductReviewRepository
+import com.example.myappmobile.data.repository.ReviewEligibilityService
+import com.example.myappmobile.data.repository.SearchHistoryRepository
+import com.example.myappmobile.data.repository.SellerManagementRepository
+import com.example.myappmobile.data.repository.ShopFilterRepository
 import com.example.myappmobile.data.repository.StoreRepositoryImpl
+import com.example.myappmobile.data.repository.UiPreferencesRepository
 import com.example.myappmobile.domain.usecase.auth.LoginUseCase
 import com.example.myappmobile.domain.usecase.auth.RegisterUseCase
 import com.example.myappmobile.domain.usecase.cart.AddToCartUseCase
@@ -19,11 +31,26 @@ import com.example.myappmobile.domain.usecase.store.GetStoreDetailsUseCase
 import com.example.myappmobile.domain.usecase.store.GetStoreProductsUseCase
 
 object AppContainer {
+    val uiPreferencesRepository = UiPreferencesRepository()
+    val accountSettingsRepository = AccountSettingsRepository()
+    val notificationRepository = NotificationRepository()
+    val notificationBackendApi = NotificationBackendApi()
+    val notificationNavigationRepository = NotificationNavigationRepository()
+    val localNotificationGateway = AndroidLocalNotificationGateway()
+    val searchHistoryRepository = SearchHistoryRepository()
+    val shopFilterRepository = ShopFilterRepository()
     val authRepository = AuthRepositoryImpl()
     val productRepository = ProductRepositoryImpl()
     val cartRepository = CartRepositoryImpl()
-    val orderRepository = OrderRepositoryImpl(cartRepository)
+    val orderRepository = OrderRepositoryImpl(cartRepository, authRepository)
+    val notificationService = OrderNotificationService(
+        notificationBackendApi = notificationBackendApi,
+        accountSettingsRepository = accountSettingsRepository,
+    )
+    val reviewEligibilityService = ReviewEligibilityService()
+    val productReviewRepository = ProductReviewRepository(authRepository, orderRepository, reviewEligibilityService)
     val storeRepository = StoreRepositoryImpl()
+    val sellerManagementRepository = SellerManagementRepository()
 
     val loginUseCase = LoginUseCase(authRepository)
     val registerUseCase = RegisterUseCase(authRepository)

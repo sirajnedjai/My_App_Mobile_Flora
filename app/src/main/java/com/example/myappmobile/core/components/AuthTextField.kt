@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -82,7 +83,13 @@ fun AuthTextField(
             keyboardActions = keyboardActions,
             trailingIcon = {
                 if (isPassword && onPasswordToggle != null) {
-                    IconButton(onClick = onPasswordToggle) {
+                    IconButton(
+                        onClick = onPasswordToggle,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = FloraTextSecondary,
+                        ),
+                    ) {
                         Icon(
                             imageVector = if (passwordVisible) {
                                 Icons.Outlined.VisibilityOff
@@ -90,7 +97,6 @@ fun AuthTextField(
                                 Icons.Outlined.Visibility
                             },
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                            tint = FloraTextSecondary,
                         )
                     }
                 }

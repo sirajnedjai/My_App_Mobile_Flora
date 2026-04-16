@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Carpenter
 import androidx.compose.material.icons.outlined.ShoppingBasket
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -61,6 +62,10 @@ fun RegisterScreen(
 
     LaunchedEffect(uiState.isRegisterSuccess) {
         if (uiState.isRegisterSuccess) {
+            snackbarHostState.showSnackbar(
+                message = uiState.successMessage ?: "Account created successfully",
+                duration = SnackbarDuration.Short,
+            )
             onRegisterSuccess()
             viewModel.onEvent(RegisterEvent.ConsumeRegisterSuccess)
         }

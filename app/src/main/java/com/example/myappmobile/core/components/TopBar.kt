@@ -8,16 +8,16 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.CharcoalDark
 import com.example.myappmobile.core.theme.Cream
 import com.example.myappmobile.core.theme.FloraBeige
@@ -47,24 +47,20 @@ fun FloraTopBar(
         },
         navigationIcon = {
             if (showNavigationIcon) {
-                IconButton(onClick = onMenuClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.Menu,
-                        contentDescription = "Open menu",
-                        tint = FloraText,
-                    )
-                }
+                CircularIconButton(
+                    icon = Icons.Outlined.Menu,
+                    contentDescription = stringResource(R.string.common_open_menu),
+                    onClick = onMenuClick,
+                )
             }
         },
         actions = {
             if (showCartIcon) {
-                IconButton(onClick = onCartClick) {
-                    Icon(
-                        imageVector = Icons.Outlined.ShoppingBag,
-                        contentDescription = "Shopping cart",
-                        tint = FloraText,
-                    )
-                }
+                CircularIconButton(
+                    icon = Icons.Outlined.ShoppingBag,
+                    contentDescription = stringResource(R.string.common_shopping_cart),
+                    onClick = onCartClick,
+                )
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -77,7 +73,7 @@ fun FloraTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    title: String = "The Atelier",
+    title: String = "",
     onBack: (() -> Unit)? = null,
     onSearch: () -> Unit = {},
     onCart: () -> Unit = {},
@@ -86,18 +82,16 @@ fun TopBar(
     TopAppBar(
         navigationIcon = {
             if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = CharcoalDark,
-                    )
-                }
+                CircularIconButton(
+                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.common_back),
+                    onClick = onBack,
+                )
             }
         },
         title = {
             Text(
-                text = title,
+                text = title.ifBlank { stringResource(R.string.common_the_atelier) },
                 style = MaterialTheme.typography.headlineMedium,
                 color = CharcoalDark,
                 textAlign = TextAlign.Center,
@@ -105,20 +99,16 @@ fun TopBar(
             )
         },
         actions = {
-            IconButton(onClick = onSearch) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = CharcoalDark,
-                )
-            }
-            IconButton(onClick = onCart) {
-                Icon(
-                    imageVector = Icons.Outlined.ShoppingBag,
-                    contentDescription = "Cart",
-                    tint = CharcoalDark,
-                )
-            }
+            CircularIconButton(
+                icon = Icons.Default.Search,
+                contentDescription = stringResource(R.string.nav_search),
+                onClick = onSearch,
+            )
+            CircularIconButton(
+                icon = Icons.Outlined.ShoppingBag,
+                contentDescription = stringResource(R.string.common_cart),
+                onClick = onCart,
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Cream,

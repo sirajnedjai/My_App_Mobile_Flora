@@ -3,6 +3,7 @@ package com.example.myappmobile.data.local.dummy
 import com.example.myappmobile.domain.model.Collection
 import com.example.myappmobile.domain.model.LedgerEntry
 import com.example.myappmobile.domain.model.Review
+import com.example.myappmobile.domain.model.SellerApprovalStatus
 import com.example.myappmobile.domain.model.Store
 
 object DummyStores {
@@ -26,6 +27,7 @@ object DummyStores {
         lifetimeEarnings = 84210.0,
         categories = listOf("Ceramics", "Textiles"),
         story = "Based in the sun-soaked valleys of Tuscany, Sienna Moretti's work is a dialogue between raw earth and human touch. Her practice centers on the philosophy of Wabi-Sabi — finding beauty in the imperfect and the ephemeral.\n\nEach ceramic vessel is hand-thrown using local clays, and every textile piece is woven on a traditional floor loom using organic linens dyed with botanical extracts from her own garden. This is slow craft, intended to bring a sense of quietude to the modern home.",
+        approvalStatus = SellerApprovalStatus.APPROVED,
     )
 
     val collections = listOf(

@@ -28,6 +28,7 @@ class RegisterViewModel : ViewModel() {
             it.copy(
                 isLoading = false,
                 isRegisterSuccess = false,
+                successMessage = null,
                 generalError = throwable.message ?: "Registration failed. Please try again."
             )
         }
@@ -37,44 +38,44 @@ class RegisterViewModel : ViewModel() {
         when (event) {
             is RegisterEvent.FullNameChanged -> {
                 _uiState.update {
-                    it.copy(fullName = event.name, fullNameError = null, generalError = null)
+                    it.copy(fullName = event.name, fullNameError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.EmailChanged -> {
                 _uiState.update {
-                    it.copy(email = event.email.trim(), emailError = null, generalError = null)
+                    it.copy(email = event.email.trim(), emailError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.PasswordChanged -> {
                 _uiState.update {
-                    it.copy(password = event.password, passwordError = null, confirmPasswordError = null, generalError = null)
+                    it.copy(password = event.password, passwordError = null, confirmPasswordError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.ConfirmPasswordChanged -> {
                 _uiState.update {
-                    it.copy(confirmPassword = event.confirmPassword, confirmPasswordError = null, generalError = null)
+                    it.copy(confirmPassword = event.confirmPassword, confirmPasswordError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.PhoneNumberChanged -> {
                 val normalized = event.phoneNumber.filter { char -> char.isDigit() || char == '+' }
                 _uiState.update {
-                    it.copy(phoneNumber = normalized, phoneNumberError = null, generalError = null)
+                    it.copy(phoneNumber = normalized, phoneNumberError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.StoreNameChanged -> {
                 _uiState.update {
-                    it.copy(storeName = event.storeName, storeNameError = null, generalError = null)
+                    it.copy(storeName = event.storeName, storeNameError = null, generalError = null, successMessage = null)
                 }
             }
 
             is RegisterEvent.AddressChanged -> {
                 _uiState.update {
-                    it.copy(address = event.address, addressError = null, generalError = null)
+                    it.copy(address = event.address, addressError = null, generalError = null, successMessage = null)
                 }
             }
 
@@ -87,10 +88,11 @@ class RegisterViewModel : ViewModel() {
                             storeName = "",
                             addressError = null,
                             storeNameError = null,
-                            generalError = null
+                            generalError = null,
+                            successMessage = null,
                         )
                     } else {
-                        it.copy(selectedAccountType = event.type, generalError = null)
+                        it.copy(selectedAccountType = event.type, generalError = null, successMessage = null)
                     }
                 }
             }
@@ -113,7 +115,7 @@ class RegisterViewModel : ViewModel() {
             RegisterEvent.NavigateToLogin -> Unit
 
             RegisterEvent.ConsumeRegisterSuccess -> {
-                _uiState.update { it.copy(isRegisterSuccess = false) }
+                _uiState.update { it.copy(isRegisterSuccess = false, successMessage = null) }
             }
 
             RegisterEvent.ClearError -> {
@@ -216,12 +218,19 @@ class RegisterViewModel : ViewModel() {
                     storeName = state.storeName,
                     address = state.address,
                 ).onSuccess {
-                    _uiState.update { current -> current.copy(isLoading = false, isRegisterSuccess = true) }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            isRegisterSuccess = true,
+                            successMessage = "Account created successfully",
+                        )
+                    }
                 }.onFailure { error ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
                             isRegisterSuccess = false,
+                            successMessage = null,
                             generalError = error.message ?: "Registration failed. Please try again."
                         )
                     }
@@ -232,6 +241,7 @@ class RegisterViewModel : ViewModel() {
                     it.copy(
                         isLoading = false,
                         isRegisterSuccess = false,
+                        successMessage = null,
                         generalError = exception.message ?: "Registration failed. Please try again."
                     )
                 }

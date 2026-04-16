@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.FloraDivider
 import com.example.myappmobile.core.theme.FloraText
+import com.example.myappmobile.core.theme.FloraTextMuted
 import com.example.myappmobile.core.theme.FloraWhite
 
 @Composable
@@ -31,18 +32,21 @@ fun SocialButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    iconPainter: Painter? = painterResource(id = R.drawable.flora_logo_vectorized),
+    iconPainter: Painter? = null,
     iconTint: Color = FloraText,
 ) {
     OutlinedButton(
         onClick = onClick,
         modifier = modifier.height(54.dp),
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
         border = BorderStroke(1.dp, FloraDivider),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = FloraWhite,
+            containerColor = FloraWhite.copy(alpha = 0.92f),
             contentColor = FloraText,
+            disabledContainerColor = FloraWhite.copy(alpha = 0.6f),
+            disabledContentColor = FloraTextMuted,
         ),
+        contentPadding = ButtonDefaults.ContentPadding,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -52,21 +56,21 @@ fun SocialButton(
                 icon != null -> Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                     tint = iconTint,
                 )
 
-                iconPainter != null -> Icon(
-                    painter = iconPainter,
+                else -> Icon(
+                    painter = iconPainter ?: painterResource(id = R.drawable.flora_logo_vectorized),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(18.dp),
                     tint = Color.Unspecified,
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyMedium.copy(color = FloraText),
+                style = MaterialTheme.typography.titleSmall.copy(color = FloraText),
             )
         }
     }

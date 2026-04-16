@@ -3,10 +3,13 @@ package com.example.myappmobile.domain.repository
 import com.example.myappmobile.domain.model.Address
 import com.example.myappmobile.domain.model.CheckoutDraft
 import com.example.myappmobile.domain.model.Order
+import com.example.myappmobile.domain.model.OrderStatus
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface OrderRepository {
     val checkoutDraft: StateFlow<CheckoutDraft>
+    val orders: StateFlow<List<Order>>
 
     suspend fun updateAddress(address: Address)
 
@@ -17,6 +20,24 @@ interface OrderRepository {
     suspend fun createOrder(): Order
 
     fun getRecentOrders(): List<Order>
+
+    fun getOrdersForCustomer(customerId: String): List<Order>
+
+    fun observeOrdersForCustomer(customerId: String): Flow<List<Order>>
+
+    fun getOrdersForSeller(sellerId: String): List<Order>
+
+    fun observeOrdersForSeller(sellerId: String): Flow<List<Order>>
+
+    fun getOrder(orderId: String): Order?
+
+    fun getOrderForSeller(sellerId: String, orderId: String): Order?
+
+    suspend fun updateOrderStatus(
+        orderId: String,
+        sellerId: String,
+        newStatus: OrderStatus,
+    ): Result<Order>
 
     fun getLatestOrder(): Order?
 }

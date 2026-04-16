@@ -13,9 +13,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.myappmobile.R
 import com.example.myappmobile.core.components.FavoriteButton
 import com.example.myappmobile.core.components.SectionHeader
 import com.example.myappmobile.core.theme.*
@@ -25,6 +27,7 @@ import com.example.myappmobile.domain.Product
 @Composable
 fun FeaturedProductsSection(
     products: List<Product>,
+    canUseWishlist: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteToggle: (String) -> Unit,
     onViewAll: () -> Unit,
@@ -32,15 +35,15 @@ fun FeaturedProductsSection(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = "CURATED SELECTION",
+            text = stringResource(R.string.home_curated_selection),
             style = MaterialTheme.typography.labelMedium,
             color = StoneGray,
             modifier = Modifier.padding(horizontal = 20.dp),
         )
         Spacer(Modifier.height(4.dp))
         SectionHeader(
-            title = "Featured Artifacts",
-            ctaText = "View all",
+            title = stringResource(R.string.home_featured_artifacts),
+            ctaText = stringResource(R.string.common_view_all),
             onCtaClick = onViewAll,
             modifier = Modifier.padding(horizontal = 20.dp),
         )
@@ -50,6 +53,7 @@ fun FeaturedProductsSection(
             products.forEach { product ->
                 FeaturedProductCard(
                     product = product,
+                    canUseWishlist = canUseWishlist,
                     onClick = { onProductClick(product.id) },
                     onFavoriteToggle = { onFavoriteToggle(product.id) },
                     modifier = Modifier.padding(horizontal = 20.dp),
@@ -62,6 +66,7 @@ fun FeaturedProductsSection(
 @Composable
 fun FeaturedProductCard(
     product: Product,
+    canUseWishlist: Boolean,
     onClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
     modifier: Modifier = Modifier,
@@ -94,13 +99,15 @@ fun FeaturedProductCard(
         )
 
         // Favorite button
-        FavoriteButton(
-            isFavorited = product.isFavorited,
-            onToggle = onFavoriteToggle,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(14.dp),
-        )
+        if (canUseWishlist) {
+            FavoriteButton(
+                isFavorited = product.isFavorited,
+                onToggle = onFavoriteToggle,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(14.dp),
+            )
+        }
 
         // Studio + name + price
         Row(
@@ -115,17 +122,17 @@ fun FeaturedProductCard(
                 Text(
                     text = product.studio,
                     style = MaterialTheme.typography.labelSmall.copy(
-                        color = White.copy(alpha = 0.70f),
+                        color = FloraWhite.copy(alpha = 0.70f),
                     ),
                 )
                 Text(
                     text = product.name,
-                    style = MaterialTheme.typography.titleMedium.copy(color = White),
+                    style = MaterialTheme.typography.titleMedium.copy(color = FloraWhite),
                 )
             }
             Text(
                 text = "$${product.price.toInt()}",
-                style = MaterialTheme.typography.titleLarge.copy(color = White),
+                style = MaterialTheme.typography.titleLarge.copy(color = FloraWhite),
             )
         }
     }
@@ -137,6 +144,7 @@ fun FeaturedProductsSectionPreview() {
     AtelierTheme {
         FeaturedProductsSection(
             products = MockData.featuredProducts,
+            canUseWishlist = true,
             onProductClick = {},
             onFavoriteToggle = {},
             onViewAll = {},
@@ -150,6 +158,7 @@ fun FeaturedProductCardPreview() {
     AtelierTheme {
         FeaturedProductCard(
             product = MockData.featuredProducts.first(),
+            canUseWishlist = true,
             onClick = {},
             onFavoriteToggle = {},
             modifier = Modifier.padding(16.dp),

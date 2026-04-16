@@ -17,8 +17,8 @@ class PaymentViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
         PaymentUiState(
             paymentMethod = repository.checkoutDraft.value.paymentMethod,
-            subtotal = AppContainer.cartRepository.cartItems.value.sumOf { it.price },
-            itemCount = AppContainer.cartRepository.cartItems.value.size,
+            subtotal = AppContainer.cartRepository.cartItems.value.sumOf { it.product.price * it.quantity },
+            itemCount = AppContainer.cartRepository.cartItems.value.sumOf { it.quantity },
         )
     )
     val uiState: StateFlow<PaymentUiState> = _uiState.asStateFlow()
