@@ -8,6 +8,7 @@ sealed class RegisterEvent {
     data class PhoneNumberChanged(val phoneNumber: String) : RegisterEvent()
     data class StoreNameChanged(val storeName: String) : RegisterEvent()
     data class AddressChanged(val address: String) : RegisterEvent()
+    data class PostalCodeChanged(val postalCode: String) : RegisterEvent()
     data class AccountTypeSelected(val type: AccountType) : RegisterEvent()
     data object TogglePasswordVisibility : RegisterEvent()
     data object ToggleConfirmPasswordVisibility : RegisterEvent()

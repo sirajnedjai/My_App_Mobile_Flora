@@ -9,10 +9,11 @@ data class SellerOrderDetailUiState(
     val availableStatuses: List<OrderStatus> = listOf(
         OrderStatus.PENDING,
         OrderStatus.CONFIRMED,
-        OrderStatus.HAND_CRAFTED,
         OrderStatus.SHIPPED,
         OrderStatus.DELIVERED,
+        OrderStatus.CANCELLED,
     ),
     val errorMessage: String? = null,
     val successMessage: String? = null,
+    val isUpdatingStatus: Boolean = false,
 )

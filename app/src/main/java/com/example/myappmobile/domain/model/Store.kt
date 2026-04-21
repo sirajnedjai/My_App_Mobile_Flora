@@ -19,7 +19,7 @@ data class Store(
     val lifetimeEarnings: Double = 0.0,
     val categories: List<String> = emptyList(),
     val story: String = "",
-    val approvalStatus: SellerApprovalStatus = SellerApprovalStatus.PENDING,
+    val approvalStatus: SellerApprovalStatus = SellerApprovalStatus.UNKNOWN,
 )
 
 data class Review(

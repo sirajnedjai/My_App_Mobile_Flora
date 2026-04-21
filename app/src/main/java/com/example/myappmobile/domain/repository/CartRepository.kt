@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface CartRepository {
     val cartItems: StateFlow<List<CartItem>>
+    fun getCheckoutCartId(): String?
 
     suspend fun addToCart(product: Product)
 

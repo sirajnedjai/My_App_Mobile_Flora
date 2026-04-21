@@ -36,7 +36,7 @@ data class ArtistProfile(
     val rating: Float,
     val reviewCount: Int,
     val studioName: String,
-    val sellerApprovalStatus: SellerApprovalStatus = SellerApprovalStatus.PENDING,
+    val sellerApprovalStatus: SellerApprovalStatus = SellerApprovalStatus.UNKNOWN,
 )
 
 data class Review(

@@ -69,9 +69,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.StarRatingRow
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.core.theme.CreamDark
@@ -216,6 +217,7 @@ fun SearchScreen(
                             Crossfade(
                                 targetState = when {
                                     uiState.isLoading -> SearchContentState.Loading
+                                    uiState.error != null -> SearchContentState.Error
                                     uiState.results.isEmpty() -> SearchContentState.Empty
                                     else -> SearchContentState.Results
                                 },
@@ -223,6 +225,10 @@ fun SearchScreen(
                             ) { state ->
                                 when (state) {
                                     SearchContentState.Loading -> SearchLoadingState()
+                                    SearchContentState.Error -> SearchErrorState(
+                                        message = uiState.error.orEmpty(),
+                                        onRetry = viewModel::retry,
+                                    )
                                     SearchContentState.Empty -> EmptyStateWidget(
                                         icon = Icons.Outlined.Search,
                                         title = stringResource(R.string.search_no_products_title),
@@ -244,8 +250,33 @@ fun SearchScreen(
 
 private enum class SearchContentState {
     Loading,
+    Error,
     Empty,
     Results,
+}
+
+@Composable
+private fun SearchErrorState(
+    message: String,
+    onRetry: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        EmptyStateWidget(
+            icon = Icons.Outlined.Search,
+            title = "Search unavailable",
+            subtitle = message,
+        )
+        PrimaryButton(
+            text = "Retry",
+            onClick = onRetry,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -838,8 +869,8 @@ private fun SearchProductCard(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            AsyncImage(
-                model = product.imageUrl,
+            FloraRemoteImage(
+                imageUrl = product.imageUrl,
                 contentDescription = product.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

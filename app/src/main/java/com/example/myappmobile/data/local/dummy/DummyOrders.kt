@@ -7,9 +7,11 @@ object DummyOrders {
     val address1 = Address(
         id = "a1",
         fullName = "Eleanor Sterling",
+        state = "New York",
+        municipality = "New York City",
+        neighborhood = "Greenwich Village",
         street = "248 Mercer Street, Apt 4B",
-        city = "New York",
-        postalCode = "NY 10012",
+        postalCode = "10012",
         country = "United States",
         isPrimary = true,
     )
@@ -17,8 +19,10 @@ object DummyOrders {
     val address2 = Address(
         id = "a2",
         fullName = "Julianne Moore",
+        state = "Ile-de-France",
+        municipality = "Paris",
+        neighborhood = "1st arrondissement",
         street = "24 Rue de l'Atelier",
-        city = "Paris",
         postalCode = "75001",
         country = "France",
     )
@@ -109,9 +113,12 @@ object DummyOrders {
         shippingMethod = "Concierge White-Glove",
         shippingAddress = Address(
             fullName = "Julien",
+            state = "Ile-de-France",
+            municipality = "Paris",
+            neighborhood = "1st arrondissement",
             street = "214 Rue de Rivoli",
-            city = "Paris",
             postalCode = "75001",
+            country = "France",
         ),
         placedDate = "Oct 24",
         estimatedDelivery = "Oct 24 — Oct 28",

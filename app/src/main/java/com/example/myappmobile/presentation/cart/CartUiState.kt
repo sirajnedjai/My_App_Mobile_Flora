@@ -4,9 +4,11 @@ import com.example.myappmobile.domain.model.CartItem
 
 data class CartUiState(
     val items: List<CartItem> = emptyList(),
+    val isLoading: Boolean = false,
     val promoCode: String = "",
     val promoApplied: Boolean = false,
     val promoMessage: String? = null,
+    val statusMessage: String? = null,
 ) {
     val itemsCount: Int get() = items.sumOf(CartItem::quantity)
     val uniqueItemsCount: Int get() = items.size

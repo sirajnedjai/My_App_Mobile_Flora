@@ -19,9 +19,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myappmobile.core.components.PrimaryButton
 
 private val paymentOptions = listOf(
-    "Card ending in 4242",
-    "PayPal",
-    "Cash on Delivery",
+    "card" to "Card",
+    "cash_on_delivery" to "Cash on Delivery",
 )
 
 @Composable
@@ -42,14 +41,14 @@ fun PaymentScreen(
             Text("Items: ${uiState.itemCount}")
             Text("Subtotal: $${"%.2f".format(uiState.subtotal)}")
 
-            paymentOptions.forEach { option ->
+            paymentOptions.forEach { (value, label) ->
                 androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth()) {
                     RadioButton(
-                        selected = uiState.paymentMethod == option,
-                        onClick = { viewModel.onPaymentMethodSelected(option) },
+                        selected = uiState.paymentMethod == value,
+                        onClick = { viewModel.onPaymentMethodSelected(value) },
                     )
                     Text(
-                        text = option,
+                        text = label,
                         modifier = Modifier.padding(top = 12.dp),
                     )
                 }

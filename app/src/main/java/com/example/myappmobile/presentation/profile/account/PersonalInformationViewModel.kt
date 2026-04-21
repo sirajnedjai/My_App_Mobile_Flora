@@ -89,6 +89,8 @@ class PersonalInformationViewModel : ViewModel() {
                 fullName = snapshot.fullName,
                 email = snapshot.email,
                 phoneNumber = snapshot.phoneNumber,
+                address = snapshot.address,
+                avatarUrl = snapshot.avatarUrl,
             )
 
             result.fold(

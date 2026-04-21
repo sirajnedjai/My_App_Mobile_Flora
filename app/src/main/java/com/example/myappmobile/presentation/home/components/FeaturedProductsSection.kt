@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.FavoriteButton
 import com.example.myappmobile.core.components.SectionHeader
@@ -30,6 +30,7 @@ fun FeaturedProductsSection(
     canUseWishlist: Boolean,
     onProductClick: (String) -> Unit,
     onFavoriteToggle: (String) -> Unit,
+    pendingFavoriteIds: Set<String>,
     onViewAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,6 +57,7 @@ fun FeaturedProductsSection(
                     canUseWishlist = canUseWishlist,
                     onClick = { onProductClick(product.id) },
                     onFavoriteToggle = { onFavoriteToggle(product.id) },
+                    isFavoriteUpdating = product.id in pendingFavoriteIds,
                     modifier = Modifier.padding(horizontal = 20.dp),
                 )
             }
@@ -69,6 +71,7 @@ fun FeaturedProductCard(
     canUseWishlist: Boolean,
     onClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
+    isFavoriteUpdating: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -79,8 +82,8 @@ fun FeaturedProductCard(
             .background(CreamDark)
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = product.imageUrl,
+        FloraRemoteImage(
+            imageUrl = product.imageUrl,
             contentDescription = product.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
@@ -103,6 +106,7 @@ fun FeaturedProductCard(
             FavoriteButton(
                 isFavorited = product.isFavorited,
                 onToggle = onFavoriteToggle,
+                enabled = !isFavoriteUpdating,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(14.dp),
@@ -147,6 +151,7 @@ fun FeaturedProductsSectionPreview() {
             canUseWishlist = true,
             onProductClick = {},
             onFavoriteToggle = {},
+            pendingFavoriteIds = emptySet(),
             onViewAll = {},
         )
     }
@@ -161,6 +166,7 @@ fun FeaturedProductCardPreview() {
             canUseWishlist = true,
             onClick = {},
             onFavoriteToggle = {},
+            isFavoriteUpdating = false,
             modifier = Modifier.padding(16.dp),
         )
     }

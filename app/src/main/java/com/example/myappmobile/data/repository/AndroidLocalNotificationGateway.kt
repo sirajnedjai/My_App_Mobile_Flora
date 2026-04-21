@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.myappmobile.MainActivity
 import com.example.myappmobile.R
+import com.example.myappmobile.domain.model.NotificationType
 
 class AndroidLocalNotificationGateway {
     private var appContext: Context? = null
@@ -26,16 +27,29 @@ class AndroidLocalNotificationGateway {
         title: String,
         body: String,
         orderId: String,
+    ): Result<Unit> = sendNotification(
+        title = title,
+        body = body,
+        orderId = orderId,
+        type = NotificationType.ORDER_DELIVERED,
+    )
+
+    fun sendNotification(
+        title: String,
+        body: String,
+        orderId: String,
+        type: NotificationType,
     ): Result<Unit> = runCatching {
         val context = requireContext()
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("flora_destination", "notifications")
             putExtra("flora_order_id", orderId)
+            putExtra("flora_notification_type", type.name)
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
-            orderId.hashCode(),
+            "$orderId:${type.name}".hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -55,7 +69,7 @@ class AndroidLocalNotificationGateway {
             .setContentIntent(pendingIntent)
             .build()
 
-        NotificationManagerCompat.from(context).notify(orderId.hashCode(), notification)
+        NotificationManagerCompat.from(context).notify("$orderId:${type.name}".hashCode(), notification)
     }
 
     private fun ensureChannel() {

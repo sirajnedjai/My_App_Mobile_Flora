@@ -19,6 +19,7 @@ data class Product(
     val collectionLabel: String = "",
     val story: String = "",
     val images: List<String> = emptyList(),
+    val status: String = "",
 )
 
 data class ProductVariant(
@@ -26,4 +27,12 @@ data class ProductVariant(
     val palette: String = "",
     val size: String = "",
     val availability: String = "",
+)
+
+data class SellerManagedProductDetails(
+    val product: Product,
+    val status: String = "",
+    val createdAt: String = "",
+    val updatedAt: String = "",
+    val sellerName: String = "",
 )

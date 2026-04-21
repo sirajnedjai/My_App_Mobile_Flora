@@ -1,9 +1,11 @@
 package com.example.myappmobile.core.di
 
+import android.content.Context
 import com.example.myappmobile.data.repository.AuthRepositoryImpl
 import com.example.myappmobile.data.repository.AccountSettingsRepository
 import com.example.myappmobile.data.repository.AndroidLocalNotificationGateway
 import com.example.myappmobile.data.repository.CartRepositoryImpl
+import com.example.myappmobile.data.remote.NetworkModule
 import com.example.myappmobile.data.repository.NotificationRepository
 import com.example.myappmobile.data.repository.NotificationBackendApi
 import com.example.myappmobile.data.repository.NotificationNavigationRepository
@@ -13,10 +15,13 @@ import com.example.myappmobile.data.repository.ProductRepositoryImpl
 import com.example.myappmobile.data.repository.ProductReviewRepository
 import com.example.myappmobile.data.repository.ReviewEligibilityService
 import com.example.myappmobile.data.repository.SearchHistoryRepository
+import com.example.myappmobile.data.repository.SellerDashboardRepository
 import com.example.myappmobile.data.repository.SellerManagementRepository
+import com.example.myappmobile.data.repository.SellerVerificationRepository
 import com.example.myappmobile.data.repository.ShopFilterRepository
 import com.example.myappmobile.data.repository.StoreRepositoryImpl
 import com.example.myappmobile.data.repository.UiPreferencesRepository
+import com.example.myappmobile.data.remote.TokenStorage
 import com.example.myappmobile.domain.usecase.auth.LoginUseCase
 import com.example.myappmobile.domain.usecase.auth.RegisterUseCase
 import com.example.myappmobile.domain.usecase.cart.AddToCartUseCase
@@ -31,6 +36,17 @@ import com.example.myappmobile.domain.usecase.store.GetStoreDetailsUseCase
 import com.example.myappmobile.domain.usecase.store.GetStoreProductsUseCase
 
 object AppContainer {
+    lateinit var applicationContext: Context
+        private set
+
+    fun initializeContext(context: Context) {
+        if (!::applicationContext.isInitialized) {
+            applicationContext = context.applicationContext
+        }
+    }
+
+    val tokenStorage = TokenStorage()
+    val networkModule = NetworkModule(tokenStorage)
     val uiPreferencesRepository = UiPreferencesRepository()
     val accountSettingsRepository = AccountSettingsRepository()
     val notificationRepository = NotificationRepository()
@@ -39,18 +55,61 @@ object AppContainer {
     val localNotificationGateway = AndroidLocalNotificationGateway()
     val searchHistoryRepository = SearchHistoryRepository()
     val shopFilterRepository = ShopFilterRepository()
-    val authRepository = AuthRepositoryImpl()
-    val productRepository = ProductRepositoryImpl()
-    val cartRepository = CartRepositoryImpl()
-    val orderRepository = OrderRepositoryImpl(cartRepository, authRepository)
+    val authRepository = AuthRepositoryImpl(
+        authApiService = networkModule.authApiService,
+        tokenStorage = tokenStorage,
+        gson = networkModule.gson,
+    )
+    val storeRepository = StoreRepositoryImpl(
+        storeApiService = networkModule.storeApiService,
+        gson = networkModule.gson,
+    )
+    val productRepository = ProductRepositoryImpl(
+        productApiService = networkModule.productApiService,
+        favoriteApiService = networkModule.favoriteApiService,
+        authRepository = authRepository,
+        storeRepository = storeRepository,
+        gson = networkModule.gson,
+    )
+    val cartRepository = CartRepositoryImpl(
+        cartApiService = networkModule.cartApiService,
+        authRepository = authRepository,
+        gson = networkModule.gson,
+    )
+    val orderRepository = OrderRepositoryImpl(
+        cartRepository = cartRepository,
+        authRepository = authRepository,
+        accountSettingsRepository = accountSettingsRepository,
+        orderApiService = networkModule.orderApiService,
+        sellerOrderApiService = networkModule.sellerOrderApiService,
+        gson = networkModule.gson,
+    )
     val notificationService = OrderNotificationService(
         notificationBackendApi = notificationBackendApi,
         accountSettingsRepository = accountSettingsRepository,
     )
     val reviewEligibilityService = ReviewEligibilityService()
-    val productReviewRepository = ProductReviewRepository(authRepository, orderRepository, reviewEligibilityService)
-    val storeRepository = StoreRepositoryImpl()
-    val sellerManagementRepository = SellerManagementRepository()
+    val productReviewRepository = ProductReviewRepository(
+        authRepository = authRepository,
+        orderRepository = orderRepository,
+        reviewEligibilityService = reviewEligibilityService,
+        reviewApiService = networkModule.reviewApiService,
+        gson = networkModule.gson,
+    )
+    val sellerManagementRepository = SellerManagementRepository(
+        productApiService = networkModule.productApiService,
+        sellerProductApiService = networkModule.sellerProductApiService,
+        gson = networkModule.gson,
+    )
+    val sellerDashboardRepository = SellerDashboardRepository(
+        sellerDashboardApiService = networkModule.sellerDashboardApiService,
+        sellerFinanceApiService = networkModule.sellerFinanceApiService,
+        gson = networkModule.gson,
+    )
+    val sellerVerificationRepository = SellerVerificationRepository(
+        sellerVerificationApiService = networkModule.sellerVerificationApiService,
+        gson = networkModule.gson,
+    )
 
     val loginUseCase = LoginUseCase(authRepository)
     val registerUseCase = RegisterUseCase(authRepository)

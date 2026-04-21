@@ -1,36 +1,26 @@
 package com.example.myappmobile.data.repository
 
 import android.content.Context
-import com.example.myappmobile.domain.Review
+import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.data.remote.ReviewApiService
+import com.example.myappmobile.data.remote.requireBody
+import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.repository.AuthRepository
 import com.example.myappmobile.domain.repository.OrderRepository
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.google.gson.Gson
 
 class ProductReviewRepository(
     private val authRepository: AuthRepository,
     private val orderRepository: OrderRepository,
     private val reviewEligibilityService: ReviewEligibilityService,
+    private val reviewApiService: ReviewApiService,
+    private val gson: Gson,
 ) {
     private var appContext: Context? = null
 
-    private val _reviewsByProduct = MutableStateFlow<Map<String, List<Review>>>(emptyMap())
-    val reviewsByProduct: StateFlow<Map<String, List<Review>>> = _reviewsByProduct.asStateFlow()
-
     fun initialize(context: Context) {
         appContext = context.applicationContext
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        _reviewsByProduct.value = prefs.all
-            .filterKeys { it.startsWith(KEY_PREFIX) }
-            .mapKeys { it.key.removePrefix(KEY_PREFIX) }
-            .mapValues { (_, value) -> decodeReviews(value as? String) }
     }
-
-    fun getReviews(productId: String): List<Review> = _reviewsByProduct.value[productId].orEmpty()
 
     fun canUserReviewProduct(userId: String, productId: String): Boolean =
         reviewEligibilityService.canUserReviewProduct(
@@ -49,19 +39,13 @@ class ProductReviewRepository(
         )
     }
 
-    fun addReview(productId: String, review: Review) {
-        val updated = (_reviewsByProduct.value[productId].orEmpty() + review)
-            .sortedByDescending { it.id }
-        persist(productId, updated)
-        _reviewsByProduct.update { it + (productId to updated) }
-    }
-
-    fun submitReview(
+    suspend fun submitReview(
         productId: String,
+        orderId: String,
         sellerId: String,
         rating: Int,
         text: String,
-    ): Result<Review> {
+    ): Result<Unit> {
         val eligibility = getReviewEligibility(productId = productId, sellerId = sellerId)
         if (!eligibility.canReview) {
             return Result.failure(
@@ -76,72 +60,40 @@ class ProductReviewRepository(
         if (trimmedText.isBlank()) {
             return Result.failure(IllegalArgumentException("Please write a short review before submitting."))
         }
-
-        val currentUser = authRepository.currentUser.value
-        val review = Review(
-            id = System.currentTimeMillis().toString(),
-            authorName = currentUser.fullName.ifBlank { "FLORA Collector" },
-            rating = rating,
-            text = trimmedText,
-            isVerified = true,
-            date = LocalDate.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-        )
-        addReview(productId, review)
-        return Result.success(review)
-    }
-
-    private fun persist(productId: String, reviews: List<Review>) {
-        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString("$KEY_PREFIX$productId", encodeReviews(reviews))
-            .apply()
-    }
-
-    private fun encodeReviews(reviews: List<Review>): String = reviews.joinToString(RECORD_SEPARATOR) { review ->
-        listOf(
-            review.id,
-            review.authorName,
-            review.rating.toString(),
-            review.text,
-            review.isVerified.toString(),
-            review.date,
-        ).joinToString(FIELD_SEPARATOR) { field ->
-            field
-                .replace("\\", "\\\\")
-                .replace(FIELD_SEPARATOR, "\\u001F")
-                .replace(RECORD_SEPARATOR, "\\u001E")
-        }
-    }
-
-    private fun decodeReviews(raw: String?): List<Review> {
-        if (raw.isNullOrBlank()) return emptyList()
-        return raw.split(RECORD_SEPARATOR).mapNotNull { record ->
-            val fields = record.split(FIELD_SEPARATOR)
-            if (fields.size < 6) return@mapNotNull null
-            Review(
-                id = fields[0].restoreEscapes(),
-                authorName = fields[1].restoreEscapes(),
-                rating = fields[2].toIntOrNull() ?: return@mapNotNull null,
-                text = fields[3].restoreEscapes(),
-                isVerified = fields[4].toBooleanStrictOrNull() ?: false,
-                date = fields[5].restoreEscapes(),
+        if (orderId.isBlank()) {
+            return Result.failure(
+                IllegalArgumentException("You can only review products you purchased and received."),
             )
         }
-    }
 
-    private fun String.restoreEscapes(): String = this
-        .replace("\\u001F", FIELD_SEPARATOR)
-        .replace("\\u001E", RECORD_SEPARATOR)
-        .replace("\\\\", "\\")
-
-    private fun requireContext(): Context = checkNotNull(appContext) {
-        "ProductReviewRepository is not initialized. Call initialize(context) first."
-    }
-
-    private companion object {
-        const val PREFS_NAME = "flora_product_reviews"
-        const val KEY_PREFIX = "product_reviews_"
-        const val FIELD_SEPARATOR = "\u001F"
-        const val RECORD_SEPARATOR = "\u001E"
+        return runCatching {
+            reviewApiService.createReview(
+                mapOf(
+                    "product_id" to productId,
+                    "order_id" to orderId,
+                    "seller_id" to sellerId.ifBlank { null },
+                    "rating" to rating,
+                    "comment" to trimmedText,
+                ),
+            ).requireBody(gson)
+            val reviewerName = authRepository.currentUser.value.fullName
+            val productName = orderRepository.getOrdersForCustomer(authRepository.currentUser.value.id)
+                .flatMap { it.items }
+                .firstOrNull { it.product.id == productId }
+                ?.product
+                ?.name
+                .orEmpty()
+            AppContainer.notificationService.sendSellerReviewNotification(
+                sellerId = sellerId,
+                productId = productId,
+                productName = productName,
+                reviewerName = reviewerName,
+                reviewSnippet = trimmedText.take(120),
+            )
+            Unit
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(it.toApiException()) },
+        )
     }
 }

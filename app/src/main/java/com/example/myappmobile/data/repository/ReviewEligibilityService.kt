@@ -7,6 +7,7 @@ import com.example.myappmobile.domain.model.User
 data class ReviewEligibility(
     val canReview: Boolean,
     val message: String? = null,
+    val orderId: String? = null,
 )
 
 class ReviewEligibilityService {
@@ -41,8 +42,17 @@ class ReviewEligibilityService {
             )
         }
 
-        return if (canUserReviewProduct(user.id, productId, orders)) {
-            ReviewEligibility(canReview = true)
+        val eligibleOrderId = eligibleOrderId(
+            userId = user.id,
+            productId = productId,
+            orders = orders,
+        )
+
+        return if (eligibleOrderId != null) {
+            ReviewEligibility(
+                canReview = true,
+                orderId = eligibleOrderId,
+            )
         } else {
             ReviewEligibility(
                 canReview = false,
@@ -50,6 +60,19 @@ class ReviewEligibilityService {
             )
         }
     }
+
+    fun eligibleOrderId(
+        userId: String,
+        productId: String,
+        orders: List<Order>,
+    ): String? = orders
+        .asReversed()
+        .firstOrNull { order ->
+            order.customerId == userId &&
+                order.status == OrderStatus.DELIVERED &&
+                order.items.any { item -> item.product.id == productId }
+        }
+        ?.id
 
     companion object {
         const val REVIEW_RESTRICTION_MESSAGE =

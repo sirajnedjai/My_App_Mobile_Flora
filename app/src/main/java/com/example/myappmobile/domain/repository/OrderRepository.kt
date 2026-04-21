@@ -19,6 +19,14 @@ interface OrderRepository {
 
     suspend fun createOrder(): Order
 
+    suspend fun refreshCustomerOrders(): Result<Unit>
+
+    suspend fun fetchOrderDetails(orderId: String): Result<Order>
+
+    suspend fun refreshSellerOrders(): Result<Unit>
+
+    suspend fun fetchSellerOrderDetails(orderId: String): Result<Order>
+
     fun getRecentOrders(): List<Order>
 
     fun getOrdersForCustomer(customerId: String): List<Order>

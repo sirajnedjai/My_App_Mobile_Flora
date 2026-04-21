@@ -27,6 +27,10 @@ import com.example.myappmobile.presentation.checkout.shipping.ShippingScreen
 import com.example.myappmobile.presentation.home.HomeScreen
 import com.example.myappmobile.presentation.home.HomeViewModel
 import com.example.myappmobile.presentation.orders.tracking.OrderTrackingScreen
+import com.example.myappmobile.presentation.orders.tracking.ShipmentTrackingScreen
+import com.example.myappmobile.presentation.orders.tracking.ShipmentTrackingViewModel
+import com.example.myappmobile.presentation.orders.detail.OrderDetailScreen
+import com.example.myappmobile.presentation.orders.detail.OrderDetailViewModel
 import com.example.myappmobile.presentation.productdetails.ProductDetailsScreen
 import com.example.myappmobile.presentation.productdetails.ProductDetailsViewModel
 import com.example.myappmobile.presentation.profile.ProfileScreen
@@ -36,10 +40,14 @@ import com.example.myappmobile.presentation.profile.settings.PasswordSecurityScr
 import com.example.myappmobile.presentation.profile.settings.PaymentMethodsScreen
 import com.example.myappmobile.presentation.profile.settings.SavedAddressesScreen
 import com.example.myappmobile.presentation.profile.seller.PaymentsPayoutsScreen
+import com.example.myappmobile.presentation.profile.seller.SellerNotificationsScreen
+import com.example.myappmobile.presentation.profile.seller.SellerShippingLogisticsScreen
 import com.example.myappmobile.presentation.profile.seller.SellerWithdrawalScreen
 import com.example.myappmobile.presentation.profile.seller.StoreConfigurationScreen
 import com.example.myappmobile.presentation.search.SearchScreen
 import com.example.myappmobile.presentation.seller.manageproducts.SellerProductManagementScreen
+import com.example.myappmobile.presentation.seller.manageproducts.SellerProductDetailScreen
+import com.example.myappmobile.presentation.seller.manageproducts.SellerProductDetailViewModel
 import com.example.myappmobile.presentation.shop.ShopScreen
 import com.example.myappmobile.presentation.shop.ShopFilterScreen
 import com.example.myappmobile.presentation.seller.about.AboutStoreScreen
@@ -73,6 +81,12 @@ fun AppNavGraph(
     }
     val landingRoute = remember(currentUser.isAuthenticated, currentUser.isSeller) {
         resolveLandingRoute(currentUser)
+    }
+    LaunchedEffect(currentRoute, landingRoute, currentUser.isAuthenticated, currentUser.isSeller) {
+        Log.d(
+            APP_NAV_GRAPH_TAG,
+            "Nav graph active. currentRoute=${currentRoute.orEmpty()} landingRoute=$landingRoute authenticated=${currentUser.isAuthenticated} seller=${currentUser.isSeller}",
+        )
     }
     val navigateToTopLevel: (String) -> Unit = { route ->
         if (route != currentRoute) {
@@ -162,6 +176,8 @@ fun AppNavGraph(
                 onEmailChange = viewModel::onEmailChanged,
                 onSubscribe = viewModel::onSubscribe,
                 onFavoriteToggle = viewModel::onToggleFavorite,
+                onFavoriteMessageShown = viewModel::clearFavoriteMessage,
+                onRetry = viewModel::retry,
                 onBottomNavClick = navigateToTopLevel,
                 onCartClick = { navController.navigate(Routes.CART) },
             )
@@ -177,6 +193,7 @@ fun AppNavGraph(
         }
 
         composable(Routes.SELLER) {
+            val viewModel: com.example.myappmobile.presentation.shop.ShopViewModel = viewModel()
             ShopScreen(
                 onProductClick = { productId ->
                     navController.navigate(Routes.productDetails(productId))
@@ -184,8 +201,10 @@ fun AppNavGraph(
                 onBannerClick = { navController.navigate(Routes.sellerStorefront("s1")) },
                 onCartClick = { navController.navigate(Routes.CART) },
                 onFilterClick = { navController.navigate(Routes.SHOP_FILTERS) },
+                onRetry = viewModel::retry,
                 selectedRoute = Routes.SELLER,
                 onBottomNavClick = navigateToTopLevel,
+                viewModel = viewModel,
             )
         }
 
@@ -274,8 +293,8 @@ fun AppNavGraph(
                         "saved_addresses" -> navController.navigate(Routes.SAVED_ADDRESSES)
                         "store_configuration" -> navController.navigate(Routes.STORE_CONFIGURATION)
                         "payments_payouts" -> navController.navigate(Routes.PAYMENTS_PAYOUTS)
-                        "shipping_logistics" -> navController.navigate(Routes.CHECKOUT_SHIPPING)
-                        "seller_notifications" -> navController.navigate(Routes.sellerReviews(currentUser.id))
+                        "shipping_logistics" -> navController.navigate(Routes.SELLER_SHIPPING_LOGISTICS)
+                        "seller_notifications" -> navController.navigate(Routes.SELLER_NOTIFICATIONS)
                         "manage_products" -> navController.navigate(Routes.SELLER_MANAGE_PRODUCTS)
                         "received_orders" -> navController.navigate(Routes.SELLER_RECEIVED_ORDERS)
                     }
@@ -304,6 +323,32 @@ fun AppNavGraph(
             OrderTrackingScreen(
                 onBack = { navController.popBackStack() },
                 onContinueShopping = { navController.navigate(Routes.SELLER) },
+                onOpenOrder = { orderId -> navController.navigate(Routes.orderDetail(orderId)) },
+            )
+        }
+
+        composable(
+            route = Routes.ORDER_TRACKING_DETAIL,
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+        ) {
+            val viewModel: ShipmentTrackingViewModel = viewModel()
+            ShipmentTrackingScreen(
+                onBack = { navController.popBackStack() },
+                onRetry = viewModel::retry,
+                viewModel = viewModel,
+            )
+        }
+
+        composable(
+            route = Routes.ORDER_DETAIL,
+            arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+        ) {
+            val viewModel: OrderDetailViewModel = viewModel()
+            OrderDetailScreen(
+                onBack = { navController.popBackStack() },
+                onRetry = viewModel::retry,
+                onTrackShipment = { orderId -> navController.navigate(Routes.orderTrackingDetail(orderId)) },
+                viewModel = viewModel,
             )
         }
 
@@ -354,6 +399,21 @@ fun AppNavGraph(
         composable(Routes.SELLER_WITHDRAWAL) {
             SellerWithdrawalScreen(
                 onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(Routes.SELLER_SHIPPING_LOGISTICS) {
+            SellerShippingLogisticsScreen(
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(Routes.SELLER_NOTIFICATIONS) {
+            SellerNotificationsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenOrder = { orderId ->
+                    navController.navigate(Routes.sellerOrderDetail(orderId))
+                },
             )
         }
 
@@ -421,6 +481,19 @@ fun AppNavGraph(
         composable(Routes.SELLER_MANAGE_PRODUCTS) {
             SellerProductManagementScreen(
                 onBack = { navController.popBackStack() },
+                onOpenProduct = { productId -> navController.navigate(Routes.sellerProductDetail(productId)) },
+            )
+        }
+
+        composable(
+            route = Routes.SELLER_PRODUCT_DETAIL,
+            arguments = listOf(navArgument("productId") { type = NavType.StringType }),
+        ) {
+            val viewModel: SellerProductDetailViewModel = viewModel()
+            SellerProductDetailScreen(
+                onBack = { navController.popBackStack() },
+                onDeleted = { navController.popBackStack() },
+                viewModel = viewModel,
             )
         }
 
@@ -442,7 +515,14 @@ fun AppNavGraph(
 
         composable(
             route = Routes.PRODUCT_DETAILS,
-            arguments = listOf(navArgument("productId") { type = NavType.StringType }),
+            arguments = listOf(
+                navArgument("productId") { type = NavType.StringType },
+                navArgument("orderId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
         ) {
             val viewModel: ProductDetailsViewModel = viewModel()
             val uiState by viewModel.uiState.collectAsState()
@@ -451,14 +531,19 @@ fun AppNavGraph(
                 onBack = { navController.popBackStack() },
                 onAddToCart = viewModel::onAddToCart,
                 onReservePickup = viewModel::onReservePickup,
+                onFavoriteToggle = viewModel::onToggleFavorite,
+                onFavoriteMessageShown = viewModel::clearFavoriteMessage,
                 onVisitStudio = {
-                    navController.navigate(Routes.sellerStorefront(uiState.sellerId ?: "s1"))
+                    uiState.sellerId
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { sellerId -> navController.navigate(Routes.sellerStorefront(sellerId)) }
                 },
                 onCartClick = { navController.navigate(Routes.CART) },
                 onSelectImage = viewModel::onSelectImage,
                 onRatingSelected = viewModel::onRatingSelected,
                 onReviewInputChanged = viewModel::onReviewInputChanged,
                 onSubmitReview = viewModel::submitReview,
+                onRetry = viewModel::retry,
                 onSimilarProductClick = { productId ->
                     navController.navigate(Routes.productDetails(productId))
                 },

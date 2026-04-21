@@ -15,6 +15,7 @@ object Routes {
     const val SELLER_ABOUT = "seller/about/{sellerId}"
     const val SELLER_REVIEWS = "seller/reviews/{sellerId}"
     const val SELLER_MANAGE_PRODUCTS = "seller/manage-products"
+    const val SELLER_PRODUCT_DETAIL = "seller/manage-products/{productId}"
     const val SELLER_RECEIVED_ORDERS = "seller/received-orders"
     const val SELLER_ORDER_DETAIL = "seller/orders/{orderId}"
     const val WISHLIST = "wishlist"
@@ -27,7 +28,11 @@ object Routes {
     const val STORE_CONFIGURATION = "profile/store-configuration"
     const val PAYMENTS_PAYOUTS = "profile/payments-payouts"
     const val SELLER_WITHDRAWAL = "profile/payments-payouts/withdrawal"
+    const val SELLER_SHIPPING_LOGISTICS = "profile/seller-shipping-logistics"
+    const val SELLER_NOTIFICATIONS = "profile/seller-notifications"
     const val ORDER_TRACKING = "orders/tracking"
+    const val ORDER_TRACKING_DETAIL = "orders/tracking/{orderId}"
+    const val ORDER_DETAIL = "orders/{orderId}"
     const val SHOP_FILTERS = "shop/filters"
 
     const val CART = "cart"
@@ -37,13 +42,21 @@ object Routes {
     const val CHECKOUT_CONFIRMATION = "checkout/confirmation"
     const val ROOM_USERS_TEST = "testing/room/users"
     const val ROOM_PRODUCTS_TEST = "testing/room/products"
-    const val PRODUCT_DETAILS = "product_details/{productId}"
+    const val PRODUCT_DETAILS = "product_details/{productId}?orderId={orderId}"
 
     fun sellerStorefront(sellerId: String): String = "seller/storefront/$sellerId"
     fun sellerProducts(sellerId: String): String = "seller/products/$sellerId"
     fun sellerBinaryProducts(sellerId: String): String = "seller/binary-products/$sellerId"
     fun sellerAbout(sellerId: String): String = "seller/about/$sellerId"
     fun sellerReviews(sellerId: String): String = "seller/reviews/$sellerId"
+    fun sellerProductDetail(productId: String): String = "seller/manage-products/$productId"
     fun sellerOrderDetail(orderId: String): String = "seller/orders/$orderId"
-    fun productDetails(productId: String): String = "product_details/$productId"
+    fun orderTrackingDetail(orderId: String): String = "orders/tracking/$orderId"
+    fun orderDetail(orderId: String): String = "orders/$orderId"
+    fun productDetails(productId: String, orderId: String? = null): String =
+        if (orderId.isNullOrBlank()) {
+            "product_details/$productId"
+        } else {
+            "product_details/$productId?orderId=$orderId"
+        }
 }

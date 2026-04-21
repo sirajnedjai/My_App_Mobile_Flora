@@ -110,9 +110,9 @@ fun RegisterScreen(
 
             Text(
                 text = if (uiState.isArtisan) {
-                    "Set up your artisan profile, showcase your craft, and connect with buyers."
+                    "Create your seller account to build a FLORA shop presence, present your handmade work, and manage incoming orders professionally."
                 } else {
-                    "Discover a world of curated artisan goods crafted for collectors like you."
+                    "Join FLORA as a buyer to discover handmade pieces, save favorites, and shop with confidence."
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = FloraTextSecondary
@@ -253,12 +253,24 @@ fun RegisterScreen(
                     value = uiState.address,
                     onValueChange = { viewModel.onEvent(RegisterEvent.AddressChanged(it)) },
                     placeholder = "Enter your business address",
+                    imeAction = ImeAction.Next,
+                    isError = uiState.addressError != null,
+                    errorMessage = uiState.addressError
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                AuthTextField(
+                    label = "POSTAL CODE",
+                    value = uiState.postalCode,
+                    onValueChange = { viewModel.onEvent(RegisterEvent.PostalCodeChanged(it)) },
+                    placeholder = "Enter your postal code",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(
                         onDone = { viewModel.onEvent(RegisterEvent.Register) }
                     ),
-                    isError = uiState.addressError != null,
-                    errorMessage = uiState.addressError
+                    isError = uiState.postalCodeError != null,
+                    errorMessage = uiState.postalCodeError
                 )
             }
 

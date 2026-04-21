@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,6 +58,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.SellerVerificationStatusChip
+import com.example.myappmobile.core.components.SellerVerifiedIcon
 import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.core.localization.LanguageManager
 import com.example.myappmobile.core.theme.FloraBeige
@@ -72,6 +75,7 @@ import com.example.myappmobile.core.theme.StoneFaint
 import com.example.myappmobile.data.local.dummy.DummyUsers
 import com.example.myappmobile.R
 import com.example.myappmobile.core.localization.AppLanguage
+import com.example.myappmobile.domain.model.SellerApprovalStatus
 
 @Composable
 fun ProfileScreen(
@@ -150,24 +154,46 @@ private fun ProfileScreenContent(
                     user = uiState.user,
                     phoneNumber = uiState.phoneNumber,
                     address = uiState.address,
+                    sellerApprovalStatus = if (uiState.showSellerTools) uiState.sellerApprovalStatus else null,
                 )
             }
 
-            item {
-                SettingsSection(
-                    title = stringResource(R.string.profile_buyer_account),
-                    items = uiState.buyerSettings,
-                    onItemClick = onSettingClick,
-                )
-            }
-
-            if (uiState.showSellerTools) {
+            if (uiState.buyerSettings.isNotEmpty()) {
                 item {
                     SettingsSection(
-                        title = stringResource(R.string.profile_seller_dashboard),
-                        items = uiState.sellerSettings,
+                        title = stringResource(R.string.profile_buyer_account),
+                        items = uiState.buyerSettings,
                         onItemClick = onSettingClick,
                     )
+                }
+            }
+
+            if (uiState.showSellerTools && uiState.sellerSettings.isNotEmpty()) {
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(
+                            text = stringResource(R.string.profile_seller_dashboard),
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                            color = FloraText,
+                        )
+                        when {
+                            uiState.sellerDashboardSummary != null -> SellerDashboardCard(summary = uiState.sellerDashboardSummary)
+                            uiState.sellerDashboardLoading -> DashboardStatusCard(
+                                message = "Loading your live seller overview...",
+                            )
+                            !uiState.sellerDashboardError.isNullOrBlank() -> DashboardStatusCard(
+                                message = uiState.sellerDashboardError.orEmpty(),
+                            )
+                        }
+                        SettingsSection(
+                            title = stringResource(R.string.profile_seller_dashboard),
+                            items = uiState.sellerSettings,
+                            onItemClick = onSettingClick,
+                            showTitle = false,
+                        )
+                    }
                 }
             }
 
@@ -229,6 +255,7 @@ fun ProfileCard(
     user: com.example.myappmobile.domain.model.User?,
     phoneNumber: String,
     address: String,
+    sellerApprovalStatus: SellerApprovalStatus? = null,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -259,17 +286,29 @@ fun ProfileCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = user?.fullName ?: "Elena Vance",
-                style = MaterialTheme.typography.headlineSmall,
-                color = FloraText,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(
+                    text = user?.fullName ?: "Elena Vance",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = FloraText,
+                )
+                if (sellerApprovalStatus == SellerApprovalStatus.APPROVED) {
+                    SellerVerifiedIcon()
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = user?.email ?: "elena.vance@flora.com",
                 style = MaterialTheme.typography.bodyMedium,
                 color = FloraTextSecondary,
             )
+            sellerApprovalStatus?.let {
+                Spacer(modifier = Modifier.height(10.dp))
+                SellerVerificationStatusChip(status = it)
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = user?.membershipTier ?: stringResource(R.string.profile_authenticated_member),
@@ -301,17 +340,20 @@ fun SettingsSection(
     title: String,
     items: List<ProfileSettingItemUi>,
     onItemClick: (String) -> Unit,
+    showTitle: Boolean = true,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-            ),
-            color = FloraText,
-        )
+        if (showTitle) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                ),
+                color = FloraText,
+            )
+        }
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
@@ -357,9 +399,9 @@ fun SettingsItem(
                         style = MaterialTheme.typography.titleMedium,
                         color = FloraText,
                     )
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = stringResource(item.subtitleRes),
+                        text = item.subtitleOverride ?: stringResource(item.subtitleRes),
                         style = MaterialTheme.typography.bodySmall,
                         color = FloraTextSecondary,
                     )
@@ -369,6 +411,106 @@ fun SettingsItem(
             contentDescription = null,
             tint = FloraTextMuted,
             modifier = Modifier.size(16.dp),
+        )
+    }
+}
+
+@Composable
+private fun SellerDashboardCard(summary: SellerDashboardSummaryUi) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.92f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = summary.storeName.ifBlank { "Seller Workspace" },
+                    style = MaterialTheme.typography.titleLarge,
+                    color = FloraText,
+                )
+                Text(
+                    text = "Live summary from your FLORA store operations.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraTextSecondary,
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                MetricColumn(label = "Products", value = summary.totalProducts.toString(), modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(10.dp))
+                MetricColumn(label = "Orders", value = summary.totalOrders.toString(), modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(10.dp))
+                MetricColumn(label = "Pending", value = summary.pendingOrders.toString(), modifier = Modifier.weight(1f))
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                MetricColumn(label = "Delivered", value = summary.deliveredOrders.toString(), modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(10.dp))
+                MetricColumn(label = "Low Stock", value = summary.lowStockProducts.toString(), modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(10.dp))
+                MetricColumn(label = "Balance", value = "%.0f".format(summary.availableBalance), modifier = Modifier.weight(1f))
+            }
+
+            if (summary.insight.isNotBlank()) {
+                Text(
+                    text = summary.insight,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraTextSecondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DashboardStatusCard(message: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.92f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = FloraTextSecondary,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+        )
+    }
+}
+
+@Composable
+private fun MetricColumn(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = FloraText,
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = FloraTextSecondary,
         )
     }
 }

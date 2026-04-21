@@ -1,10 +1,11 @@
 package com.example.myappmobile.presentation.profile.seller
 
 enum class SalesPeriodUi(val label: String) {
-    WEEK("Week"),
-    MONTH("Month"),
-    THREE_MONTHS("3 Months"),
-    YEAR("Year"),
+    WEEK("7D"),
+    MONTH("1M"),
+    THREE_MONTHS("3M"),
+    SIX_MONTHS("6M"),
+    YEAR("1Y"),
 }
 
 data class WalletSummaryUi(
@@ -18,6 +19,14 @@ data class SalesBarUi(
     val amount: Float,
 )
 
+data class MonthlySellerStatisticUi(
+    val monthLabel: String,
+    val revenue: Double,
+    val orders: Int,
+    val balanceSnapshot: Double,
+    val isClosedMonth: Boolean,
+)
+
 data class TransferRecordUi(
     val id: String,
     val date: String,
@@ -29,8 +38,11 @@ data class TransferRecordUi(
 )
 
 data class PaymentsPayoutsUiState(
+    val sellerName: String = "",
     val walletSummary: WalletSummaryUi = WalletSummaryUi(),
     val selectedPeriod: SalesPeriodUi = SalesPeriodUi.WEEK,
     val chartData: List<SalesBarUi> = emptyList(),
+    val performanceHeadline: String = "",
+    val monthlyStatistics: List<MonthlySellerStatisticUi> = emptyList(),
     val transferRecords: List<TransferRecordUi> = emptyList(),
 )

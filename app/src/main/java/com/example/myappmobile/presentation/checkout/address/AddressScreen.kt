@@ -40,16 +40,28 @@ fun AddressScreen(
                 label = { Text("Full name") },
             )
             OutlinedTextField(
-                value = uiState.street,
+                value = uiState.state,
+                onValueChange = viewModel::onStateChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("State") },
+            )
+            OutlinedTextField(
+                value = uiState.municipality,
+                onValueChange = viewModel::onMunicipalityChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Municipality") },
+            )
+            OutlinedTextField(
+                value = uiState.neighborhood,
+                onValueChange = viewModel::onNeighborhoodChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Neighborhood") },
+            )
+            OutlinedTextField(
+                value = uiState.streetAddress,
                 onValueChange = viewModel::onStreetChange,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Street address") },
-            )
-            OutlinedTextField(
-                value = uiState.city,
-                onValueChange = viewModel::onCityChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("City") },
             )
             OutlinedTextField(
                 value = uiState.postalCode,

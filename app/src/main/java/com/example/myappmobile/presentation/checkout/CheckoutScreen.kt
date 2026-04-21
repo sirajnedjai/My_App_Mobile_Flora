@@ -50,7 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.OutlineButton
 import com.example.myappmobile.core.components.PrimaryButton
@@ -80,10 +80,13 @@ fun CheckoutScreen(
         paymentOptions = viewModel.paymentOptions,
         onBack = onBack,
         onFullNameChange = viewModel::onFullNameChange,
-        onStreetChange = viewModel::onStreetChange,
-        onCityChange = viewModel::onCityChange,
-        onPostalCodeChange = viewModel::onPostalCodeChange,
+        onPhoneNumberChange = viewModel::onPhoneNumberChange,
+        onStateChange = viewModel::onStateChange,
+        onMunicipalityChange = viewModel::onMunicipalityChange,
+        onNeighborhoodChange = viewModel::onNeighborhoodChange,
+        onStreetAddressChange = viewModel::onStreetAddressChange,
         onCountryChange = viewModel::onCountryChange,
+        onPostalCodeChange = viewModel::onPostalCodeChange,
         onShippingMethodSelected = viewModel::onShippingMethodSelected,
         onPaymentMethodSelected = viewModel::onPaymentMethodSelected,
         onCardNumberChange = viewModel::onCardNumberChange,
@@ -101,10 +104,13 @@ private fun CheckoutContent(
     paymentOptions: List<PaymentOptionUi>,
     onBack: () -> Unit,
     onFullNameChange: (String) -> Unit,
-    onStreetChange: (String) -> Unit,
-    onCityChange: (String) -> Unit,
-    onPostalCodeChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    onStateChange: (String) -> Unit,
+    onMunicipalityChange: (String) -> Unit,
+    onNeighborhoodChange: (String) -> Unit,
+    onStreetAddressChange: (String) -> Unit,
     onCountryChange: (String) -> Unit,
+    onPostalCodeChange: (String) -> Unit,
     onShippingMethodSelected: (String) -> Unit,
     onPaymentMethodSelected: (String) -> Unit,
     onCardNumberChange: (String) -> Unit,
@@ -135,20 +141,23 @@ private fun CheckoutContent(
 
             item {
                 CheckoutSectionCard(
-                    title = "Shipping Address",
+                    title = "Shipping Information",
                     icon = Icons.Outlined.LocationOn,
                 ) {
-                    CheckoutInput(uiState.fullName, onFullNameChange, "Full name")
-                    CheckoutInput(uiState.street, onStreetChange, "Street address")
+                    CheckoutInput(uiState.fullName, onFullNameChange, "Full Name", uiState.fullNameError)
+                    CheckoutInput(uiState.phoneNumber, onPhoneNumberChange, "Phone Number", uiState.phoneNumberError)
+                    CheckoutInput(uiState.state, onStateChange, "State", uiState.stateError)
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Box(modifier = Modifier.weight(1f)) {
-                            CheckoutInput(uiState.city, onCityChange, "City")
+                            CheckoutInput(uiState.municipality, onMunicipalityChange, "Municipality", uiState.municipalityError)
                         }
                         Box(modifier = Modifier.weight(1f)) {
-                            CheckoutInput(uiState.postalCode, onPostalCodeChange, "Postal code")
+                            CheckoutInput(uiState.neighborhood, onNeighborhoodChange, "Neighborhood", uiState.neighborhoodError)
                         }
                     }
-                    CheckoutInput(uiState.country, onCountryChange, "Country")
+                    CheckoutInput(uiState.streetAddress, onStreetAddressChange, "Street Address", uiState.streetAddressError)
+                    CheckoutInput(uiState.country, onCountryChange, "Country", uiState.countryError)
+                    CheckoutInput(uiState.postalCode, onPostalCodeChange, "Postal Code", uiState.postalCodeError)
                 }
             }
 
@@ -162,8 +171,8 @@ private fun CheckoutContent(
                             title = option.title,
                             subtitle = option.subtitle,
                             trailing = option.priceLabel,
-                            selected = uiState.shippingMethod == option.title,
-                            onClick = { onShippingMethodSelected(option.title) },
+                            selected = uiState.shippingMethod == option.id,
+                            onClick = { onShippingMethodSelected(option.id) },
                         )
                     }
                 }
@@ -194,7 +203,7 @@ private fun CheckoutContent(
                         }
                     }
 
-                    if (uiState.paymentMethod == "Card") {
+                    if (uiState.paymentMethod == "card") {
                         CheckoutInput(uiState.cardNumber, onCardNumberChange, "Card number")
                         CheckoutInput(uiState.cardName, onCardNameChange, "Cardholder name")
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -323,21 +332,33 @@ private fun CheckoutInput(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    errorMessage: String? = null,
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(label) },
-        singleLine = true,
-        shape = RoundedCornerShape(18.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = White,
-            unfocusedContainerColor = White,
-            focusedBorderColor = FloraBrown,
-            unfocusedBorderColor = FloraDivider,
-        ),
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(label) },
+            singleLine = true,
+            isError = errorMessage != null,
+            shape = RoundedCornerShape(18.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                focusedBorderColor = FloraBrown,
+                unfocusedBorderColor = FloraDivider,
+                errorBorderColor = FloraError,
+            ),
+        )
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = FloraError,
+            )
+        }
+    }
 }
 
 @Composable
@@ -440,8 +461,8 @@ private fun CheckoutItemRow(item: CartItem) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        AsyncImage(
-            model = item.product.imageUrl,
+        FloraRemoteImage(
+            imageUrl = item.product.imageUrl,
             contentDescription = item.product.name,
             modifier = Modifier
                 .size(72.dp)

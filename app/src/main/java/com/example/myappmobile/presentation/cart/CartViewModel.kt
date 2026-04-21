@@ -18,18 +18,27 @@ class CartViewModel : ViewModel() {
     private val promoCode = MutableStateFlow("")
     private val promoApplied = MutableStateFlow(false)
     private val promoMessage = MutableStateFlow<String?>(null)
-
-    val uiState: StateFlow<CartUiState> = combine(
-        getCartItemsUseCase(),
+    private val promoState = combine(
         promoCode,
         promoApplied,
         promoMessage,
-    ) { items, code, applied, message ->
+    ) { code, applied, message ->
+        Triple(code, applied, message)
+    }
+
+    val uiState: StateFlow<CartUiState> = combine(
+        getCartItemsUseCase(),
+        cartRepository.isLoading,
+        promoState,
+        cartRepository.statusMessage,
+    ) { items, isLoading, promo, statusMessage ->
         CartUiState(
             items = items,
-            promoCode = code,
-            promoApplied = applied && items.isNotEmpty(),
-            promoMessage = message,
+            isLoading = isLoading,
+            promoCode = promo.first,
+            promoApplied = promo.second && items.isNotEmpty(),
+            promoMessage = promo.third,
+            statusMessage = statusMessage,
         )
     }.stateIn(
             scope = viewModelScope,

@@ -6,4 +6,5 @@ data class OrderTrackingUiState(
     val isLoading: Boolean = true,
     val customerName: String = "",
     val orders: List<Order> = emptyList(),
+    val errorMessage: String? = null,
 )

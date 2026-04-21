@@ -42,6 +42,7 @@ import com.example.myappmobile.core.theme.FloraSelectedCard
 import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.SerifFontFamily
+import com.example.myappmobile.core.utils.Validators
 import com.example.myappmobile.data.repository.LoginActivityEntry
 import com.example.myappmobile.data.repository.SecurityPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +57,9 @@ data class PasswordSecurityUiState(
     val currentPassword: String = "",
     val newPassword: String = "",
     val confirmPassword: String = "",
+    val currentPasswordError: String? = null,
+    val newPasswordError: String? = null,
+    val confirmPasswordError: String? = null,
     val twoFactorEnabled: Boolean = false,
     val loginActivity: List<LoginActivityEntry> = emptyList(),
     val errorMessage: String? = null,
@@ -82,9 +86,30 @@ class PasswordSecurityViewModel : ViewModel() {
         initialValue = PasswordSecurityUiState(),
     )
 
-    fun onCurrentPasswordChanged(value: String) = editor.update { it.copy(currentPassword = value, errorMessage = null, successMessage = null) }
-    fun onNewPasswordChanged(value: String) = editor.update { it.copy(newPassword = value, errorMessage = null, successMessage = null) }
-    fun onConfirmPasswordChanged(value: String) = editor.update { it.copy(confirmPassword = value, errorMessage = null, successMessage = null) }
+    fun onCurrentPasswordChanged(value: String) = editor.update {
+        it.copy(
+            currentPassword = value,
+            currentPasswordError = null,
+            errorMessage = null,
+            successMessage = null,
+        )
+    }
+    fun onNewPasswordChanged(value: String) = editor.update {
+        it.copy(
+            newPassword = value,
+            newPasswordError = null,
+            errorMessage = null,
+            successMessage = null,
+        )
+    }
+    fun onConfirmPasswordChanged(value: String) = editor.update {
+        it.copy(
+            confirmPassword = value,
+            confirmPasswordError = null,
+            errorMessage = null,
+            successMessage = null,
+        )
+    }
 
     fun onTwoFactorChanged(enabled: Boolean) {
         val userId = AppContainer.authRepository.currentUser.value.id
@@ -94,20 +119,49 @@ class PasswordSecurityViewModel : ViewModel() {
 
     fun savePassword() {
         val snapshot = uiState.value
-        val validationError = when {
+        val currentPasswordError = when {
             snapshot.currentPassword.isBlank() -> "Enter your current password."
-            snapshot.newPassword.length < 8 -> "New password must be at least 8 characters."
-            snapshot.newPassword != snapshot.confirmPassword -> "New password and confirmation do not match."
+            else -> null
+        }
+        val newPasswordError = when {
+            snapshot.newPassword.isBlank() -> "Enter a new password."
+            !Validators.isValidPassword(snapshot.newPassword) -> "New password must be at least 8 characters."
             snapshot.currentPassword == snapshot.newPassword -> "Choose a new password different from the current one."
             else -> null
         }
-        if (validationError != null) {
-            editor.update { it.copy(errorMessage = validationError) }
+        val confirmPasswordError = when {
+            snapshot.confirmPassword.isBlank() -> "Confirm your new password."
+            snapshot.newPassword != snapshot.confirmPassword -> "New password and confirmation do not match."
+            else -> null
+        }
+        if (currentPasswordError != null || newPasswordError != null || confirmPasswordError != null) {
+            editor.update {
+                it.copy(
+                    currentPasswordError = currentPasswordError,
+                    newPasswordError = newPasswordError,
+                    confirmPasswordError = confirmPasswordError,
+                    errorMessage = null,
+                    successMessage = null,
+                )
+            }
             return
         }
         viewModelScope.launch {
-            editor.update { it.copy(isSaving = true, errorMessage = null, successMessage = null) }
-            val result = AppContainer.authRepository.updateCurrentUserPassword(snapshot.currentPassword, snapshot.newPassword)
+            editor.update {
+                it.copy(
+                    isSaving = true,
+                    currentPasswordError = null,
+                    newPasswordError = null,
+                    confirmPasswordError = null,
+                    errorMessage = null,
+                    successMessage = null,
+                )
+            }
+            val result = AppContainer.authRepository.updateCurrentUserPassword(
+                currentPassword = snapshot.currentPassword,
+                newPassword = snapshot.newPassword,
+                confirmPassword = snapshot.confirmPassword,
+            )
             result.fold(
                 onSuccess = {
                     editor.value = PasswordSecurityUiState(
@@ -117,7 +171,13 @@ class PasswordSecurityViewModel : ViewModel() {
                     )
                 },
                 onFailure = { error ->
-                    editor.update { it.copy(isSaving = false, errorMessage = error.message ?: "Unable to update password.") }
+                    editor.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessage = error.message ?: "Unable to update password.",
+                            successMessage = null,
+                        )
+                    }
                 },
             )
         }
@@ -150,15 +210,37 @@ fun PasswordSecurityScreen(
             item {
                 SettingsCard("Change Password") {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                        AuthTextField("Current Password", uiState.currentPassword, viewModel::onCurrentPasswordChanged, isPassword = true)
-                        AuthTextField("New Password", uiState.newPassword, viewModel::onNewPasswordChanged, isPassword = true)
-                        AuthTextField("Confirm Password", uiState.confirmPassword, viewModel::onConfirmPasswordChanged, isPassword = true)
+                        AuthTextField(
+                            label = "Current Password",
+                            value = uiState.currentPassword,
+                            onValueChange = viewModel::onCurrentPasswordChanged,
+                            isPassword = true,
+                            isError = uiState.currentPasswordError != null,
+                            errorMessage = uiState.currentPasswordError,
+                        )
+                        AuthTextField(
+                            label = "New Password",
+                            value = uiState.newPassword,
+                            onValueChange = viewModel::onNewPasswordChanged,
+                            isPassword = true,
+                            isError = uiState.newPasswordError != null,
+                            errorMessage = uiState.newPasswordError,
+                        )
+                        AuthTextField(
+                            label = "Confirm Password",
+                            value = uiState.confirmPassword,
+                            onValueChange = viewModel::onConfirmPasswordChanged,
+                            isPassword = true,
+                            isError = uiState.confirmPasswordError != null,
+                            errorMessage = uiState.confirmPasswordError,
+                        )
                         uiState.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                         uiState.successMessage?.let { Text(it, color = FloraText, style = MaterialTheme.typography.bodySmall) }
                         PrimaryButton(
-                            text = "Change Password",
+                            text = "Update Password",
                             onClick = viewModel::savePassword,
                             isLoading = uiState.isSaving,
+                            enabled = !uiState.isSaving,
                         )
                     }
                 }

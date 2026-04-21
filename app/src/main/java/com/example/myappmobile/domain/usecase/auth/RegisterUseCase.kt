@@ -11,6 +11,7 @@ class RegisterUseCase(private val authRepository: AuthRepository) {
         isSeller: Boolean,
         storeName: String,
         address: String,
+        postalCode: String,
     ) = authRepository.register(
         fullName = fullName,
         email = email,
@@ -19,5 +20,6 @@ class RegisterUseCase(private val authRepository: AuthRepository) {
         isSeller = isSeller,
         storeName = storeName,
         address = address,
+        postalCode = postalCode,
     )
 }

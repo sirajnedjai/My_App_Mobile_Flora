@@ -18,16 +18,20 @@ interface AuthRepository {
         isSeller: Boolean,
         storeName: String,
         address: String,
+        postalCode: String,
     ): Result<User>
 
     suspend fun updateCurrentUserProfile(
         fullName: String,
         email: String,
         phoneNumber: String,
+        address: String = "",
+        avatarUrl: String = "",
     ): Result<User>
 
     suspend fun updateCurrentUserPassword(
         currentPassword: String,
         newPassword: String,
+        confirmPassword: String,
     ): Result<Unit>
 }

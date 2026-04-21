@@ -56,6 +56,59 @@ class NotificationBackendApi {
         )
     }
 
+    fun sendSellerOrderPlacedNotification(
+        sellerId: String,
+        order: Order,
+    ): Result<Unit> {
+        if (sellerId.isBlank()) return Result.success(Unit)
+        if (baseUrl.isBlank()) {
+            return Result.failure(IllegalStateException("FLORA_NOTIFICATION_API_BASE_URL is not configured."))
+        }
+        val itemCount = order.items.sumOf { it.quantity }
+        return post(
+            path = "/notifications/seller/order-placed",
+            body = JSONObject()
+                .put("userId", sellerId)
+                .put("orderId", order.id)
+                .put("orderReference", order.reference)
+                .put("customerName", order.customerName)
+                .put("notification", JSONObject()
+                    .put("title", "New Order Received")
+                    .put("body", "${order.customerName.ifBlank { "A buyer" }} placed an order with $itemCount item(s)."))
+                .put("data", JSONObject()
+                    .put("orderId", order.id)
+                    .put("type", "SELLER_ORDER_PLACED"))
+                .put("priority", "high"),
+        )
+    }
+
+    fun sendSellerReviewNotification(
+        sellerId: String,
+        productId: String,
+        productName: String,
+        reviewerName: String,
+        reviewSnippet: String,
+    ): Result<Unit> {
+        if (sellerId.isBlank()) return Result.success(Unit)
+        if (baseUrl.isBlank()) {
+            return Result.failure(IllegalStateException("FLORA_NOTIFICATION_API_BASE_URL is not configured."))
+        }
+        return post(
+            path = "/notifications/seller/review",
+            body = JSONObject()
+                .put("userId", sellerId)
+                .put("productId", productId)
+                .put("notification", JSONObject()
+                    .put("title", "New Review On Your Product")
+                    .put("body", "${reviewerName.ifBlank { "A buyer" }} reviewed ${productName.ifBlank { "your product" }}."))
+                .put("data", JSONObject()
+                    .put("productId", productId)
+                    .put("type", "SELLER_REVIEW_RECEIVED")
+                    .put("reviewSnippet", reviewSnippet))
+                .put("priority", "high"),
+        )
+    }
+
     fun fetchNotifications(userId: String): Result<List<AppNotification>> {
         if (userId.isBlank() || baseUrl.isBlank()) return Result.success(emptyList())
         return runCatching {
@@ -76,7 +129,9 @@ class NotificationBackendApi {
                                 userId = item.getString("userId"),
                                 title = item.getString("title"),
                                 body = item.getString("body"),
-                                type = NotificationType.valueOf(item.optString("type", "ORDER_DELIVERED")),
+                                type = runCatching {
+                                    NotificationType.valueOf(item.optString("type", "ORDER_DELIVERED"))
+                                }.getOrDefault(NotificationType.ORDER_DELIVERED),
                                 relatedOrderId = item.optString("relatedOrderId"),
                                 isRead = item.optBoolean("isRead", false),
                                 createdAt = item.optString("createdAt"),

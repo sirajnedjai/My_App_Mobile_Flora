@@ -1,6 +1,5 @@
 package com.example.myappmobile.core.components
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.myappmobile.core.theme.*
@@ -32,17 +32,15 @@ import com.example.myappmobile.domain.model.SellerApprovalStatus
 fun FavoriteButton(
     isFavorited: Boolean,
     onToggle: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val iconColor by animateColorAsState(
-        targetValue = if (isFavorited) ErrorRed else CharcoalDark,
-        label = "favColor",
-    )
     CircularIconButton(
         icon = if (isFavorited) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
         contentDescription = if (isFavorited) "Remove from favorites" else "Add to favorites",
         onClick = onToggle,
         modifier = modifier.size(42.dp),
+        enabled = enabled,
         danger = isFavorited,
     )
 }
@@ -201,6 +199,18 @@ fun SellerApprovalBadge(
     modifier: Modifier = Modifier,
 ) {
     val palette = when (status) {
+        SellerApprovalStatus.UNKNOWN -> BadgePalette(
+            background = StoneFaint,
+            content = StoneGray,
+            icon = Icons.Outlined.Info,
+            label = "Verification Unavailable",
+        )
+        SellerApprovalStatus.NOT_VERIFIED -> BadgePalette(
+            background = StatusAmberLight,
+            content = StatusAmber,
+            icon = Icons.Outlined.HourglassTop,
+            label = "Verification Required",
+        )
         SellerApprovalStatus.APPROVED -> BadgePalette(
             background = StatusGreenLight,
             content = StatusGreen,
@@ -211,13 +221,13 @@ fun SellerApprovalBadge(
             background = StatusAmberLight,
             content = StatusAmber,
             icon = Icons.Outlined.HourglassTop,
-            label = "Not Yet Approved",
+            label = "Verification Pending",
         )
         SellerApprovalStatus.REJECTED -> BadgePalette(
             background = StatusRedLight,
             content = StatusRed,
             icon = Icons.Outlined.Info,
-            label = "Approval Update Needed",
+            label = "Verification Update Needed",
         )
     }
 
@@ -252,6 +262,55 @@ private data class BadgePalette(
     val icon: ImageVector,
     val label: String,
 )
+
+@Composable
+fun SellerVerificationStatusChip(
+    status: SellerApprovalStatus,
+    modifier: Modifier = Modifier,
+) {
+    val isApproved = status == SellerApprovalStatus.APPROVED
+    val background = when (status) {
+        SellerApprovalStatus.APPROVED -> StatusGreenLight
+        SellerApprovalStatus.UNKNOWN -> StoneFaint
+        else -> StatusAmberLight
+    }
+    val content = when (status) {
+        SellerApprovalStatus.APPROVED -> StatusGreen
+        SellerApprovalStatus.UNKNOWN -> StoneGray
+        else -> StatusAmber
+    }
+    val label = when (status) {
+        SellerApprovalStatus.UNKNOWN -> "Verification Unavailable"
+        SellerApprovalStatus.APPROVED -> "Verified Seller"
+        SellerApprovalStatus.PENDING -> "Pending Verification"
+        SellerApprovalStatus.NOT_VERIFIED, SellerApprovalStatus.REJECTED -> "Not Verified Yet"
+    }
+
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(999.dp),
+        color = background,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = content,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        )
+    }
+}
+
+@Composable
+fun SellerVerifiedIcon(
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        imageVector = Icons.Filled.Verified,
+        contentDescription = null,
+        tint = StatusGreen,
+        modifier = modifier.size(18.dp),
+    )
+}
 
 // ─── Previews ─────────────────────────────────────────────────────────────────
 

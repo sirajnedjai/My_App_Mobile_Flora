@@ -6,6 +6,7 @@ data class ProductDetailsUiState(
     val isLoading: Boolean = true,
     val product: ProductDetails? = null,
     val sellerId: String? = null,
+    val reviewOrderId: String? = null,
     val selectedImageIndex: Int = 0,
     val addedToCart: Boolean = false,
     val reserveRequested: Boolean = false,
@@ -15,5 +16,8 @@ data class ProductDetailsUiState(
     val reviewInput: String = "",
     val reviewError: String? = null,
     val reviewSuccess: String? = null,
+    val isSubmittingReview: Boolean = false,
     val error: String? = null,
+    val favoriteMessage: String? = null,
+    val isFavoriteUpdating: Boolean = false,
 )

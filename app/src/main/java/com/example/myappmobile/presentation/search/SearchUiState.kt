@@ -16,6 +16,7 @@ data class SearchUiState(
     val isLoading: Boolean = false,
     val hasSearched: Boolean = false,
     val results: List<Product> = emptyList(),
+    val error: String? = null,
     val availableCategories: List<String> = emptyList(),
     val selectedCategory: String = "All",
     val selectedSort: SearchSortUi = SearchSortUi.RELEVANCE,

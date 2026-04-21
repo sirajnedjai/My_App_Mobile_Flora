@@ -19,12 +19,17 @@ object DatabaseProvider {
 
     @Volatile
     private var database: AppDatabase? = null
+    @Volatile
+    private var appContext: Context? = null
 
     fun initialize(context: Context) {
+        appContext = context.applicationContext
         if (database != null) return
 
         synchronized(this) {
+            appContext = context.applicationContext
             if (database != null) return
+            Log.d(TAG, "Initializing Room database")
 
             val instance = Room.databaseBuilder(
                 context.applicationContext,
@@ -51,14 +56,23 @@ object DatabaseProvider {
                     Log.e(TAG, "Room initialization seed failed", throwable)
                 }
             }
+            Log.d(TAG, "Room database initialized")
         }
     }
 
     fun getDatabase(): AppDatabase {
+        database?.let { return it }
+        appContext?.let { context ->
+            Log.d(TAG, "Database requested before explicit initialization. Initializing from stored application context.")
+            initialize(context)
+        }
+        Log.d(TAG, "Returning Room database instance. initialized=${database != null}")
         return checkNotNull(database) {
             "DatabaseProvider is not initialized. Call DatabaseProvider.initialize(context) first."
         }
     }
+
+    fun isInitialized(): Boolean = database != null
 
     private val MIGRATION_2_3 = object : Migration(2, 3) {
         override fun migrate(db: SupportSQLiteDatabase) {

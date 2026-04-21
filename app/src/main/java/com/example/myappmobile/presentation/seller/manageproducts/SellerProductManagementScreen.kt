@@ -1,7 +1,11 @@
 package com.example.myappmobile.presentation.seller.manageproducts
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +27,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Sell
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,11 +50,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.DangerButton
 import com.example.myappmobile.core.components.OutlineButton
@@ -72,13 +77,32 @@ import com.example.myappmobile.domain.model.Product
 @Composable
 fun SellerProductManagementScreen(
     onBack: () -> Unit = {},
+    onOpenProduct: (String) -> Unit = {},
     viewModel: SellerProductManagementViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            }
+            viewModel.onImageSelected(
+                uri = uri.toString(),
+                label = uri.lastPathSegment?.substringAfterLast('/') ?: "Selected image",
+            )
+        }
+    }
 
     SellerProductManagementContent(
         uiState = uiState,
         onBack = onBack,
+        onOpenProduct = onOpenProduct,
         onAddProduct = viewModel::showAddProductDialog,
         onEditProduct = viewModel::editProduct,
         onDeleteRequest = viewModel::requestDelete,
@@ -87,7 +111,9 @@ fun SellerProductManagementScreen(
         onPriceChanged = viewModel::onPriceChanged,
         onCategoryChanged = viewModel::onCategoryChanged,
         onDescriptionChanged = viewModel::onDescriptionChanged,
-        onImageUrlChanged = viewModel::onImageUrlChanged,
+        onStatusChanged = viewModel::onStatusChanged,
+        onPickImage = { imagePickerLauncher.launch(arrayOf("image/*")) },
+        onClearSelectedImage = viewModel::clearSelectedImage,
         onStockCountChanged = viewModel::onStockCountChanged,
         onSaveProduct = viewModel::saveProduct,
         onDismissDelete = viewModel::dismissDelete,
@@ -99,6 +125,7 @@ fun SellerProductManagementScreen(
 private fun SellerProductManagementContent(
     uiState: SellerProductManagementUiState,
     onBack: () -> Unit,
+    onOpenProduct: (String) -> Unit,
     onAddProduct: () -> Unit,
     onEditProduct: (Product) -> Unit,
     onDeleteRequest: (Product) -> Unit,
@@ -107,7 +134,9 @@ private fun SellerProductManagementContent(
     onPriceChanged: (String) -> Unit,
     onCategoryChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
-    onImageUrlChanged: (String) -> Unit,
+    onStatusChanged: (String) -> Unit,
+    onPickImage: () -> Unit,
+    onClearSelectedImage: () -> Unit,
     onStockCountChanged: (String) -> Unit,
     onSaveProduct: () -> Unit,
     onDismissDelete: () -> Unit,
@@ -123,6 +152,19 @@ private fun SellerProductManagementContent(
                     .fillMaxSize()
                     .padding(paddingValues),
             )
+        } else if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Loading seller products...",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = FloraTextSecondary,
+                )
+            }
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -139,9 +181,26 @@ private fun SellerProductManagementContent(
                     )
                 }
 
+                uiState.errorMessage?.let { message ->
+                    item {
+                        Card(
+                            shape = RoundedCornerShape(22.dp),
+                            colors = CardDefaults.cardColors(containerColor = White),
+                        ) {
+                            Text(
+                                text = message,
+                                modifier = Modifier.padding(18.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = FloraError,
+                            )
+                        }
+                    }
+                }
+
                 items(uiState.products, key = { it.id }) { product ->
                     SellerProductCard(
                         product = product,
+                        onOpen = { onOpenProduct(product.id) },
                         onEdit = { onEditProduct(product) },
                         onDelete = { onDeleteRequest(product) },
                     )
@@ -164,7 +223,9 @@ private fun SellerProductManagementContent(
             onPriceChanged = onPriceChanged,
             onCategoryChanged = onCategoryChanged,
             onDescriptionChanged = onDescriptionChanged,
-            onImageUrlChanged = onImageUrlChanged,
+            onStatusChanged = onStatusChanged,
+            onPickImage = onPickImage,
+            onClearSelectedImage = onClearSelectedImage,
             onStockCountChanged = onStockCountChanged,
             onSave = onSaveProduct,
         )
@@ -175,6 +236,7 @@ private fun SellerProductManagementContent(
             product = product,
             onDismiss = onDismissDelete,
             onConfirm = onConfirmDelete,
+            isDeleting = uiState.isDeleting,
         )
     }
 }
@@ -282,10 +344,12 @@ private fun SellerMetricChip(
 @Composable
 private fun SellerProductCard(
     product: Product,
+    onOpen: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
     Card(
+        modifier = Modifier.clickable(onClick = onOpen),
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
@@ -295,8 +359,8 @@ private fun SellerProductCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                AsyncImage(
-                    model = product.imageUrl,
+                FloraRemoteImage(
+                    imageUrl = product.imageUrl,
                     contentDescription = product.name,
                     modifier = Modifier
                         .size(100.dp)
@@ -347,6 +411,12 @@ private fun SellerProductCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                OutlineButton(
+                    text = "View Details",
+                    onClick = onOpen,
+                    modifier = Modifier.weight(1f),
+                    fillMaxWidth = false,
+                )
                 OutlineButton(
                     text = "Edit",
                     onClick = onEdit,
@@ -440,7 +510,9 @@ private fun SellerProductEditorDialog(
     onPriceChanged: (String) -> Unit,
     onCategoryChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
-    onImageUrlChanged: (String) -> Unit,
+    onStatusChanged: (String) -> Unit,
+    onPickImage: () -> Unit,
+    onClearSelectedImage: () -> Unit,
     onStockCountChanged: (String) -> Unit,
     onSave: () -> Unit,
 ) {
@@ -471,7 +543,7 @@ private fun SellerProductEditorDialog(
 
                 item {
                     SellerPreviewCard(
-                        imageUrl = uiState.imageUrl,
+                        imageUrl = uiState.selectedImageUri.ifBlank { uiState.existingImageUrl },
                         name = uiState.name,
                         category = uiState.category,
                         price = uiState.price,
@@ -488,6 +560,7 @@ private fun SellerProductEditorDialog(
                         onValueChange = onNameChanged,
                         label = "Product Name",
                         leadingIcon = Icons.Outlined.Sell,
+                        errorMessage = uiState.fieldErrors.name,
                     )
                 }
 
@@ -497,6 +570,7 @@ private fun SellerProductEditorDialog(
                         onValueChange = onDescriptionChanged,
                         label = "Description",
                         minLines = 4,
+                        errorMessage = uiState.fieldErrors.description,
                     )
                 }
 
@@ -507,6 +581,7 @@ private fun SellerProductEditorDialog(
                                 value = uiState.price,
                                 onValueChange = onPriceChanged,
                                 label = "Price",
+                                errorMessage = uiState.fieldErrors.price,
                             )
                         }
                         Box(modifier = Modifier.weight(1f)) {
@@ -515,6 +590,7 @@ private fun SellerProductEditorDialog(
                                 onValueChange = onStockCountChanged,
                                 label = "Stock",
                                 leadingIcon = Icons.Outlined.Inventory2,
+                                errorMessage = uiState.fieldErrors.stock,
                             )
                         }
                     }
@@ -525,19 +601,34 @@ private fun SellerProductEditorDialog(
                         value = uiState.category,
                         onValueChange = onCategoryChanged,
                         label = "Category",
+                        errorMessage = uiState.fieldErrors.category,
                     )
                 }
 
                 item {
-                    SectionTitle("Presentation")
+                    SectionTitle("Availability")
                 }
 
                 item {
-                    FloralInput(
-                        value = uiState.imageUrl,
-                        onValueChange = onImageUrlChanged,
-                        label = "Image URL",
-                        leadingIcon = Icons.Outlined.Link,
+                    SellerStatusSelector(
+                        selectedStatus = uiState.status,
+                        errorMessage = uiState.fieldErrors.status,
+                        onStatusSelected = onStatusChanged,
+                    )
+                }
+
+                item {
+                    SectionTitle("Image")
+                }
+
+                item {
+                    SellerImagePickerCard(
+                        imageModel = uiState.selectedImageUri.ifBlank { uiState.existingImageUrl },
+                        selectedImageLabel = uiState.selectedImageLabel,
+                        hasExistingImage = uiState.existingImageUrl.isNotBlank(),
+                        errorMessage = uiState.fieldErrors.imageFile,
+                        onPickImage = onPickImage,
+                        onClearSelectedImage = onClearSelectedImage,
                     )
                 }
 
@@ -561,6 +652,7 @@ private fun SellerProductEditorDialog(
                             onClick = onDismiss,
                             modifier = Modifier.weight(1f),
                             fillMaxWidth = false,
+                            enabled = !uiState.isSaving,
                         )
                         PrimaryButton(
                             text = if (uiState.isSaving) "Saving..." else "Save Product",
@@ -595,8 +687,8 @@ private fun SellerPreviewCard(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AsyncImage(
-                model = imageUrl,
+            FloraRemoteImage(
+                imageUrl = imageUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .size(82.dp)
@@ -640,6 +732,7 @@ private fun FloralInput(
     label: String,
     leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     minLines: Int = 1,
+    errorMessage: String? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -648,6 +741,7 @@ private fun FloralInput(
         label = { Text(label) },
         minLines = minLines,
         maxLines = if (minLines == 1) 1 else 6,
+        isError = !errorMessage.isNullOrBlank(),
         shape = RoundedCornerShape(20.dp),
         leadingIcon = leadingIcon?.let {
             {
@@ -663,15 +757,124 @@ private fun FloralInput(
             unfocusedContainerColor = White,
             focusedBorderColor = FloraBrown,
             unfocusedBorderColor = FloraDivider,
+            errorBorderColor = FloraError,
         ),
+        supportingText = errorMessage?.let { { Text(text = it, color = FloraError) } },
     )
 }
 
 @Composable
-private fun DeleteProductDialog(
+private fun SellerStatusSelector(
+    selectedStatus: String,
+    errorMessage: String?,
+    onStatusSelected: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            SellerProductStatus.entries.forEach { status ->
+                val selected = status.value == selectedStatus
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onStatusSelected(status.value) },
+                    shape = RoundedCornerShape(18.dp),
+                    color = if (selected) FloraBrown else White,
+                    border = BorderStroke(1.dp, if (selected) FloraBrown else FloraDivider),
+                ) {
+                    Box(
+                        modifier = Modifier.padding(vertical = 14.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = status.label,
+                            color = if (selected) White else FloraText,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        )
+                    }
+                }
+            }
+        }
+
+        errorMessage?.let {
+            Text(text = it, style = MaterialTheme.typography.bodySmall, color = FloraError)
+        }
+    }
+}
+
+@Composable
+private fun SellerImagePickerCard(
+    imageModel: String,
+    selectedImageLabel: String,
+    hasExistingImage: Boolean,
+    errorMessage: String?,
+    onPickImage: () -> Unit,
+    onClearSelectedImage: () -> Unit,
+) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraCardBg),
+        border = BorderStroke(1.dp, if (errorMessage.isNullOrBlank()) FloraDivider else FloraError),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            FloraRemoteImage(
+                imageUrl = imageModel,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(20.dp)),
+                contentScale = ContentScale.Crop,
+            )
+            Text(
+                text = when {
+                    selectedImageLabel.isNotBlank() -> selectedImageLabel
+                    hasExistingImage -> "Existing server image will be kept unless you replace it."
+                    else -> "No image selected. The backend allows products without an image."
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = FloraTextSecondary,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlineButton(
+                    text = if (hasExistingImage || selectedImageLabel.isNotBlank()) "Replace Image" else "Select Image",
+                    onClick = onPickImage,
+                    modifier = Modifier.weight(1f),
+                    fillMaxWidth = false,
+                    leadingIcon = Icons.Outlined.PhotoCamera,
+                )
+                if (selectedImageLabel.isNotBlank()) {
+                    OutlineButton(
+                        text = "Use Existing",
+                        onClick = onClearSelectedImage,
+                        modifier = Modifier.weight(1f),
+                        fillMaxWidth = false,
+                    )
+                }
+            }
+            errorMessage?.let {
+                Text(text = it, style = MaterialTheme.typography.bodySmall, color = FloraError)
+            }
+        }
+    }
+}
+
+@Composable
+fun DeleteProductDialog(
     product: Product,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    isDeleting: Boolean = false,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -700,12 +903,14 @@ private fun DeleteProductDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
                         fillMaxWidth = false,
+                        enabled = !isDeleting,
                     )
                     DangerButton(
-                        text = "Delete",
+                        text = if (isDeleting) "Deleting..." else "Delete",
                         onClick = onConfirm,
                         modifier = Modifier.weight(1f),
                         fillMaxWidth = false,
+                        enabled = !isDeleting,
                     )
                 }
             }

@@ -43,6 +43,7 @@ fun AuthTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    enabled: Boolean = true,
     isError: Boolean = false,
     errorMessage: String? = null,
 ) {
@@ -60,6 +61,7 @@ fun AuthTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
+            enabled = enabled,
             placeholder = {
                 if (placeholder.isNotEmpty()) {
                     Text(

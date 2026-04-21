@@ -44,11 +44,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.AtelierDivider
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.PrimaryButton
-import com.example.myappmobile.core.components.SellerApprovalBadge
+import com.example.myappmobile.core.components.SellerVerificationStatusChip
+import com.example.myappmobile.core.components.SellerVerifiedIcon
 import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.core.components.StarRatingRow
 import com.example.myappmobile.core.navigation.AppBottomBar
@@ -61,6 +63,7 @@ import com.example.myappmobile.core.theme.StoneGray
 import com.example.myappmobile.core.theme.Terracotta
 import com.example.myappmobile.domain.model.Product
 import com.example.myappmobile.domain.model.Review
+import com.example.myappmobile.domain.model.SellerApprovalStatus
 import com.example.myappmobile.domain.model.Store
 
 @Composable
@@ -211,8 +214,8 @@ private fun SellerHeaderSection(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        AsyncImage(
-            model = store.logoUrl.ifBlank { store.bannerUrl },
+        FloraRemoteImage(
+            imageUrl = store.logoUrl.ifBlank { store.bannerUrl },
             contentDescription = store.name,
             modifier = Modifier
                 .size(124.dp)
@@ -221,16 +224,35 @@ private fun SellerHeaderSection(
             contentScale = ContentScale.Crop,
         )
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = store.ownerName.ifBlank { store.name },
-            style = MaterialTheme.typography.displayMedium.copy(
-                fontFamily = SerifFontFamily,
-                fontStyle = FontStyle.Italic,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = store.name,
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontFamily = SerifFontFamily,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                ),
                 textAlign = TextAlign.Center,
-            ),
-            textAlign = TextAlign.Center,
-        )
+            )
+            if (store.approvalStatus == SellerApprovalStatus.APPROVED) {
+                SellerVerifiedIcon(modifier = Modifier.size(22.dp))
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
+        if (store.ownerName.isNotBlank()) {
+            Text(
+                text = store.ownerName,
+                style = MaterialTheme.typography.titleMedium,
+                color = StoneGray,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+        SellerVerificationStatusChip(status = store.approvalStatus)
+        Spacer(modifier = Modifier.height(12.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -247,8 +269,6 @@ private fun SellerHeaderSection(
             style = MaterialTheme.typography.labelMedium.copy(color = Terracotta),
             textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        SellerApprovalBadge(status = store.approvalStatus)
         Spacer(modifier = Modifier.height(22.dp))
         SellerActionButtons(
             onContactSeller = onContactSeller,
@@ -278,8 +298,8 @@ private fun SellerHeroImageSection(
         colors = CardDefaults.cardColors(containerColor = FloraSelectedCard),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
     ) {
-        AsyncImage(
-            model = store.bannerUrl.ifBlank { store.logoUrl },
+        FloraRemoteImage(
+            imageUrl = store.bannerUrl.ifBlank { store.logoUrl },
             contentDescription = "${store.name} banner",
             modifier = Modifier
                 .fillMaxWidth()
@@ -387,8 +407,8 @@ private fun EditorialProductCard(
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            AsyncImage(
-                model = product.imageUrl,
+            FloraRemoteImage(
+                imageUrl = product.imageUrl,
                 contentDescription = product.name,
                 modifier = Modifier
                     .weight(1.05f)
@@ -479,8 +499,8 @@ private fun ProductWorkCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
     ) {
         Column {
-            AsyncImage(
-                model = product.imageUrl,
+            FloraRemoteImage(
+                imageUrl = product.imageUrl,
                 contentDescription = product.name,
                 modifier = Modifier
                     .fillMaxWidth()

@@ -1,6 +1,7 @@
 package com.example.myappmobile
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.CompositionLocalProvider
@@ -23,6 +24,10 @@ fun AtelierApp() {
     val languageCode by AppContainer.uiPreferencesRepository.languageCode.collectAsState()
     val currentUser by AppContainer.authRepository.currentUser.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        Log.d(TAG, "AtelierApp composed. isAuthenticated=${currentUser.isAuthenticated} isSeller=${currentUser.isSeller}")
+    }
 
     LaunchedEffect(languageCode) {
         val currentLanguage = context.resources.configuration.locales[0]?.language.orEmpty()
@@ -53,6 +58,9 @@ fun AtelierApp() {
         val navController = rememberNavController()
         val backStackEntry by navController.currentBackStackEntryAsState()
         val route = backStackEntry?.destination?.route
+        LaunchedEffect(route) {
+            Log.d(TAG, "AtelierApp current route=${route.orEmpty()}")
+        }
         val enforceEnglish = route == Routes.LOGIN || route == Routes.REGISTER
         val layoutDirection = if (!enforceEnglish && LanguageManager.isRightToLeft(languageCode)) {
             LayoutDirection.Rtl
@@ -66,3 +74,5 @@ fun AtelierApp() {
         }
     }
 }
+
+private const val TAG = "FloraStartup"

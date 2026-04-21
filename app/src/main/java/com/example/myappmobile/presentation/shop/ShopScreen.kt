@@ -62,12 +62,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -96,11 +99,13 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.BuyersOnlyNotice
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.FavoriteButton
 import com.example.myappmobile.core.components.OutlineButton
+import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.ShimmerBox
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.core.navigation.Routes
@@ -129,11 +134,19 @@ fun ShopScreen(
     onBannerClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
+    onRetry: () -> Unit = {},
     selectedRoute: String = Routes.SELLER,
     onBottomNavClick: (String) -> Unit = {},
     viewModel: ShopViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.favoriteMessage) {
+        val message = uiState.favoriteMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        viewModel.clearFavoriteMessage()
+    }
 
     ShopScreenContent(
         uiState = uiState,
@@ -145,10 +158,12 @@ fun ShopScreen(
         onBannerClick = onBannerClick,
         onCartClick = onCartClick,
         onFilterClick = onFilterClick,
+        onRetry = onRetry,
         onLoadMore = viewModel::onLoadMore,
         onClearFilters = viewModel::clearFilters,
         selectedRoute = selectedRoute,
         onBottomNavClick = onBottomNavClick,
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -163,13 +178,16 @@ private fun ShopScreenContent(
     onBannerClick: () -> Unit,
     onCartClick: () -> Unit,
     onFilterClick: () -> Unit,
+    onRetry: () -> Unit,
     onLoadMore: () -> Unit,
     onClearFilters: () -> Unit,
     selectedRoute: String,
     onBottomNavClick: (String) -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     Scaffold(
         containerColor = FloraBeige,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             ShopHeader(
                 title = uiState.title,
@@ -192,6 +210,12 @@ private fun ShopScreenContent(
         ) { loading ->
             if (loading) {
                 ShopLoadingState(modifier = Modifier.padding(padding))
+            } else if (uiState.products.isEmpty() && uiState.error != null) {
+                ShopErrorState(
+                    message = uiState.error,
+                    onRetry = onRetry,
+                    modifier = Modifier.padding(padding),
+                )
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
@@ -247,6 +271,15 @@ private fun ShopScreenContent(
                         )
                     }
 
+                    if (uiState.error != null) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            ShopInlineErrorCard(
+                                message = uiState.error,
+                                onRetry = onRetry,
+                            )
+                        }
+                    }
+
                     if (uiState.visibleProducts.isEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             EmptyShopResults(
@@ -261,6 +294,7 @@ private fun ShopScreenContent(
                                 canUseWishlist = uiState.canUseWishlist,
                                 onClick = { onProductClick(product.id) },
                                 onFavoriteToggle = { onFavoriteToggle(product.id) },
+                                isFavoriteUpdating = product.id in uiState.pendingFavoriteIds,
                             )
                         }
                     }
@@ -280,6 +314,80 @@ private fun ShopScreenContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ShopErrorState(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "Unable to load the shop",
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = SerifFontFamily),
+            color = FloraText,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = FloraTextSecondary,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        PrimaryButton(
+            text = "Retry",
+            onClick = onRetry,
+        )
+    }
+}
+
+@Composable
+private fun ShopInlineErrorCard(
+    message: String,
+    onRetry: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraWhite.copy(alpha = 0.84f)),
+        border = BorderStroke(1.dp, FloraDivider.copy(alpha = 0.8f)),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = "Some products could not be refreshed",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = FloraText,
+                )
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraTextSecondary,
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            OutlineButton(
+                text = "Retry",
+                onClick = onRetry,
+            )
         }
     }
 }
@@ -978,11 +1086,11 @@ private fun FeaturedBannerSection(
             .clip(RoundedCornerShape(34.dp))
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = banner.imageUrl,
+        FloraRemoteImage(
+            imageUrl = banner.imageUrl,
             contentDescription = banner.title,
-            contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
         )
         Box(
             modifier = Modifier
@@ -1116,6 +1224,7 @@ private fun LuxuryProductCard(
     canUseWishlist: Boolean,
     onClick: () -> Unit,
     onFavoriteToggle: () -> Unit,
+    isFavoriteUpdating: Boolean,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val scale by animateFloatAsState(targetValue = 1f, label = "productCardScale")
@@ -1140,8 +1249,8 @@ private fun LuxuryProductCard(
                     .aspectRatio(0.82f)
                     .background(FloraCardBg),
             ) {
-                AsyncImage(
-                    model = product.imageUrl,
+                FloraRemoteImage(
+                    imageUrl = product.imageUrl,
                     contentDescription = product.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -1202,6 +1311,7 @@ private fun LuxuryProductCard(
                         FavoriteButton(
                             isFavorited = product.isFavorited,
                             onToggle = onFavoriteToggle,
+                            enabled = !isFavoriteUpdating,
                             modifier = Modifier.size(44.dp),
                         )
                     }
@@ -1327,7 +1437,10 @@ private fun ShopLoadingState(
     }
 }
 
-private fun Product.previewRating(): Float = 4.2f + (id.last().code % 7) / 10f
+private fun Product.previewRating(): Float {
+    val seed = id.lastOrNull()?.code ?: name.lastOrNull()?.code ?: 0
+    return 4.2f + (seed % 7) / 10f
+}
 
 @Composable
 private fun localizedShopCategoryLabel(category: ShopCategoryUi): String = when (category.id) {
@@ -1503,10 +1616,12 @@ private fun ShopScreenPreview() {
             onBannerClick = {},
             onCartClick = {},
             onFilterClick = {},
+            onRetry = {},
             onLoadMore = {},
             onClearFilters = {},
             selectedRoute = Routes.SELLER,
             onBottomNavClick = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }

@@ -1,8 +1,10 @@
 package com.example.myappmobile.presentation.checkout.payment
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.data.remote.toApiException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,6 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PaymentViewModel : ViewModel() {
+    private companion object {
+        const val TAG = "PaymentViewModel"
+    }
 
     private val repository = AppContainer.orderRepository
     private val createOrderUseCase = AppContainer.createOrderUseCase
@@ -29,9 +34,14 @@ class PaymentViewModel : ViewModel() {
 
     fun placeOrder(onPlaced: () -> Unit) {
         viewModelScope.launch {
-            repository.updatePaymentMethod(_uiState.value.paymentMethod)
-            createOrderUseCase()
-            onPlaced()
+            runCatching {
+                repository.updatePaymentMethod(_uiState.value.paymentMethod)
+                createOrderUseCase()
+            }.onSuccess {
+                onPlaced()
+            }.onFailure { error ->
+                Log.d(TAG, "Payment checkout failed. error=${error.toApiException().message}")
+            }
         }
     }
 }

@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.core.components.TextActionButton
@@ -122,8 +122,22 @@ private fun CartScreenContent(
             }
         },
     ) { paddingValues ->
-        if (uiState.items.isEmpty()) {
+        if (uiState.isLoading && uiState.items.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Loading your cart...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FloraTextSecondary,
+                )
+            }
+        } else if (uiState.items.isEmpty()) {
             EmptyCartState(
+                statusMessage = uiState.statusMessage,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
@@ -142,6 +156,12 @@ private fun CartScreenContent(
                         itemCount = uiState.itemsCount,
                         total = uiState.total,
                     )
+                }
+
+                if (!uiState.statusMessage.isNullOrBlank()) {
+                    item {
+                        CartStatusCard(message = uiState.statusMessage.orEmpty())
+                    }
                 }
 
                 items(uiState.items, key = { it.id }) { item ->
@@ -285,8 +305,8 @@ private fun CartItemCard(
                 .padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            AsyncImage(
-                model = item.product.imageUrl,
+            FloraRemoteImage(
+                imageUrl = item.product.imageUrl,
                 contentDescription = item.product.name,
                 modifier = Modifier
                     .size(92.dp)
@@ -533,6 +553,7 @@ private fun SummaryRow(
 
 @Composable
 private fun EmptyCartState(
+    statusMessage: String?,
     modifier: Modifier = Modifier,
     onContinueShopping: () -> Unit,
 ) {
@@ -572,10 +593,34 @@ private fun EmptyCartState(
             style = MaterialTheme.typography.bodyMedium,
             color = FloraTextSecondary,
         )
+        if (!statusMessage.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = statusMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = FloraTextSecondary,
+            )
+        }
         Spacer(modifier = Modifier.height(24.dp))
         PrimaryButton(
             text = stringResource(R.string.common_continue_shopping),
             onClick = onContinueShopping,
+        )
+    }
+}
+
+@Composable
+private fun CartStatusCard(message: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = White.copy(alpha = 0.7f)),
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = FloraTextSecondary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
         )
     }
 }

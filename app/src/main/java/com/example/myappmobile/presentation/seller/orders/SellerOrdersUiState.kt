@@ -7,4 +7,6 @@ data class SellerOrdersUiState(
     val user: User? = null,
     val isSeller: Boolean = false,
     val orders: List<Order> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
 )

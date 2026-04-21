@@ -14,4 +14,12 @@ data class HomeUiState(
     val isSubscribed: Boolean = false,
     val canUseWishlist: Boolean = true,
     val error: String? = null,
-)
+    val favoriteMessage: String? = null,
+    val pendingFavoriteIds: Set<String> = emptySet(),
+) {
+    val hasContent: Boolean
+        get() = banner != null ||
+            categories.isNotEmpty() ||
+            featuredProducts.isNotEmpty() ||
+            newArrivals.isNotEmpty()
+}

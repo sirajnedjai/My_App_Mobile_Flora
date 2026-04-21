@@ -13,6 +13,8 @@ data class AppNotification(
 
 enum class NotificationType {
     ORDER_DELIVERED,
+    SELLER_ORDER_PLACED,
+    SELLER_REVIEW_RECEIVED,
 }
 
 data class DeviceRegistration(

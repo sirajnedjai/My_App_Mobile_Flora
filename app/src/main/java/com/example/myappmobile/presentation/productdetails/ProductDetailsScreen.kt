@@ -26,6 +26,8 @@ import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,12 +42,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.AtelierDivider
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.FavoriteButton
 import com.example.myappmobile.core.components.OutlineButton
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.ReviewEligibilityNotice
-import com.example.myappmobile.core.components.SellerApprovalBadge
+import com.example.myappmobile.core.components.SellerVerificationStatusChip
+import com.example.myappmobile.core.components.SellerVerifiedIcon
 import com.example.myappmobile.core.components.ShimmerBox
 import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.core.components.StarRatingRow
@@ -56,6 +61,7 @@ import com.example.myappmobile.domain.ArtistProfile
 import com.example.myappmobile.domain.Product
 import com.example.myappmobile.domain.ProductDetails
 import com.example.myappmobile.domain.Review
+import com.example.myappmobile.domain.model.SellerApprovalStatus
 
 @Composable
 fun ProductDetailsScreen(
@@ -63,6 +69,8 @@ fun ProductDetailsScreen(
     onBack: () -> Unit = {},
     onAddToCart: () -> Unit = {},
     onReservePickup: () -> Unit = {},
+    onFavoriteToggle: () -> Unit = {},
+    onFavoriteMessageShown: () -> Unit = {},
     onVisitStudio: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onSimilarProductClick: (String) -> Unit = {},
@@ -70,13 +78,34 @@ fun ProductDetailsScreen(
     onRatingSelected: (Int) -> Unit = {},
     onReviewInputChanged: (String) -> Unit = {},
     onSubmitReview: () -> Unit = {},
+    onRetry: () -> Unit = {},
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.favoriteMessage) {
+        val message = uiState.favoriteMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        onFavoriteMessageShown()
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { ProductDetailsTopBar(onBack = onBack, onCartClick = onCartClick) },
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         if (uiState.isLoading) {
             ProductDetailsLoadingState(modifier = Modifier.padding(padding))
+        } else if (uiState.product == null && uiState.error != null) {
+            ProductDetailsErrorState(
+                message = uiState.error,
+                onRetry = onRetry,
+                modifier = Modifier.padding(padding),
+            )
+        } else if (uiState.product == null) {
+            ProductDetailsUnavailableState(
+                onRetry = onRetry,
+                modifier = Modifier.padding(padding),
+            )
         } else {
             uiState.product?.let { product ->
                 ProductDetailsContent(
@@ -85,15 +114,18 @@ fun ProductDetailsScreen(
                     addedToCart = uiState.addedToCart,
                     onAddToCart = onAddToCart,
                     onReservePickup = onReservePickup,
+                    onFavoriteToggle = onFavoriteToggle,
                     onVisitStudio = onVisitStudio,
                     onSimilarProductClick = onSimilarProductClick,
                     onSelectImage = onSelectImage,
+                    isFavoriteUpdating = uiState.isFavoriteUpdating,
                     canWriteReviews = uiState.canWriteReviews,
                     restrictionMessage = uiState.restrictionMessage,
                     selectedRating = uiState.selectedRating,
                     reviewInput = uiState.reviewInput,
                     reviewError = uiState.reviewError,
                     reviewSuccess = uiState.reviewSuccess,
+                    isSubmittingReview = uiState.isSubmittingReview,
                     onRatingSelected = onRatingSelected,
                     onReviewInputChanged = onReviewInputChanged,
                     onSubmitReview = onSubmitReview,
@@ -101,6 +133,75 @@ fun ProductDetailsScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProductDetailsErrorState(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "Unable to load this product",
+            style = MaterialTheme.typography.headlineSmall,
+            color = CharcoalDark,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = StoneGray,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        PrimaryButton(
+            text = "Retry",
+            onClick = onRetry,
+        )
+    }
+}
+
+@Composable
+private fun ProductDetailsUnavailableState(
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "This product is currently unavailable.",
+            style = MaterialTheme.typography.headlineSmall,
+            color = CharcoalDark,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Please try again in a moment.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = StoneGray,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlineButton(
+            text = "Retry",
+            onClick = onRetry,
+        )
     }
 }
 
@@ -149,15 +250,18 @@ private fun ProductDetailsContent(
     addedToCart: Boolean,
     onAddToCart: () -> Unit,
     onReservePickup: () -> Unit,
+    onFavoriteToggle: () -> Unit,
     onVisitStudio: () -> Unit,
     onSimilarProductClick: (String) -> Unit,
     onSelectImage: (Int) -> Unit,
+    isFavoriteUpdating: Boolean,
     canWriteReviews: Boolean,
     restrictionMessage: String?,
     selectedRating: Int,
     reviewInput: String,
     reviewError: String?,
     reviewSuccess: String?,
+    isSubmittingReview: Boolean,
     onRatingSelected: (Int) -> Unit,
     onReviewInputChanged: (String) -> Unit,
     onSubmitReview: () -> Unit,
@@ -177,6 +281,9 @@ private fun ProductDetailsContent(
                 selectedIndex = selectedImageIndex,
                 onSelect = onSelectImage,
                 productName = product.name,
+                isFavorited = product.isFavorited,
+                isFavoriteUpdating = isFavoriteUpdating,
+                onFavoriteToggle = onFavoriteToggle,
             )
         }
 
@@ -288,6 +395,7 @@ private fun ProductDetailsContent(
                     reviewInput = reviewInput,
                     errorMessage = reviewError,
                     successMessage = reviewSuccess,
+                    isSubmitting = isSubmittingReview,
                     onRatingSelected = onRatingSelected,
                     onReviewInputChanged = onReviewInputChanged,
                     onSubmitReview = onSubmitReview,
@@ -304,12 +412,21 @@ private fun ProductDetailsContent(
         }
 
         // Reviews list
-        items(product.reviews) { review ->
-            ReviewCard(
-                review = review,
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-            Spacer(Modifier.height(4.dp))
+        if (product.reviews.isEmpty()) {
+            item {
+                EmptyReviewsState(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+                Spacer(Modifier.height(20.dp))
+            }
+        } else {
+            items(product.reviews) { review ->
+                ReviewCard(
+                    review = review,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+                Spacer(Modifier.height(4.dp))
+            }
         }
 
         // You May Also Admire
@@ -357,6 +474,9 @@ private fun ProductImageGallery(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     productName: String,
+    isFavorited: Boolean,
+    isFavoriteUpdating: Boolean,
+    onFavoriteToggle: () -> Unit,
 ) {
     val safeImages = if (images.isEmpty()) listOf("") else images
 
@@ -409,14 +529,14 @@ private fun ProductImageGallery(
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             ) {
                 Box {
-                    AsyncImage(
-                        model = imageUrl,
+                    FloraRemoteImage(
+                        imageUrl = imageUrl,
                         contentDescription = productName,
-                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(390.dp)
                             .background(CreamDark),
+                        contentScale = ContentScale.Crop,
                     )
                     Surface(
                         modifier = Modifier
@@ -433,6 +553,14 @@ private fun ProductImageGallery(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
+                    FavoriteButton(
+                        isFavorited = isFavorited,
+                        onToggle = onFavoriteToggle,
+                        enabled = !isFavoriteUpdating,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(16.dp),
+                    )
                 }
             }
         }
@@ -466,15 +594,15 @@ private fun ProductImageGallery(
                             modifier = Modifier.padding(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            AsyncImage(
-                                model = url,
+                            FloraRemoteImage(
+                                imageUrl = url,
                                 contentDescription = stringResource(R.string.product_image_number, index + 1),
-                                contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(62.dp)
                                     .clip(RoundedCornerShape(16.dp))
                                     .background(CreamDark),
+                                contentScale = ContentScale.Crop,
                             )
                             Text(
                                 text = if (isSelected) stringResource(R.string.product_current_view) else stringResource(R.string.product_view_number, index + 1),
@@ -549,9 +677,9 @@ private fun ArtistCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AsyncImage(
-                model = artist.avatarUrl,
-                contentDescription = artist.name,
+            FloraRemoteImage(
+                imageUrl = artist.avatarUrl,
+                contentDescription = artist.studioName.ifBlank { artist.name },
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(44.dp)
@@ -560,13 +688,33 @@ private fun ArtistCard(
             )
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = artist.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = artist.studioName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (artist.sellerApprovalStatus == SellerApprovalStatus.APPROVED) {
+                        SellerVerifiedIcon()
+                    }
+                }
                 Spacer(Modifier.height(6.dp))
-                SellerApprovalBadge(status = artist.sellerApprovalStatus)
+                SellerVerificationStatusChip(status = artist.sellerApprovalStatus)
+                if (artist.name.isNotBlank()) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = artist.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = StoneGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -645,6 +793,7 @@ private fun ReviewComposerCard(
     reviewInput: String,
     errorMessage: String?,
     successMessage: String?,
+    isSubmitting: Boolean,
     onRatingSelected: (Int) -> Unit,
     onReviewInputChanged: (String) -> Unit,
     onSubmitReview: () -> Unit,
@@ -742,7 +891,36 @@ private fun ReviewComposerCard(
                 text = stringResource(R.string.product_submit_review),
                 onClick = onSubmitReview,
                 leadingIcon = Icons.AutoMirrored.Outlined.Send,
+                isLoading = isSubmitting,
+                enabled = !isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyReviewsState(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraSelectedCard),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.product_collector_reviews),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+                text = "No reviews yet for this piece.",
+                style = MaterialTheme.typography.bodySmall,
+                color = StoneGray,
             )
         }
     }
@@ -824,14 +1002,14 @@ private fun SimilarProductCard(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
             Column {
-                AsyncImage(
-                    model = product.imageUrl,
+                FloraRemoteImage(
+                    imageUrl = product.imageUrl,
                     contentDescription = product.name,
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(184.dp)
                         .background(CreamDark),
+                    contentScale = ContentScale.Crop,
                 )
                 Column(
                     modifier = Modifier.padding(16.dp),

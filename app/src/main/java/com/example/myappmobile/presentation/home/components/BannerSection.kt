@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.theme.*
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.BannerData
@@ -32,8 +32,8 @@ fun BannerSection(
             .padding(horizontal = 20.dp)
             .clip(MaterialTheme.shapes.extraLarge),
     ) {
-        AsyncImage(
-            model = banner.imageUrl,
+        FloraRemoteImage(
+            imageUrl = banner.imageUrl,
             contentDescription = banner.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),

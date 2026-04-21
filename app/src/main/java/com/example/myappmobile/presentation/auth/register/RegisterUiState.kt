@@ -9,6 +9,7 @@ data class RegisterUiState(
     val confirmPassword: String = "",
     val phoneNumber: String = "",
     val address: String = "",
+    val postalCode: String = "",
     val storeName: String = "",
     val isPasswordVisible: Boolean = false,
     val isConfirmPasswordVisible: Boolean = false,
@@ -22,6 +23,7 @@ data class RegisterUiState(
     val confirmPasswordError: String? = null,
     val phoneNumberError: String? = null,
     val addressError: String? = null,
+    val postalCodeError: String? = null,
     val storeNameError: String? = null,
     val generalError: String? = null,
 ) {
@@ -38,7 +40,7 @@ data class RegisterUiState(
                 phoneDigits.length in 8..15
 
             return if (isArtisan) {
-                baseValid && address.isNotBlank() && storeName.isNotBlank()
+                baseValid && address.isNotBlank() && postalCode.isNotBlank() && storeName.isNotBlank()
             } else {
                 baseValid
             }
@@ -46,6 +48,6 @@ data class RegisterUiState(
 }
 
 enum class AccountType(val displayName: String, val subtitle: String) {
-    BUYER("Buyer", "Collecting unique treasures"),
-    SELLER("Artisan", "Sharing your masterwork")
+    BUYER("Buyer", "Discover unique handmade products, save favorites, place orders, and enjoy a smooth shopping experience on FLORA."),
+    SELLER("Seller", "Create your artisan profile, showcase your handmade products, manage orders, and grow your business through FLORA.")
 }

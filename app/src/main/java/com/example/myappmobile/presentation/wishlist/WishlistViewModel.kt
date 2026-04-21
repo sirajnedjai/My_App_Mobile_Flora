@@ -18,12 +18,24 @@ class WishlistViewModel : ViewModel() {
     private val cartRepository = AppContainer.cartRepository
 
     private val searchQuery = MutableStateFlow("")
+    private val wishlistStatus = combine(
+        productRepository.favoriteMessage,
+        productRepository.favoriteOperationProductIds,
+        productRepository.isRefreshingFavorites,
+    ) { statusMessage, pendingProductIds, isRefreshing ->
+        WishlistStatus(
+            statusMessage = statusMessage,
+            pendingProductIds = pendingProductIds,
+            isRefreshing = isRefreshing,
+        )
+    }
 
     val uiState: StateFlow<WishlistUiState> = combine(
         AppContainer.authRepository.currentUser,
         searchQuery,
-        productRepository.observeAllProducts(),
-    ) { user, query, _ ->
+        productRepository.observeFavoriteProducts(),
+        wishlistStatus,
+    ) { user, query, favorites, wishlistStatus ->
         val access = RoleAccessManager.capabilities(user)
         if (!access.canUseWishlist) {
             WishlistUiState(
@@ -31,9 +43,10 @@ class WishlistViewModel : ViewModel() {
                 isBuyer = false,
                 restrictionMessage = access.buyersOnlyMessage,
                 isLoading = false,
+                statusMessage = wishlistStatus.statusMessage,
             )
         } else {
-            val products = productRepository.getFavoriteProducts().filter { product ->
+            val products = favorites.filter { product ->
                 query.isBlank() ||
                     product.name.contains(query, ignoreCase = true) ||
                     product.studio.contains(query, ignoreCase = true) ||
@@ -43,7 +56,9 @@ class WishlistViewModel : ViewModel() {
                 products = products,
                 query = query,
                 isBuyer = true,
-                isLoading = false,
+                isLoading = wishlistStatus.isRefreshing && favorites.isEmpty(),
+                statusMessage = wishlistStatus.statusMessage,
+                pendingProductIds = wishlistStatus.pendingProductIds,
             )
         }
     }.stateIn(
@@ -57,7 +72,9 @@ class WishlistViewModel : ViewModel() {
     }
 
     fun refresh() {
-        searchQuery.update { it }
+        viewModelScope.launch {
+            productRepository.refreshFavorites()
+        }
     }
 
     fun onSearchQueryChanged(value: String) {
@@ -65,12 +82,21 @@ class WishlistViewModel : ViewModel() {
     }
 
     fun onRemoveFromWishlist(productId: String) {
-        if (!uiState.value.isBuyer) return
+        if (!uiState.value.isBuyer || productId in uiState.value.pendingProductIds) return
         viewModelScope.launch {
             productRepository.toggleFavorite(productId)
-            refresh()
         }
     }
+
+    fun clearStatusMessage() {
+        productRepository.clearFavoriteMessage()
+    }
+
+    private data class WishlistStatus(
+        val statusMessage: String?,
+        val pendingProductIds: Set<String>,
+        val isRefreshing: Boolean,
+    )
 
     fun onAddToCart(productId: String) {
         viewModelScope.launch {

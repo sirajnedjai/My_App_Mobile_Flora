@@ -62,15 +62,6 @@ object ProductEntityMapper {
         .trim('_')
         .ifBlank { "curated" }
 
-    private fun detailImagesFor(primaryImageUrl: String): List<String> = buildList {
-        add(primaryImageUrl)
-        addAll(
-            listOf(
-                "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800",
-                "https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=800",
-                "https://images.unsplash.com/photo-1517705008128-361805f42e86?w=800",
-                "https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?w=800",
-            ),
-        )
-    }.distinct().take(5)
+    private fun detailImagesFor(primaryImageUrl: String): List<String> =
+        listOf(primaryImageUrl).filter { it.isNotBlank() }
 }

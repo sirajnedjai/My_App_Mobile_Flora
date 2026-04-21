@@ -1,6 +1,7 @@
 package com.example.myappmobile.presentation.orders.tracking
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.PrimaryButton
@@ -63,6 +64,7 @@ import com.example.myappmobile.domain.model.OrderStatus
 fun OrderTrackingScreen(
     onBack: () -> Unit = {},
     onContinueShopping: () -> Unit = {},
+    onOpenOrder: (String) -> Unit = {},
     viewModel: OrderTrackingViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -97,8 +99,13 @@ fun OrderTrackingScreen(
                 item {
                     TrackingHeroCard(customerName = uiState.customerName)
                 }
+                uiState.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
+                    item {
+                        ErrorCard(message = message, onRetry = viewModel::refresh)
+                    }
+                }
                 items(uiState.orders, key = Order::id) { order ->
-                    OrderTrackingCard(order = order)
+                    OrderTrackingCard(order = order, onClick = { onOpenOrder(order.id) })
                 }
             }
         }
@@ -177,8 +184,9 @@ private fun TrackingHeroCard(customerName: String) {
 }
 
 @Composable
-private fun OrderTrackingCard(order: Order) {
+private fun OrderTrackingCard(order: Order, onClick: () -> Unit) {
     Card(
+        modifier = Modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.96f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -229,6 +237,24 @@ private fun OrderTrackingCard(order: Order) {
 }
 
 @Composable
+private fun ErrorCard(message: String, onRetry: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraCardBg),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(message, color = FloraTextSecondary, style = MaterialTheme.typography.bodySmall)
+            PrimaryButton(text = "Retry", onClick = onRetry)
+        }
+    }
+}
+
+@Composable
 private fun TrackingItemRow(
     item: OrderItem,
     orderStatus: OrderStatus,
@@ -237,8 +263,8 @@ private fun TrackingItemRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        AsyncImage(
-            model = item.product.imageUrl,
+        FloraRemoteImage(
+            imageUrl = item.product.imageUrl,
             contentDescription = item.product.name,
             modifier = Modifier
                 .size(84.dp)

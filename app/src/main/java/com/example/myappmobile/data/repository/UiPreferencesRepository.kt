@@ -42,6 +42,14 @@ data class SellerTransferRecordPreferences(
     val paymentMethod: String = "",
 )
 
+data class SellerShippingPreferences(
+    val standardDeliveryEnabled: Boolean = true,
+    val expressDeliveryEnabled: Boolean = true,
+    val localPickupEnabled: Boolean = false,
+    val dispatchWindow: String = "Ships within 2 business days",
+    val fulfillmentNotes: String = "",
+)
+
 class UiPreferencesRepository {
     private var appContext: Context? = null
 
@@ -57,6 +65,9 @@ class UiPreferencesRepository {
     private val _sellerWallets = MutableStateFlow<Map<String, SellerWalletPreferences>>(emptyMap())
     val sellerWallets: StateFlow<Map<String, SellerWalletPreferences>> = _sellerWallets.asStateFlow()
 
+    private val _sellerShippingPreferences = MutableStateFlow<Map<String, SellerShippingPreferences>>(emptyMap())
+    val sellerShippingPreferences: StateFlow<Map<String, SellerShippingPreferences>> = _sellerShippingPreferences.asStateFlow()
+
     private val _sellerApprovalStatuses = MutableStateFlow<Map<String, SellerApprovalStatus>>(emptyMap())
     val sellerApprovalStatuses: StateFlow<Map<String, SellerApprovalStatus>> = _sellerApprovalStatuses.asStateFlow()
 
@@ -71,6 +82,7 @@ class UiPreferencesRepository {
         _accountProfiles.value = decodeAccountProfiles(prefs.getString(KEY_ACCOUNT_PROFILES, null))
         _storeConfigurations.value = decodeStoreConfigurations(prefs.getString(KEY_STORE_CONFIGS, null))
         _sellerWallets.value = decodeSellerWallets(prefs.getString(KEY_SELLER_WALLETS, null))
+        _sellerShippingPreferences.value = decodeSellerShippingPreferences(prefs.getString(KEY_SELLER_SHIPPING, null))
         _sellerApprovalStatuses.value = decodeSellerApprovalStatuses(prefs.getString(KEY_SELLER_APPROVAL_STATUSES, null))
     }
 
@@ -132,9 +144,25 @@ class UiPreferencesRepository {
         _sellerWallets.value = updated
     }
 
+    fun getSellerShippingPreferences(sellerId: String): SellerShippingPreferences =
+        _sellerShippingPreferences.value[normalizeSellerStoreId(sellerId)] ?: SellerShippingPreferences()
+
+    fun saveSellerShippingPreferences(sellerId: String, preferences: SellerShippingPreferences) {
+        val normalizedSellerId = normalizeSellerStoreId(sellerId)
+        val updated = _sellerShippingPreferences.value + (normalizedSellerId to preferences)
+        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_SELLER_SHIPPING, encodeSellerShippingPreferences(updated))
+            .apply()
+        _sellerShippingPreferences.value = updated
+    }
+
     fun getSellerApprovalStatus(sellerId: String): SellerApprovalStatus =
         _sellerApprovalStatuses.value[normalizeSellerStoreId(sellerId)]
             ?: defaultSellerApprovalStatus(sellerId)
+
+    fun findSellerApprovalStatus(sellerId: String): SellerApprovalStatus? =
+        _sellerApprovalStatuses.value[normalizeSellerStoreId(sellerId)]
 
     fun saveSellerApprovalStatus(sellerId: String, status: SellerApprovalStatus) {
         val normalizedSellerId = normalizeSellerStoreId(sellerId)
@@ -276,6 +304,33 @@ class UiPreferencesRepository {
         }.toMap()
     }
 
+    private fun encodeSellerShippingPreferences(value: Map<String, SellerShippingPreferences>): String =
+        value.entries.joinToString(ENTRY_SEPARATOR) { (sellerId, preferences) ->
+            listOf(
+                sellerId,
+                preferences.standardDeliveryEnabled.toString(),
+                preferences.expressDeliveryEnabled.toString(),
+                preferences.localPickupEnabled.toString(),
+                preferences.dispatchWindow,
+                preferences.fulfillmentNotes,
+            ).joinToString(FIELD_SEPARATOR) { encodeField(it) }
+        }
+
+    private fun decodeSellerShippingPreferences(raw: String?): Map<String, SellerShippingPreferences> {
+        if (raw.isNullOrBlank()) return emptyMap()
+        return raw.split(ENTRY_SEPARATOR).mapNotNull { entry ->
+            val fields = entry.split(FIELD_SEPARATOR)
+            if (fields.size < 6) return@mapNotNull null
+            decodeField(fields[0]) to SellerShippingPreferences(
+                standardDeliveryEnabled = decodeField(fields[1]).toBoolean(),
+                expressDeliveryEnabled = decodeField(fields[2]).toBoolean(),
+                localPickupEnabled = decodeField(fields[3]).toBoolean(),
+                dispatchWindow = decodeField(fields[4]),
+                fulfillmentNotes = decodeField(fields[5]),
+            )
+        }.toMap()
+    }
+
     private fun encodeSellerApprovalStatuses(value: Map<String, SellerApprovalStatus>): String =
         value.entries.joinToString(ENTRY_SEPARATOR) { (sellerId, status) ->
             listOf(
@@ -343,8 +398,7 @@ class UiPreferencesRepository {
     }
 
     private fun defaultSellerApprovalStatus(sellerId: String): SellerApprovalStatus = when (normalizeSellerStoreId(sellerId)) {
-        "1" -> SellerApprovalStatus.APPROVED
-        else -> SellerApprovalStatus.PENDING
+        else -> SellerApprovalStatus.UNKNOWN
     }
 
     private fun encodeField(value: String): String = value
@@ -368,6 +422,7 @@ class UiPreferencesRepository {
         const val KEY_ACCOUNT_PROFILES = "account_profiles"
         const val KEY_STORE_CONFIGS = "store_configurations"
         const val KEY_SELLER_WALLETS = "seller_wallets"
+        const val KEY_SELLER_SHIPPING = "seller_shipping"
         const val KEY_SELLER_APPROVAL_STATUSES = "seller_approval_statuses"
         const val FIELD_SEPARATOR = "\u001F"
         const val ENTRY_SEPARATOR = "\u001E"

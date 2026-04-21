@@ -68,6 +68,7 @@ fun PaymentsPayoutsScreen(
         ) {
             item {
                 WalletSummaryCard(
+                    sellerName = uiState.sellerName,
                     walletSummary = uiState.walletSummary,
                     onWithdrawClick = onWithdrawClick,
                 )
@@ -77,8 +78,15 @@ fun PaymentsPayoutsScreen(
                 SalesChartCard(
                     selectedPeriod = uiState.selectedPeriod,
                     chartData = uiState.chartData,
+                    performanceHeadline = uiState.performanceHeadline,
                     onPeriodSelected = viewModel::onPeriodSelected,
                 )
+            }
+
+            if (uiState.monthlyStatistics.isNotEmpty()) {
+                item {
+                    MonthlyStatisticsSection(monthlyStatistics = uiState.monthlyStatistics)
+                }
             }
 
             item {
@@ -94,6 +102,7 @@ fun PaymentsPayoutsScreen(
 
 @Composable
 private fun WalletSummaryCard(
+    sellerName: String,
     walletSummary: WalletSummaryUi,
     onWithdrawClick: () -> Unit,
 ) {
@@ -113,6 +122,11 @@ private fun WalletSummaryCard(
                     text = stringResource(R.string.payout_wallet_summary),
                     style = MaterialTheme.typography.titleMedium,
                     color = FloraBeige.copy(alpha = 0.88f),
+                )
+                Text(
+                    text = "Prepared for ${sellerName.ifBlank { "your studio" }}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraBeige.copy(alpha = 0.82f),
                 )
                 Text(
                     text = "$${"%.2f".format(walletSummary.availableBalance)}",
@@ -202,6 +216,7 @@ private fun WalletMetricCard(
 private fun SalesChartCard(
     selectedPeriod: SalesPeriodUi,
     chartData: List<SalesBarUi>,
+    performanceHeadline: String,
     onPeriodSelected: (SalesPeriodUi) -> Unit,
 ) {
     Card(
@@ -226,6 +241,13 @@ private fun SalesChartCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = FloraTextSecondary,
                 )
+                if (performanceHeadline.isNotBlank()) {
+                    Text(
+                        text = performanceHeadline,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraBrown,
+                    )
+                }
             }
 
             Row(
@@ -243,6 +265,70 @@ private fun SalesChartCard(
             }
 
             SalesBarChart(chartData = chartData)
+        }
+    }
+}
+
+@Composable
+private fun MonthlyStatisticsSection(
+    monthlyStatistics: List<MonthlySellerStatisticUi>,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = "Closed Months",
+            style = MaterialTheme.typography.titleLarge,
+            color = FloraText,
+        )
+        Text(
+            text = "A new monthly summary card is added automatically whenever a month closes.",
+            style = MaterialTheme.typography.bodySmall,
+            color = FloraTextSecondary,
+        )
+        monthlyStatistics.forEach { statistic ->
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = FloraSelectedCard),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = statistic.monthLabel,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = FloraText,
+                        )
+                        StatusBadge(status = if (statistic.isClosedMonth) "Completed" else "Processing")
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TransferMetric(
+                            label = "Revenue",
+                            value = "$${"%.2f".format(statistic.revenue)}",
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        TransferMetric(
+                            label = "Orders",
+                            value = statistic.orders.toString(),
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    TransferMetric(
+                        label = "Balance Snapshot",
+                        value = "$${"%.2f".format(statistic.balanceSnapshot)}",
+                    )
+                }
+            }
         }
     }
 }
@@ -431,10 +517,11 @@ private fun TransferRecordRow(record: TransferRecordUi) {
 
 @Composable
 private fun localizedSalesPeriod(period: SalesPeriodUi): String = when (period) {
-    SalesPeriodUi.WEEK -> stringResource(R.string.period_week)
-    SalesPeriodUi.MONTH -> stringResource(R.string.period_month)
-    SalesPeriodUi.THREE_MONTHS -> stringResource(R.string.period_three_months)
-    SalesPeriodUi.YEAR -> stringResource(R.string.period_year)
+    SalesPeriodUi.WEEK -> period.label
+    SalesPeriodUi.MONTH -> period.label
+    SalesPeriodUi.THREE_MONTHS -> period.label
+    SalesPeriodUi.SIX_MONTHS -> period.label
+    SalesPeriodUi.YEAR -> period.label
 }
 
 @Composable

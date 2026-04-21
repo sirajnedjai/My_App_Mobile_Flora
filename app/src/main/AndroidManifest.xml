@@ -15,7 +15,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/flora_logo_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyAppMobile">
+        android:theme="@style/Theme.MyAppMobile"
+        android:usesCleartextTraffic="true">
         <service
             android:name=".data.repository.FloraFirebaseMessagingService"
             android:exported="false">

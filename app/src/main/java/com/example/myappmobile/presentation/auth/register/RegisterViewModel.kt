@@ -79,14 +79,27 @@ class RegisterViewModel : ViewModel() {
                 }
             }
 
+            is RegisterEvent.PostalCodeChanged -> {
+                _uiState.update {
+                    it.copy(
+                        postalCode = event.postalCode.filter { char -> char.isLetterOrDigit() || char == ' ' || char == '-' },
+                        postalCodeError = null,
+                        generalError = null,
+                        successMessage = null,
+                    )
+                }
+            }
+
             is RegisterEvent.AccountTypeSelected -> {
                 _uiState.update {
                     if (event.type == AccountType.BUYER) {
                         it.copy(
                             selectedAccountType = event.type,
                             address = "",
+                            postalCode = "",
                             storeName = "",
                             addressError = null,
+                            postalCodeError = null,
                             storeNameError = null,
                             generalError = null,
                             successMessage = null,
@@ -168,6 +181,12 @@ class RegisterViewModel : ViewModel() {
             else -> null
         }
 
+        val postalCodeError = when {
+            state.isArtisan && state.postalCode.isBlank() -> "Postal code is required"
+            state.isArtisan && state.postalCode.trim().length < 3 -> "Enter a valid postal code"
+            else -> null
+        }
+
         _uiState.update {
             it.copy(
                 fullNameError = fullNameError,
@@ -176,7 +195,8 @@ class RegisterViewModel : ViewModel() {
                 confirmPasswordError = confirmPasswordError,
                 phoneNumberError = phoneNumberError,
                 storeNameError = storeNameError,
-                addressError = addressError
+                addressError = addressError,
+                postalCodeError = postalCodeError,
             )
         }
 
@@ -187,7 +207,8 @@ class RegisterViewModel : ViewModel() {
             confirmPasswordError,
             phoneNumberError,
             storeNameError,
-            addressError
+            addressError,
+            postalCodeError,
         ).all { error -> error == null }
 
         if (!isValid) {
@@ -207,7 +228,7 @@ class RegisterViewModel : ViewModel() {
 
                 Log.d(
                     TAG,
-                    "Registration payload prepared: email=${state.email}, phone=${state.phoneNumber}, store=${state.storeName.takeIf { it.isNotBlank() }}"
+                    "Registration payload prepared: email=${state.email}, role=${state.selectedAccountType.toBackendRole()}, phone=${state.phoneNumber}, store=${state.storeName.takeIf { it.isNotBlank() }}, postalCode=${state.postalCode.takeIf { it.isNotBlank() }}"
                 )
                 registerUseCase(
                     fullName = state.fullName,
@@ -217,6 +238,7 @@ class RegisterViewModel : ViewModel() {
                     isSeller = state.isArtisan,
                     storeName = state.storeName,
                     address = state.address,
+                    postalCode = state.postalCode,
                 ).onSuccess {
                     _uiState.update {
                         it.copy(
@@ -247,5 +269,10 @@ class RegisterViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    private fun AccountType.toBackendRole(): String = when (this) {
+        AccountType.BUYER -> "buyer"
+        AccountType.SELLER -> "seller"
     }
 }

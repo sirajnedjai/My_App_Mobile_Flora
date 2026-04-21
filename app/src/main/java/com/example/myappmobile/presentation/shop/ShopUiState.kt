@@ -19,6 +19,9 @@ data class ShopUiState(
     val activeFiltersSummary: List<String> = emptyList(),
     val canUseWishlist: Boolean = true,
     val isLoading: Boolean = true,
+    val error: String? = null,
+    val favoriteMessage: String? = null,
+    val pendingFavoriteIds: Set<String> = emptySet(),
 )
 
 data class ShopCategoryUi(

@@ -26,6 +26,9 @@ class FloraFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         val userId = AppContainer.authRepository.currentUser.value.id
         val orderId = message.data["orderId"].orEmpty()
+        val type = runCatching {
+            NotificationType.valueOf(message.data["type"].orEmpty().ifBlank { "ORDER_DELIVERED" })
+        }.getOrDefault(NotificationType.ORDER_DELIVERED)
         val title = message.notification?.title ?: message.data["title"].orEmpty()
         val body = message.notification?.body ?: message.data["body"].orEmpty()
 
@@ -36,7 +39,7 @@ class FloraFirebaseMessagingService : FirebaseMessagingService() {
                     userId = userId,
                     title = title,
                     body = body,
-                    type = NotificationType.ORDER_DELIVERED,
+                    type = type,
                     relatedOrderId = orderId,
                     createdAt = LocalDateTime.now().format(timestampFormatter),
                 ),
@@ -44,10 +47,11 @@ class FloraFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         if (isAppInForeground() && title.isNotBlank() && body.isNotBlank()) {
-            AppContainer.localNotificationGateway.sendDeliveredNotification(
+            AppContainer.localNotificationGateway.sendNotification(
                 title = title,
                 body = body,
                 orderId = orderId.ifBlank { System.currentTimeMillis().toString() },
+                type = type,
             )
         }
     }

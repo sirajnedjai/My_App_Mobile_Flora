@@ -20,8 +20,10 @@ class AddressViewModel : ViewModel() {
         repository.checkoutDraft.value.address?.let { address ->
             _uiState.value = AddressUiState(
                 fullName = address.fullName,
-                street = address.street,
-                city = address.city,
+                state = address.state,
+                municipality = address.municipality,
+                neighborhood = address.neighborhood,
+                streetAddress = address.street,
                 postalCode = address.postalCode,
                 country = address.country,
             )
@@ -29,8 +31,10 @@ class AddressViewModel : ViewModel() {
     }
 
     fun onFullNameChange(value: String) = _uiState.update { it.copy(fullName = value) }
-    fun onStreetChange(value: String) = _uiState.update { it.copy(street = value) }
-    fun onCityChange(value: String) = _uiState.update { it.copy(city = value) }
+    fun onStateChange(value: String) = _uiState.update { it.copy(state = value) }
+    fun onMunicipalityChange(value: String) = _uiState.update { it.copy(municipality = value) }
+    fun onNeighborhoodChange(value: String) = _uiState.update { it.copy(neighborhood = value) }
+    fun onStreetChange(value: String) = _uiState.update { it.copy(streetAddress = value) }
     fun onPostalCodeChange(value: String) = _uiState.update { it.copy(postalCode = value) }
     fun onCountryChange(value: String) = _uiState.update { it.copy(country = value) }
 
@@ -42,8 +46,10 @@ class AddressViewModel : ViewModel() {
                     id = "checkout_address",
                     label = "Checkout",
                     fullName = state.fullName,
-                    street = state.street,
-                    city = state.city,
+                    state = state.state,
+                    municipality = state.municipality,
+                    neighborhood = state.neighborhood,
+                    street = state.streetAddress,
                     postalCode = state.postalCode,
                     country = state.country,
                     isPrimary = true,

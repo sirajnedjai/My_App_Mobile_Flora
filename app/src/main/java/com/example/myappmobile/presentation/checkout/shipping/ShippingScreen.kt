@@ -19,9 +19,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myappmobile.core.components.PrimaryButton
 
 private val shippingOptions = listOf(
-    "Standard Delivery",
-    "Express Courier",
-    "Concierge White-Glove",
+    "home_delivery" to "Home Delivery",
+    "office_pickup" to "Office Pickup",
 )
 
 @Composable
@@ -39,16 +38,16 @@ fun ShippingScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            shippingOptions.forEach { option ->
+            shippingOptions.forEach { (value, label) ->
                 androidx.compose.foundation.layout.Row(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     RadioButton(
-                        selected = uiState.shippingMethod == option,
-                        onClick = { viewModel.onShippingMethodSelected(option) },
+                        selected = uiState.shippingMethod == value,
+                        onClick = { viewModel.onShippingMethodSelected(value) },
                     )
                     Text(
-                        text = option,
+                        text = label,
                         modifier = Modifier.padding(top = 12.dp),
                     )
                 }

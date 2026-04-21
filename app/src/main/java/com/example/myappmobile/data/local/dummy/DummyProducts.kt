@@ -177,6 +177,7 @@ object DummyProducts {
         price = 240.0,
         imageUrl = "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=400",
         studio = "FLORA CERAMICS",
+        storeId = "s1",
         category = "Ceramics",
         description = "Hand-thrown stoneware, matte glaze",
         stockCount = 12,
@@ -188,6 +189,7 @@ object DummyProducts {
         price = 185.0,
         imageUrl = "https://images.unsplash.com/photo-1617952739429-b4f8a52ccad6?w=400",
         studio = "FLORA STUDIO",
+        storeId = "s1",
         category = "Textiles",
         description = "Organic flax, double-weave texture",
         stockCount = 2,
@@ -199,6 +201,7 @@ object DummyProducts {
         price = 95.0,
         imageUrl = "https://images.unsplash.com/photo-1608501078713-8e445a709b39?w=400",
         studio = "FLORA STUDIO",
+        storeId = "s1",
         category = "Ceramics",
         description = "Hand-poured soy, amberwood & silk",
         stockCount = 28,
@@ -210,6 +213,7 @@ object DummyProducts {
         price = 185.0,
         imageUrl = "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
         studio = "FLORA CERAMICS",
+        storeId = "s1",
         category = "Ceramics",
     )
 
@@ -219,6 +223,7 @@ object DummyProducts {
         price = 240.0,
         imageUrl = "https://images.unsplash.com/photo-1617952739429-b4f8a52ccad6?w=400",
         studio = "FLORA STUDIO",
+        storeId = "s1",
         category = "Textiles",
     )
 
@@ -228,6 +233,7 @@ object DummyProducts {
         price = 95.0,
         imageUrl = "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400",
         studio = "FLORA CERAMICS",
+        storeId = "s1",
         category = "Ceramics",
     )
 

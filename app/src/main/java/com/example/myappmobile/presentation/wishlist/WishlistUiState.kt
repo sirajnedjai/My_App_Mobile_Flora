@@ -8,6 +8,8 @@ data class WishlistUiState(
     val isBuyer: Boolean = true,
     val restrictionMessage: String? = null,
     val isLoading: Boolean = true,
+    val statusMessage: String? = null,
+    val pendingProductIds: Set<String> = emptySet(),
 ) {
     val isEmpty: Boolean
         get() = !isLoading && products.isEmpty()

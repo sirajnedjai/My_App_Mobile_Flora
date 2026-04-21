@@ -15,6 +15,7 @@ data class Order(
     val tax: Double = 0.0,
     val subtotal: Double = 0.0,
     val shippingMethod: String = "",
+    val paymentMethod: String = "",
     val shippingAddress: Address? = null,
     val placedDate: String = "",
     val estimatedDelivery: String = "",
@@ -28,6 +29,8 @@ data class OrderItem(
     val product: Product,
     val quantity: Int = 1,
     val variant: String = "",
+    val unitPrice: Double = 0.0,
+    val lineTotal: Double = 0.0,
 )
 
 enum class OrderStatus {
@@ -53,8 +56,11 @@ data class Address(
     val id: String = "",
     val label: String = "",
     val fullName: String = "",
+    val phoneNumber: String = "",
+    val state: String = "",
+    val municipality: String = "",
+    val neighborhood: String = "",
     val street: String = "",
-    val city: String = "",
     val postalCode: String = "",
     val country: String = "",
     val isPrimary: Boolean = false,
@@ -62,6 +68,6 @@ data class Address(
 
 data class CheckoutDraft(
     val address: Address? = null,
-    val shippingMethod: String = "Standard Delivery",
-    val paymentMethod: String = "Card ending in 4242",
+    val shippingMethod: String = "home_delivery",
+    val paymentMethod: String = "card",
 )

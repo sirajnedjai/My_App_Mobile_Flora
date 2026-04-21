@@ -29,13 +29,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,6 +86,13 @@ fun WishlistScreen(
     viewModel: WishlistViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.statusMessage) {
+        val message = uiState.statusMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        viewModel.clearStatusMessage()
+    }
 
     WishlistScreenContent(
         uiState = uiState,
@@ -95,6 +106,7 @@ fun WishlistScreen(
         onSearchClick = onSearchClick,
         selectedRoute = selectedRoute,
         onBottomNavClick = onBottomNavClick,
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -111,9 +123,11 @@ private fun WishlistScreenContent(
     onSearchClick: () -> Unit,
     selectedRoute: String,
     onBottomNavClick: (String) -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     Scaffold(
         containerColor = FloraBeige,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             WishlistHeader(
                 onBack = onBack,
@@ -146,16 +160,19 @@ private fun WishlistScreenContent(
                 } else {
                     "Try a different name, studio, or category inside your wishlist."
                 },
+                statusMessage = uiState.statusMessage,
                 onContinueShopping = onContinueShopping,
                 modifier = Modifier.padding(padding),
             )
             else -> WishlistList(
                 query = uiState.query,
                 products = uiState.products,
+                statusMessage = uiState.statusMessage,
                 onSearchQueryChanged = onSearchQueryChanged,
                 onProductClick = onProductClick,
                 onRemove = onRemove,
                 onAddToCart = onAddToCart,
+                pendingProductIds = uiState.pendingProductIds,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -217,10 +234,12 @@ fun WishlistHeader(
 fun WishlistList(
     query: String,
     products: List<Product>,
+    statusMessage: String?,
     onSearchQueryChanged: (String) -> Unit,
     onProductClick: (String) -> Unit,
     onRemove: (String) -> Unit,
     onAddToCart: (String) -> Unit,
+    pendingProductIds: Set<String>,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -243,6 +262,11 @@ fun WishlistList(
                 shape = RoundedCornerShape(22.dp),
             )
         }
+        if (!statusMessage.isNullOrBlank()) {
+            item {
+                WishlistStatusCard(message = statusMessage)
+            }
+        }
         items(products, key = Product::id) { product ->
             WishlistItemCard(
                 product = product,
@@ -250,6 +274,7 @@ fun WishlistList(
                 onClick = { onProductClick(product.id) },
                 onRemove = { onRemove(product.id) },
                 onAddToCart = { onAddToCart(product.id) },
+                isFavoriteUpdating = product.id in pendingProductIds,
             )
         }
     }
@@ -285,6 +310,7 @@ fun WishlistItemCard(
     onClick: () -> Unit,
     onRemove: () -> Unit,
     onAddToCart: () -> Unit,
+    isFavoriteUpdating: Boolean,
 ) {
     Card(
         modifier = Modifier
@@ -307,8 +333,9 @@ fun WishlistItemCard(
                     contentScale = ContentScale.Crop,
                 )
                 FavoriteButton(
-                    isFavorited = true,
+                    isFavorited = product.isFavorited,
                     onToggle = onRemove,
+                    enabled = !isFavoriteUpdating,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(14.dp),
@@ -365,6 +392,7 @@ fun WishlistItemCard(
                         onClick = onRemove,
                         modifier = Modifier.weight(1f),
                         fillMaxWidth = false,
+                        enabled = !isFavoriteUpdating,
                     )
                     PrimaryButton(
                         text = stringResource(R.string.common_add_to_cart),
@@ -382,6 +410,7 @@ fun WishlistItemCard(
 fun EmptyWishlistState(
     title: String = "",
     subtitle: String = "",
+    statusMessage: String? = null,
     onContinueShopping: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -422,10 +451,34 @@ fun EmptyWishlistState(
             color = FloraTextSecondary,
             textAlign = TextAlign.Center,
         )
+        if (!statusMessage.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = statusMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = FloraTextSecondary,
+                textAlign = TextAlign.Center,
+            )
+        }
         Spacer(modifier = Modifier.height(24.dp))
         PrimaryButton(
             text = stringResource(R.string.common_continue_shopping),
             onClick = onContinueShopping,
+        )
+    }
+}
+
+@Composable
+private fun WishlistStatusCard(message: String) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = White.copy(alpha = 0.7f)),
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodySmall,
+            color = FloraTextSecondary,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
         )
     }
 }
@@ -470,7 +523,10 @@ private fun WishlistLoadingState(
     }
 }
 
-private fun Product.previewRating(): Float = 4.2f + (id.last().code % 7) / 10f
+private fun Product.previewRating(): Float {
+    val seed = id.lastOrNull()?.code ?: name.lastOrNull()?.code ?: 0
+    return 4.2f + (seed % 7) / 10f
+}
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F1ED)
 @Composable
@@ -492,6 +548,7 @@ private fun WishlistScreenPreview() {
             onSearchClick = {},
             selectedRoute = Routes.WISHLIST,
             onBottomNavClick = {},
+            snackbarHostState = remember { SnackbarHostState() },
         )
     }
 }

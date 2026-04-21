@@ -26,6 +26,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
             "String",
+            "FLORA_API_BASE_URL",
+            "\"http://192.168.1.34:8001/api/\"",
+        )
+        buildConfigField(
+            "String",
             "FLORA_NOTIFICATION_API_BASE_URL",
             "\"${providers.gradleProperty("flora.notificationApiBaseUrl").orElse("").get()}\"",
         )
@@ -67,10 +72,16 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.media3:media3-exoplayer:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.firebase.messaging)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

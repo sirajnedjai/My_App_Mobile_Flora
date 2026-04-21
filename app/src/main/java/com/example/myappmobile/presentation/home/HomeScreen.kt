@@ -22,7 +22,9 @@ import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -35,9 +37,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.AtelierDivider
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.ShimmerBox
 import com.example.myappmobile.core.catalog.FloraCatalog
 import com.example.myappmobile.core.navigation.AppBottomBar
@@ -62,11 +65,20 @@ fun HomeScreen(
     onEmailChange: (String) -> Unit = {},
     onSubscribe: () -> Unit = {},
     onFavoriteToggle: (String) -> Unit = {},
+    onFavoriteMessageShown: () -> Unit = {},
+    onRetry: () -> Unit = {},
     onBottomNavClick: (String) -> Unit = {},
     onCartClick: () -> Unit = {},
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.favoriteMessage) {
+        val message = uiState.favoriteMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        onFavoriteMessageShown()
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -82,6 +94,7 @@ fun HomeScreen(
         },
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
                 HomeTopBar(
                     onMenuClick = {
@@ -102,6 +115,12 @@ fun HomeScreen(
         ) { padding ->
             if (uiState.isLoading) {
                 HomeLoadingState(modifier = Modifier.padding(padding))
+            } else if (!uiState.hasContent && uiState.error != null) {
+                HomeErrorState(
+                    message = uiState.error,
+                    onRetry = onRetry,
+                    modifier = Modifier.padding(padding),
+                )
             } else {
                 HomeContent(
                     uiState = uiState,
@@ -111,6 +130,8 @@ fun HomeScreen(
                     onEmailChange = onEmailChange,
                     onSubscribe = onSubscribe,
                     onFavoriteToggle = onFavoriteToggle,
+                    onRetry = onRetry,
+                    pendingFavoriteIds = uiState.pendingFavoriteIds,
                     modifier = Modifier.padding(padding),
                 )
             }
@@ -335,6 +356,8 @@ private fun HomeContent(
     onEmailChange: (String) -> Unit,
     onSubscribe: () -> Unit,
     onFavoriteToggle: (String) -> Unit,
+    onRetry: () -> Unit,
+    pendingFavoriteIds: Set<String>,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -343,16 +366,28 @@ private fun HomeContent(
             .background(Cream),
         contentPadding = PaddingValues(bottom = 32.dp),
     ) {
+        uiState.error?.let { message ->
+            item {
+                HomeInlineErrorCard(
+                    message = message,
+                    onRetry = onRetry,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                )
+            }
+        }
+
         // Categories row
-        item {
-            CategoriesRow(
-                categories = uiState.categories,
-                onCategoryClick = onCategoryClick,
-            )
+        if (uiState.categories.isNotEmpty()) {
+            item {
+                CategoriesRow(
+                    categories = uiState.categories,
+                    onCategoryClick = onCategoryClick,
+                )
+            }
         }
 
         // Hero banner
-        item {
+        if (uiState.banner != null) item {
             uiState.banner?.let { banner ->
                 BannerSection(
                     banner = banner,
@@ -363,19 +398,20 @@ private fun HomeContent(
         }
 
         // Featured artifacts
-        item {
+        if (uiState.featuredProducts.isNotEmpty()) item {
             FeaturedProductsSection(
                 products = uiState.featuredProducts,
                 canUseWishlist = uiState.canUseWishlist,
                 onProductClick = onProductClick,
                 onFavoriteToggle = onFavoriteToggle,
+                pendingFavoriteIds = pendingFavoriteIds,
                 onViewAll = onViewAllFeatured,
             )
             Spacer(Modifier.height(40.dp))
         }
 
         // New Arrivals
-        item {
+        if (uiState.newArrivals.isNotEmpty()) item {
             Column {
                 Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Text(
@@ -421,6 +457,76 @@ private fun HomeContent(
     }
 }
 
+@Composable
+private fun HomeErrorState(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Cream)
+            .padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Unable to load the FLORA home page.",
+            style = MaterialTheme.typography.headlineSmall,
+            color = CharcoalDark,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = StoneGray,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(20.dp))
+        PrimaryButton(
+            text = "Retry",
+            onClick = onRetry,
+        )
+    }
+}
+
+@Composable
+private fun HomeInlineErrorCard(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = White,
+        tonalElevation = 3.dp,
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = "Some sections could not be refreshed.",
+                style = MaterialTheme.typography.titleMedium,
+                color = CharcoalDark,
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = StoneGray,
+            )
+            PrimaryButton(
+                text = "Retry",
+                onClick = onRetry,
+                fillMaxWidth = false,
+            )
+        }
+    }
+}
+
 // ─── New Arrival Card ─────────────────────────────────────────────────────────
 
 @Composable
@@ -435,8 +541,8 @@ private fun NewArrivalCard(
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
-            model = product.imageUrl,
+        FloraRemoteImage(
+            imageUrl = product.imageUrl,
             contentDescription = product.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier
