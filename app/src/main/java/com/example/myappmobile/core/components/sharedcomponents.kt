@@ -203,31 +203,31 @@ fun SellerApprovalBadge(
             background = StoneFaint,
             content = StoneGray,
             icon = Icons.Outlined.Info,
-            label = "Verification Unavailable",
+            label = "Not verified",
         )
         SellerApprovalStatus.NOT_VERIFIED -> BadgePalette(
             background = StatusAmberLight,
             content = StatusAmber,
             icon = Icons.Outlined.HourglassTop,
-            label = "Verification Required",
+            label = "Pending verification",
         )
         SellerApprovalStatus.APPROVED -> BadgePalette(
             background = StatusGreenLight,
             content = StatusGreen,
             icon = Icons.Filled.Verified,
-            label = "Approved Seller",
+            label = "Approved",
         )
         SellerApprovalStatus.PENDING -> BadgePalette(
             background = StatusAmberLight,
             content = StatusAmber,
             icon = Icons.Outlined.HourglassTop,
-            label = "Verification Pending",
+            label = "Pending verification",
         )
         SellerApprovalStatus.REJECTED -> BadgePalette(
             background = StatusRedLight,
             content = StatusRed,
             icon = Icons.Outlined.Info,
-            label = "Verification Update Needed",
+            label = "Rejected",
         )
     }
 
@@ -280,10 +280,11 @@ fun SellerVerificationStatusChip(
         else -> StatusAmber
     }
     val label = when (status) {
-        SellerApprovalStatus.UNKNOWN -> "Verification Unavailable"
-        SellerApprovalStatus.APPROVED -> "Verified Seller"
+        SellerApprovalStatus.UNKNOWN -> "Not verified"
+        SellerApprovalStatus.APPROVED -> "Verified"
         SellerApprovalStatus.PENDING -> "Pending Verification"
-        SellerApprovalStatus.NOT_VERIFIED, SellerApprovalStatus.REJECTED -> "Not Verified Yet"
+        SellerApprovalStatus.NOT_VERIFIED -> "Not verified"
+        SellerApprovalStatus.REJECTED -> "Rejected"
     }
 
     Surface(

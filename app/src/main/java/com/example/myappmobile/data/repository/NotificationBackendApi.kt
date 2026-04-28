@@ -2,11 +2,15 @@ package com.example.myappmobile.data.repository
 
 import android.util.Log
 import com.example.myappmobile.BuildConfig
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.domain.model.AppNotification
 import com.example.myappmobile.domain.model.NotificationType
 import com.example.myappmobile.domain.model.Order
+import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -112,31 +116,31 @@ class NotificationBackendApi {
     fun fetchNotifications(userId: String): Result<List<AppNotification>> {
         if (userId.isBlank() || baseUrl.isBlank()) return Result.success(emptyList())
         return runCatching {
-            val connection = (URL("$baseUrl/notifications?userId=$userId").openConnection() as HttpURLConnection).apply {
-                requestMethod = "GET"
-                connectTimeout = 5_000
-                readTimeout = 5_000
-            }
-            connection.inputStream.bufferedReader().use { reader ->
-                val raw = reader.readText()
-                val root = JSONArray(raw)
-                buildList {
-                    for (index in 0 until root.length()) {
-                        val item = root.getJSONObject(index)
-                        add(
-                            AppNotification(
-                                id = item.getString("id"),
-                                userId = item.getString("userId"),
-                                title = item.getString("title"),
-                                body = item.getString("body"),
-                                type = runCatching {
-                                    NotificationType.valueOf(item.optString("type", "ORDER_DELIVERED"))
-                                }.getOrDefault(NotificationType.ORDER_DELIVERED),
-                                relatedOrderId = item.optString("relatedOrderId"),
-                                isRead = item.optBoolean("isRead", false),
-                                createdAt = item.optString("createdAt"),
-                            ),
-                        )
+            withRetry(method = "GET", path = "/notifications?userId=$userId") { connection ->
+                if (connection.responseCode !in 200..299) {
+                    error("Request failed with ${connection.responseCode}")
+                }
+                connection.inputStream.bufferedReader().use { reader ->
+                    val raw = reader.readText()
+                    val root = JSONArray(raw)
+                    buildList {
+                        for (index in 0 until root.length()) {
+                            val item = root.getJSONObject(index)
+                            add(
+                                AppNotification(
+                                    id = item.getString("id"),
+                                    userId = item.getString("userId"),
+                                    title = item.getString("title"),
+                                    body = item.getString("body"),
+                                    type = runCatching {
+                                        NotificationType.valueOf(item.optString("type", "ORDER_DELIVERED"))
+                                    }.getOrDefault(NotificationType.ORDER_DELIVERED),
+                                    relatedOrderId = item.optString("relatedOrderId"),
+                                    isRead = item.optBoolean("isRead", false),
+                                    createdAt = item.optString("createdAt"),
+                                ),
+                            )
+                        }
                     }
                 }
             }
@@ -147,25 +151,70 @@ class NotificationBackendApi {
         path: String,
         body: JSONObject,
     ): Result<Unit> = runCatching {
-        val connection = (URL("$baseUrl$path").openConnection() as HttpURLConnection).apply {
-            requestMethod = "POST"
-            doOutput = true
-            setRequestProperty("Content-Type", "application/json")
-            connectTimeout = 5_000
-            readTimeout = 5_000
-        }
-        connection.outputStream.bufferedWriter().use { writer ->
-            writer.write(body.toString())
-        }
-        if (connection.responseCode !in 200..299) {
-            error("Request failed with ${connection.responseCode}")
+        withRetry(method = "POST", path = path) { connection ->
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.outputStream.bufferedWriter().use { writer ->
+                writer.write(body.toString())
+            }
+            if (connection.responseCode !in 200..299) {
+                error("Request failed with ${connection.responseCode}")
+            }
         }
     }
 
     private val baseUrl: String
-        get() = BuildConfig.FLORA_NOTIFICATION_API_BASE_URL.trimEnd('/')
+        get() = BuildConfig.FLORA_NOTIFICATION_API_BASE_URL
+            .trim()
+            .ifBlank { BackendUrlResolver.originUrl }
+            .removeSuffix("/api")
+            .trimEnd('/')
+
+    private fun openConnection(
+        path: String,
+        method: String,
+    ): HttpURLConnection = (URL("$baseUrl$path").openConnection() as HttpURLConnection).apply {
+        requestMethod = method
+        connectTimeout = CONNECT_TIMEOUT_MS
+        readTimeout = READ_TIMEOUT_MS
+        setRequestProperty("Accept", "application/json")
+        useCaches = false
+    }
+
+    private fun <T> withRetry(
+        method: String,
+        path: String,
+        action: (HttpURLConnection) -> T,
+    ): T {
+        var attempt = 0
+        var lastError: Exception? = null
+
+        while (attempt < MAX_ATTEMPTS) {
+            attempt += 1
+            try {
+                val connection = openConnection(path = path, method = method)
+                val result = action(connection)
+                if (connection.responseCode !in RETRIABLE_STATUS_CODES || attempt >= MAX_ATTEMPTS) {
+                    return result
+                }
+            } catch (error: Exception) {
+                lastError = error
+                val isRetriable = error is IOException || error is SocketTimeoutException || error is UnknownHostException
+                if (!isRetriable || attempt >= MAX_ATTEMPTS) throw error
+            }
+
+            Thread.sleep(RETRY_BACKOFF_MS * attempt)
+        }
+
+        throw lastError ?: IllegalStateException("Notification request failed.")
+    }
 
     private companion object {
         const val TAG = "NotificationBackendApi"
+        const val CONNECT_TIMEOUT_MS = 20_000
+        const val READ_TIMEOUT_MS = 90_000
+        const val RETRY_BACKOFF_MS = 1_500L
+        const val MAX_ATTEMPTS = 3
+        val RETRIABLE_STATUS_CODES = setOf(408, 425, 429, 500, 502, 503, 504)
     }
 }

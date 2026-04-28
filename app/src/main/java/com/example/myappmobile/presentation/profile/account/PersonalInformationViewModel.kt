@@ -3,7 +3,8 @@ package com.example.myappmobile.presentation.profile.account
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
-import com.example.myappmobile.data.repository.AccountProfilePreferences
+import com.example.myappmobile.domain.model.SellerApprovalStatus
+import com.example.myappmobile.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,28 +19,31 @@ class PersonalInformationViewModel : ViewModel() {
 
     val uiState: StateFlow<PersonalInformationUiState> = combine(
         AppContainer.authRepository.currentUser,
-        AppContainer.uiPreferencesRepository.accountProfiles,
         editorState,
-    ) { user, profiles, editor ->
-        val savedProfile = profiles[user.id].orEmpty()
+    ) { user, editor ->
+        val safeUser = user.toSafeUiUser()
         val shouldHydrate = editor.fullName.isBlank() && editor.email.isBlank() && !editor.isSaving && !editor.hasUserEdits
-        if (shouldHydrate && user.isAuthenticated) {
+        if (shouldHydrate && safeUser.isAuthenticated) {
             editor.copy(
-                fullName = savedProfile.fullName.ifBlank { user.fullName },
-                email = savedProfile.email.ifBlank { user.email },
-                phoneNumber = savedProfile.phoneNumber.ifBlank { user.phone },
-                address = savedProfile.address,
-                roleLabel = if (user.isSeller) "Seller Account" else "Customer Account",
-                membershipTier = user.membershipTier,
-                avatarUrl = resolvedAvatarUrl(editor = editor, preferences = savedProfile, fallback = user.avatarUrl),
+                fullName = safeUser.fullName,
+                email = safeUser.email,
+                phoneNumber = safeUser.phone,
+                address = safeUser.address,
+                storeName = safeUser.storeName,
+                roleLabel = safeUser.role.toRoleLabel(safeUser.isSeller),
+                membershipTier = safeUser.membershipTier,
+                avatarUrl = resolvedAvatarUrl(editor = editor, fallback = safeUser.avatarUrl),
+                isSeller = safeUser.isSeller,
                 isLoading = false,
             )
         } else {
             editor.copy(
-                roleLabel = if (user.isSeller) "Seller Account" else "Customer Account",
-                membershipTier = user.membershipTier,
-                address = if (editor.address.isBlank()) savedProfile.address else editor.address,
-                avatarUrl = resolvedAvatarUrl(editor = editor, preferences = savedProfile, fallback = user.avatarUrl),
+                roleLabel = safeUser.role.toRoleLabel(safeUser.isSeller),
+                membershipTier = safeUser.membershipTier,
+                address = if (editor.address.isBlank()) safeUser.address else editor.address,
+                storeName = if (editor.storeName.isBlank()) safeUser.storeName else editor.storeName,
+                avatarUrl = resolvedAvatarUrl(editor = editor, fallback = safeUser.avatarUrl),
+                isSeller = safeUser.isSeller,
                 isLoading = false,
             )
         }
@@ -63,6 +67,10 @@ class PersonalInformationViewModel : ViewModel() {
 
     fun onAddressChange(value: String) {
         editorState.update { it.copy(address = value, errorMessage = null, successMessage = null, hasUserEdits = true) }
+    }
+
+    fun onStoreNameChange(value: String) {
+        editorState.update { it.copy(storeName = value, errorMessage = null, successMessage = null, hasUserEdits = true) }
     }
 
     fun onAvatarSelected(uri: String) {
@@ -91,20 +99,11 @@ class PersonalInformationViewModel : ViewModel() {
                 phoneNumber = snapshot.phoneNumber,
                 address = snapshot.address,
                 avatarUrl = snapshot.avatarUrl,
+                storeName = snapshot.storeName,
             )
 
             result.fold(
                 onSuccess = {
-                    AppContainer.uiPreferencesRepository.saveAccountProfile(
-                        userId = AppContainer.authRepository.currentUser.value.id,
-                        profile = AccountProfilePreferences(
-                            fullName = snapshot.fullName.trim(),
-                            email = snapshot.email.trim(),
-                            phoneNumber = snapshot.phoneNumber.trim(),
-                            address = snapshot.address.trim(),
-                            avatarUri = snapshot.avatarUrl,
-                        ),
-                    )
                     editorState.update {
                         it.copy(
                             isSaving = false,
@@ -127,9 +126,26 @@ class PersonalInformationViewModel : ViewModel() {
 
     private fun resolvedAvatarUrl(
         editor: PersonalInformationUiState,
-        preferences: AccountProfilePreferences,
         fallback: String,
-    ): String = editor.avatarUrl.ifBlank { preferences.avatarUri.ifBlank { fallback } }
+    ): String = editor.avatarUrl.ifBlank { fallback }
 
-    private fun AccountProfilePreferences?.orEmpty(): AccountProfilePreferences = this ?: AccountProfilePreferences()
+    private fun String.toRoleLabel(isSeller: Boolean): String = when {
+        contains("buyer-seller", ignoreCase = true) -> "Buyer & Seller"
+        contains("seller", ignoreCase = true) || isSeller -> "Seller"
+        contains("buyer", ignoreCase = true) -> "Buyer"
+        else -> "Buyer"
+    }
+
+    private fun User.toSafeUiUser() = copy(
+        fullName = fullName.orEmpty(),
+        email = email.orEmpty(),
+        phone = phone.orEmpty(),
+        address = address.orEmpty(),
+        avatarUrl = avatarUrl.orEmpty(),
+        role = role.orEmpty(),
+        storeName = storeName.orEmpty(),
+        verificationStatus = runCatching { verificationStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        sellerApprovalStatus = runCatching { sellerApprovalStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        membershipTier = membershipTier.orEmpty(),
+    )
 }

@@ -55,10 +55,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.AuthTextField
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.OutlineButton
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.SellerApprovalBadge
@@ -234,8 +234,8 @@ private fun StoreIdentityCard(
                         modifier = Modifier.size(30.dp),
                     )
                 } else {
-                    AsyncImage(
-                        model = logoUri,
+                    FloraRemoteImage(
+                        imageUrl = logoUri,
                         contentDescription = shopName,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,

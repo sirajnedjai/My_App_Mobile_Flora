@@ -52,10 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.BuyersOnlyNotice
 import com.example.myappmobile.core.components.FavoriteButton
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.OutlineButton
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.components.ShimmerBox
@@ -326,8 +326,8 @@ fun WishlistItemCard(
                     .fillMaxWidth()
                     .height(220.dp),
             ) {
-                AsyncImage(
-                    model = product.imageUrl,
+                FloraRemoteImage(
+                    imageUrl = product.imageUrl,
                     contentDescription = product.name,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,

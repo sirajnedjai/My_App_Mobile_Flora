@@ -1,18 +1,17 @@
 package com.example.myappmobile.data.repository
 
-import android.net.Uri
 import android.util.Log
-import com.example.myappmobile.BuildConfig
 import com.example.myappmobile.data.local.room.DatabaseProvider
 import com.example.myappmobile.data.local.room.entity.ProductEntity
 import com.example.myappmobile.data.mapper.ProductEntityMapper
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.FavoriteApiService
+import com.example.myappmobile.data.remote.FavoriteDto
+import com.example.myappmobile.data.remote.FavoriteRequestDto
 import com.example.myappmobile.data.remote.ProductApiService
 import com.example.myappmobile.data.remote.ProductDto
 import com.example.myappmobile.data.remote.ReviewDto
 import com.example.myappmobile.data.remote.StoreDto
-import com.example.myappmobile.data.remote.FavoriteDto
-import com.example.myappmobile.data.remote.FavoriteRequestDto
 import com.example.myappmobile.data.remote.arrayAt
 import com.example.myappmobile.data.remote.asArrayOrNull
 import com.example.myappmobile.data.remote.asObjectOrNull
@@ -62,7 +61,6 @@ class ProductRepositoryImpl(
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val syncMutex = Mutex()
     private val favoriteMutex = Mutex()
-    private val serverBaseUrl = BuildConfig.FLORA_API_BASE_URL.removeSuffix("/api/")
     private val _favoriteMessage = MutableStateFlow<String?>(null)
     override val favoriteMessage: StateFlow<String?> = _favoriteMessage.asStateFlow()
     private val _favoriteOperationProductIds = MutableStateFlow<Set<String>>(emptySet())
@@ -597,6 +595,9 @@ class ProductRepositoryImpl(
         productJson?.arrayAt("gallery", "photos")?.forEach { image ->
             add(normalizeImageUrl(image.asStringOrNull().orEmpty()))
         }
+        productJson?.string("image_path", "product_image", "store_image", "thumbnail", "thumbnail_url")?.let { rawImage ->
+            add(normalizeImageUrl(rawImage))
+        }
     }.filter { it.isNotBlank() }.distinct()
 
     private fun ProductDto.toEntity(
@@ -646,39 +647,14 @@ class ProductRepositoryImpl(
             normalizeImageUrl(
                 productDto.imageUrl
                     ?: productDto.image
+                    ?: productDto.images.asObjectOrNull()?.string("url", "image_url", "thumbnail", "thumbnail_url")
                     ?: productDto.images.asArrayOrNull()?.firstOrNull()?.asStringOrNull()
                     ?: "",
             ),
             productDto.updatedAt,
         )
 
-    private fun normalizeImageUrl(raw: String): String {
-        val trimmed = raw.trim()
-        if (trimmed.isBlank()) return trimmed
-        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
-            val imageUri = Uri.parse(trimmed)
-            val serverUri = Uri.parse(serverBaseUrl)
-            val host = imageUri.host.orEmpty()
-            if (host.equals("localhost", ignoreCase = true) ||
-                host == "127.0.0.1" ||
-                host == "10.0.2.2" ||
-                host == "10.0.3.2"
-            ) {
-                val rebuilt = imageUri.buildUpon()
-                    .scheme(serverUri.scheme)
-                    .encodedAuthority(serverUri.encodedAuthority)
-                    .build()
-                    .toString()
-                Log.d(TAG, "Rewriting product image host from $trimmed to $rebuilt")
-                return rebuilt
-            }
-            return trimmed
-        }
-        return when {
-            trimmed.startsWith("/") -> serverBaseUrl + trimmed
-            else -> "$serverBaseUrl/$trimmed"
-        }
-    }
+    private fun normalizeImageUrl(raw: String): String = BackendUrlResolver.normalizeImageUrl(raw)
 
     private fun appendImageVersion(
         imageUrl: String,

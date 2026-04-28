@@ -2,13 +2,10 @@ package com.example.myappmobile.presentation.profile
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.annotation.StringRes
-import com.example.myappmobile.domain.model.SellerApprovalStatus
 import com.example.myappmobile.domain.model.User
 
 data class ProfileUiState(
     val user: User? = null,
-    val phoneNumber: String = "",
-    val address: String = "",
     val darkModeEnabled: Boolean = false,
     val buyerSettings: List<ProfileSettingItemUi> = emptyList(),
     val sellerSettings: List<ProfileSettingItemUi> = emptyList(),
@@ -17,7 +14,6 @@ data class ProfileUiState(
     val sellerDashboardError: String? = null,
     val showSellerTools: Boolean = false,
     val selectedLanguageCode: String = "en",
-    val sellerApprovalStatus: SellerApprovalStatus = SellerApprovalStatus.NOT_VERIFIED,
 )
 
 data class ProfileSettingItemUi(

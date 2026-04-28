@@ -1,9 +1,8 @@
 package com.example.myappmobile.data.repository
 
-import android.net.Uri
 import android.util.Log
-import com.example.myappmobile.BuildConfig
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.CheckoutRequestDto
 import com.example.myappmobile.data.remote.OrderApiService
 import com.example.myappmobile.data.remote.OrderDto
@@ -70,7 +69,6 @@ class OrderRepositoryImpl(
     private val displayTimestampFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
     private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val serverBaseUrl = BuildConfig.FLORA_API_BASE_URL.removeSuffix("/api/")
 
     private val _checkoutDraft = MutableStateFlow(CheckoutDraft())
     override val checkoutDraft: StateFlow<CheckoutDraft> = _checkoutDraft.asStateFlow()
@@ -532,6 +530,24 @@ class OrderRepositoryImpl(
                     ?: summaryObject?.string("estimated_delivery", "estimated_delivery_date", "delivery_eta")
                     .orEmpty(),
             ),
+            trackingNumber = dto.trackingNumber.orEmpty().ifBlank {
+                string("tracking_number", "tracking_no", "awb_number")
+                    ?: supportObject?.string("tracking_number", "tracking_no", "awb_number")
+                    ?: summaryObject?.string("tracking_number", "tracking_no", "awb_number")
+                    ?: ""
+            },
+            carrier = dto.carrier.orEmpty().ifBlank {
+                string("carrier", "shipping_carrier", "courier")
+                    ?: supportObject?.string("carrier", "shipping_carrier", "courier")
+                    ?: summaryObject?.string("carrier", "shipping_carrier", "courier")
+                    ?: ""
+            },
+            shipmentStatus = dto.shipmentStatus.orEmpty().ifBlank {
+                string("shipment_status", "shipping_status", "delivery_status", "tracking_status", "fulfillment_status")
+                    ?: supportObject?.string("shipment_status", "shipping_status", "delivery_status", "tracking_status", "fulfillment_status")
+                    ?: summaryObject?.string("shipment_status", "shipping_status", "delivery_status", "tracking_status", "fulfillment_status")
+                    ?: status.name.lowercase()
+            },
             imageUrl = items.firstOrNull()?.product?.imageUrl.orEmpty(),
             statusHistory = normalizedHistory.appendStatusEntry(
                 status = status,
@@ -660,9 +676,9 @@ class OrderRepositoryImpl(
         "PENDING" -> OrderStatus.PENDING
         "CONFIRMED", "PAID", "PROCESSING" -> OrderStatus.CONFIRMED
         "HAND_CRAFTED", "HAND-CRAFTED", "CRAFTING", "PREPARING" -> OrderStatus.HAND_CRAFTED
-        "SHIPPED", "IN_TRANSIT" -> OrderStatus.SHIPPED
+        "SHIPPED", "IN_TRANSIT", "OUT_FOR_DELIVERY" -> OrderStatus.SHIPPED
         "DELIVERED", "COMPLETED" -> OrderStatus.DELIVERED
-        "CANCELLED", "CANCELED" -> OrderStatus.CANCELLED
+        "CANCELLED", "CANCELED", "REJECTED" -> OrderStatus.CANCELLED
         else -> OrderStatus.PENDING
     }
 
@@ -686,6 +702,9 @@ class OrderRepositoryImpl(
             tax = tax * ratio,
             shippingCost = shippingCost * ratio,
             total = sellerSubtotal + (tax * ratio) + (shippingCost * ratio),
+            trackingNumber = trackingNumber,
+            carrier = carrier,
+            shipmentStatus = shipmentStatus,
             imageUrl = sellerItems.firstOrNull()?.product?.imageUrl.orEmpty(),
         )
     }
@@ -721,30 +740,7 @@ class OrderRepositoryImpl(
         isPrimary = isDefault,
     )
 
-    private fun normalizeImageUrl(raw: String): String {
-        val value = raw.trim()
-        if (value.isBlank()) return value
-        if (value.startsWith("http://") || value.startsWith("https://")) {
-            val imageUri = Uri.parse(value)
-            val serverUri = Uri.parse(serverBaseUrl)
-            val host = imageUri.host.orEmpty()
-            if (host.equals("localhost", ignoreCase = true) ||
-                host == "127.0.0.1" ||
-                host == "10.0.2.2" ||
-                host == "10.0.3.2"
-            ) {
-                val rebuilt = imageUri.buildUpon()
-                    .scheme(serverUri.scheme)
-                    .encodedAuthority(serverUri.encodedAuthority)
-                    .build()
-                    .toString()
-                Log.d(TAG, "Rewriting order image host from $value to $rebuilt")
-                return rebuilt
-            }
-            return value
-        }
-        return if (value.startsWith("/")) "$serverBaseUrl$value" else "$serverBaseUrl/$value"
-    }
+    private fun normalizeImageUrl(raw: String): String = BackendUrlResolver.normalizeImageUrl(raw)
 
     private fun resolveProductImageUrl(
         productDto: ProductDto,
@@ -752,7 +748,7 @@ class OrderRepositoryImpl(
     ): String = normalizeImageUrl(
         productDto.imageUrl
             ?: productDto.image
-            ?: obj.string("image_url", "image", "thumbnail", "photo")
+            ?: obj.string("image_url", "image", "image_path", "product_image", "thumbnail", "thumbnail_url", "photo")
             ?: productDto.images.asArrayOrNull()?.firstOrNull()?.asStringOrNull()
             ?: "",
     )

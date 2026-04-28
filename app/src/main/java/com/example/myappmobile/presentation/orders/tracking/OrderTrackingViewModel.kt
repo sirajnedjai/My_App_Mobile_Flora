@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
 import com.example.myappmobile.data.remote.toApiException
+import com.example.myappmobile.domain.model.SellerApprovalStatus
+import com.example.myappmobile.domain.model.User
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,17 +33,23 @@ class OrderTrackingViewModel : ViewModel() {
     val uiState: StateFlow<OrderTrackingUiState> = combine(
         AppContainer.authRepository.currentUser,
         AppContainer.authRepository.currentUser.flatMapLatest { user ->
-            if (user.isAuthenticated && !user.isSeller) {
-                AppContainer.orderRepository.observeOrdersForCustomer(user.id)
-            } else {
-                kotlinx.coroutines.flow.flowOf(emptyList())
+            when {
+                user.isAuthenticated && user.isSeller -> AppContainer.orderRepository.observeOrdersForSeller(user.id)
+                user.isAuthenticated -> {
+                    AppContainer.orderRepository.observeOrdersForCustomer(user.id)
+                }
+                else -> {
+                    kotlinx.coroutines.flow.flowOf(emptyList())
+                }
             }
         },
         refreshState,
     ) { user, orders, refresh ->
+        val safeUser = user.toSafeUiUser()
         OrderTrackingUiState(
             isLoading = refresh.isLoading,
-            customerName = user.fullName,
+            customerName = safeUser.fullName,
+            isSellerView = safeUser.isSeller,
             orders = orders,
             errorMessage = refresh.errorMessage,
         )
@@ -54,21 +62,39 @@ class OrderTrackingViewModel : ViewModel() {
     fun refresh() {
         viewModelScope.launch {
             val user = AppContainer.authRepository.currentUser.value
-            if (!user.isAuthenticated || user.isSeller) {
+            if (!user.isAuthenticated) {
                 refreshState.value = OrderTrackingUiState(isLoading = false)
                 return@launch
             }
             refreshState.update { it.copy(isLoading = true, errorMessage = null) }
-            repository.refreshCustomerOrders()
+            val result = if (user.isSeller) {
+                repository.refreshSellerOrders()
+            } else {
+                repository.refreshCustomerOrders()
+            }
+            result
                 .onSuccess {
-                    Log.d(TAG, "Buyer orders refreshed successfully.")
+                    Log.d(TAG, "Orders refreshed successfully. seller=${user.isSeller}")
                     refreshState.update { it.copy(isLoading = false, errorMessage = null) }
                 }
                 .onFailure { error ->
                     val apiError = error.toApiException()
-                    Log.d(TAG, "Buyer orders refresh failed. error=${apiError.message}")
+                    Log.d(TAG, "Orders refresh failed. seller=${user.isSeller} error=${apiError.message}")
                     refreshState.update { it.copy(isLoading = false, errorMessage = apiError.message) }
                 }
         }
     }
+
+    private fun User.toSafeUiUser() = copy(
+        fullName = fullName.orEmpty(),
+        email = email.orEmpty(),
+        phone = phone.orEmpty(),
+        address = address.orEmpty(),
+        avatarUrl = avatarUrl.orEmpty(),
+        role = role.orEmpty(),
+        storeName = storeName.orEmpty(),
+        verificationStatus = runCatching { verificationStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        sellerApprovalStatus = runCatching { sellerApprovalStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        membershipTier = membershipTier.orEmpty(),
+    )
 }

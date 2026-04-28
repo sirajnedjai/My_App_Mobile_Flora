@@ -4,6 +4,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.example.myappmobile.core.di.AppContainer
 import com.example.myappmobile.data.remote.ApiException
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.SellerVerificationApiService
 import com.example.myappmobile.data.remote.SellerVerificationStatusDto
 import com.example.myappmobile.data.remote.asObjectOrNull
@@ -168,9 +169,11 @@ class SellerVerificationRepository(
                     ?: store?.string("description", "bio", "about")
                     ?: ""
             },
-            documentUrl = dto.documentUrl.orEmpty().ifBlank {
-                primary.string("document_url", "document", "document_file", "verification_document", "document_image").orEmpty()
-            },
+            documentUrl = BackendUrlResolver.normalizeImageUrl(
+                dto.documentUrl.orEmpty().ifBlank {
+                    primary.string("document_url", "document", "document_file", "verification_document", "document_image").orEmpty()
+                },
+            ),
             rejectionReason = dto.rejectionReason
                 ?: primary.string("rejection_reason", "reason", "rejected_reason", "admin_note", "note", "comment"),
             submittedAt = dto.submittedAt ?: primary.string("submitted_at", "created_at", "requested_at"),

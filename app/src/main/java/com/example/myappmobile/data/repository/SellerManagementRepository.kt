@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
-import com.example.myappmobile.BuildConfig
 import com.example.myappmobile.core.di.AppContainer
 import com.example.myappmobile.data.local.room.DatabaseProvider
 import com.example.myappmobile.data.local.room.entity.ProductEntity
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.ProductApiService
 import com.example.myappmobile.data.remote.ProductDto
 import com.example.myappmobile.data.remote.SellerProductApiService
@@ -44,7 +44,6 @@ class SellerManagementRepository(
 
     private val productDao by lazy { DatabaseProvider.getDatabase().productDao() }
     private val _sellerProductsBySeller = MutableStateFlow<Map<String, List<Product>>>(emptyMap())
-    private val serverBaseUrl = BuildConfig.FLORA_API_BASE_URL.removeSuffix("/api/")
 
     fun getProductsForSeller(sellerId: String): Flow<List<Product>> = _sellerProductsBySeller.map { cached ->
         cached[normalizeSellerId(sellerId)].orEmpty()
@@ -292,30 +291,7 @@ class SellerManagementRepository(
         else -> sellerId
     }
 
-    private fun normalizeImageUrl(raw: String): String {
-        val value = raw.trim()
-        if (value.isBlank()) return value
-        if (value.startsWith("http://") || value.startsWith("https://")) {
-            val imageUri = Uri.parse(value)
-            val serverUri = Uri.parse(serverBaseUrl)
-            val host = imageUri.host.orEmpty()
-            if (host.equals("localhost", ignoreCase = true) ||
-                host == "127.0.0.1" ||
-                host == "10.0.2.2" ||
-                host == "10.0.3.2"
-            ) {
-                val rebuilt = imageUri.buildUpon()
-                    .scheme(serverUri.scheme)
-                    .encodedAuthority(serverUri.encodedAuthority)
-                    .build()
-                    .toString()
-                Log.d(TAG, "Rewriting seller product image host from $value to $rebuilt")
-                return rebuilt
-            }
-            return value
-        }
-        return if (value.startsWith("/")) "$serverBaseUrl$value" else "$serverBaseUrl/$value"
-    }
+    private fun normalizeImageUrl(raw: String): String = BackendUrlResolver.normalizeImageUrl(raw)
 
     private fun resolveProductImageUrl(
         productDto: ProductDto,
@@ -324,7 +300,7 @@ class SellerManagementRepository(
         normalizeImageUrl(
             productDto.imageUrl
                 ?: productDto.image
-                ?: obj.string("image_url", "image", "thumbnail", "photo")
+                ?: obj.string("image_url", "image", "image_path", "product_image", "store_image", "thumbnail", "thumbnail_url", "photo")
                 ?: productDto.images.asArrayOrNull()?.firstOrNull()?.asStringOrNull()
                 ?: DEFAULT_PRODUCT_IMAGE,
         ),

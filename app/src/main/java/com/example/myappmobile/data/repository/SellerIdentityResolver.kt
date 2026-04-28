@@ -1,7 +1,6 @@
 package com.example.myappmobile.data.repository
 
-import android.net.Uri
-import com.example.myappmobile.BuildConfig
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.asObjectOrNull
 import com.example.myappmobile.data.remote.asStringOrNull
 import com.example.myappmobile.data.remote.objectAt
@@ -17,8 +16,6 @@ data class SellerIdentity(
     val bannerImageUrl: String = "",
     val approvalStatus: SellerApprovalStatus = SellerApprovalStatus.UNKNOWN,
 )
-
-private val serverBaseUrl = BuildConfig.FLORA_API_BASE_URL.removeSuffix("/api/")
 
 internal fun resolveSellerIdentity(source: JsonObject?): SellerIdentity {
     if (source == null) return SellerIdentity()
@@ -43,10 +40,10 @@ internal fun resolveSellerIdentity(source: JsonObject?): SellerIdentity {
 
     val profileImageUrl = normalizeImageUrl(
         firstString(
-            source.string("logo", "logo_url", "avatar", "avatar_url", "profile_photo_url", "image"),
-            store?.string("logo", "logo_url", "image"),
-            seller?.string("avatar", "avatar_url", "profile_photo_url", "image"),
-            profile?.string("avatar", "avatar_url", "profile_photo_url", "image"),
+            source.string("logo", "logo_url", "store_image", "avatar", "avatar_url", "profile_photo_url", "profile_picture", "profile_picture_url", "image"),
+            store?.string("logo", "logo_url", "store_image", "image"),
+            seller?.string("avatar", "avatar_url", "profile_photo_url", "profile_picture", "profile_picture_url", "image"),
+            profile?.string("avatar", "avatar_url", "profile_photo_url", "profile_picture", "profile_picture_url", "image"),
         ),
     )
 
@@ -81,27 +78,6 @@ internal fun resolveSellerIdentity(source: JsonObject?): SellerIdentity {
 
 internal fun resolveSellerIdentity(source: JsonElement?): SellerIdentity = resolveSellerIdentity(source?.asObjectOrNull())
 
-internal fun normalizeImageUrl(raw: String?): String {
-    val trimmed = raw.orEmpty().trim()
-    if (trimmed.isBlank()) return ""
-    if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
-        val imageUri = Uri.parse(trimmed)
-        val serverUri = Uri.parse(serverBaseUrl)
-        val host = imageUri.host.orEmpty()
-        if (host.equals("localhost", ignoreCase = true) ||
-            host == "127.0.0.1" ||
-            host == "10.0.2.2" ||
-            host == "10.0.3.2"
-        ) {
-            return imageUri.buildUpon()
-                .scheme(serverUri.scheme)
-                .encodedAuthority(serverUri.encodedAuthority)
-                .build()
-                .toString()
-        }
-        return trimmed
-    }
-    return if (trimmed.startsWith("/")) "$serverBaseUrl$trimmed" else "$serverBaseUrl/$trimmed"
-}
+internal fun normalizeImageUrl(raw: String?): String = BackendUrlResolver.normalizeImageUrl(raw)
 
 private fun firstString(vararg candidates: String?): String = candidates.firstOrNull { !it.isNullOrBlank() }.orEmpty()

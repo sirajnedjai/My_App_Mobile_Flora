@@ -38,6 +38,13 @@ interface AuthApiService {
         @Body body: UpdateProfileRequestDto,
     ): Response<LaravelApiResponse<JsonElement>>
 
+    @Multipart
+    @POST("account/profile")
+    suspend fun updateProfileMultipart(
+        @PartMap body: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part avatar: MultipartBody.Part? = null,
+    ): Response<LaravelApiResponse<JsonElement>>
+
     @PUT("account/password")
     suspend fun changePassword(
         @Body body: ChangePasswordRequestDto,

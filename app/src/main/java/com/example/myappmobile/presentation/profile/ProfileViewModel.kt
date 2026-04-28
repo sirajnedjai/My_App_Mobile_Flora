@@ -20,7 +20,8 @@ import com.example.myappmobile.R
 import com.example.myappmobile.core.di.AppContainer
 import com.example.myappmobile.core.localization.LanguageManager
 import com.example.myappmobile.data.remote.toApiException
-import com.example.myappmobile.data.repository.AccountProfilePreferences
+import com.example.myappmobile.domain.model.SellerApprovalStatus
+import com.example.myappmobile.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,30 +46,32 @@ class ProfileViewModel(
     val uiState: StateFlow<ProfileUiState> = combine(
         AppContainer.authRepository.currentUser,
         AppContainer.uiPreferencesRepository.isDarkMode,
-        AppContainer.uiPreferencesRepository.accountProfiles,
         AppContainer.uiPreferencesRepository.languageCode,
         sellerSummaryState,
-    ) { user, isDarkMode, profiles, languageCode, sellerSummary ->
+    ) { user, isDarkMode, languageCode, sellerSummary ->
         val (sellerDashboard, sellerVerification) = sellerSummary
-        val profile = profiles[user.id].orEmpty()
+        val safeUser = user.toSafeUiUser()
+        val resolvedUser = safeUser.takeIf { it.isAuthenticated }?.let {
+            if (it.isSeller) {
+                it.copy(
+                    sellerApprovalStatus = sellerVerification.status.takeIf { status ->
+                        status != SellerApprovalStatus.UNKNOWN
+                    } ?: it.sellerApprovalStatus,
+                )
+            } else {
+                it
+            }
+        }
         ProfileUiState(
-            user = user.copy(
-                fullName = profile.fullName.ifBlank { user.fullName },
-                email = profile.email.ifBlank { user.email },
-                phone = profile.phoneNumber.ifBlank { user.phone },
-                avatarUrl = profile.avatarUri.ifBlank { user.avatarUrl },
-            ),
-            phoneNumber = profile.phoneNumber.ifBlank { user.phone },
-            address = profile.address,
+            user = resolvedUser,
             darkModeEnabled = isDarkMode,
             buyerSettings = buyerSettings(),
-            sellerSettings = if (user.isSeller) sellerSettings(sellerDashboard.summary) else emptyList(),
+            sellerSettings = if (safeUser.isSeller) sellerSettings(sellerDashboard.summary) else emptyList(),
             sellerDashboardSummary = sellerDashboard.summary,
             sellerDashboardLoading = sellerDashboard.isLoading,
             sellerDashboardError = sellerDashboard.errorMessage,
-            showSellerTools = user.isSeller,
+            showSellerTools = safeUser.isSeller,
             selectedLanguageCode = languageCode,
-            sellerApprovalStatus = sellerVerification.status,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -231,8 +234,6 @@ class ProfileViewModel(
         ),
     )
 
-    private fun AccountProfilePreferences?.orEmpty(): AccountProfilePreferences = this ?: AccountProfilePreferences()
-
     private fun formatCompactCurrency(value: Double): String {
         val absolute = kotlin.math.abs(value)
         return when {
@@ -246,6 +247,19 @@ class ProfileViewModel(
         val isLoading: Boolean = false,
         val summary: SellerDashboardSummaryUi? = null,
         val errorMessage: String? = null,
+    )
+
+    private fun User.toSafeUiUser() = copy(
+        fullName = fullName.orEmpty(),
+        email = email.orEmpty(),
+        phone = phone.orEmpty(),
+        address = address.orEmpty(),
+        avatarUrl = avatarUrl.orEmpty(),
+        role = role.orEmpty(),
+        storeName = storeName.orEmpty(),
+        verificationStatus = runCatching { verificationStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        sellerApprovalStatus = runCatching { sellerApprovalStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        membershipTier = membershipTier.orEmpty(),
     )
 
     private companion object {

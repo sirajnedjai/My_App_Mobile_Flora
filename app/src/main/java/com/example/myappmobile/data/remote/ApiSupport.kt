@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.Response as OkHttpResponse
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -13,6 +14,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLException
 
 class ApiException(
     override val message: String,
@@ -45,11 +48,18 @@ class NetworkModule(
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenStorage))
+            .addInterceptor(RetryInterceptor())
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(90, TimeUnit.SECONDS)
+            .writeTimeout(90, TimeUnit.SECONDS)
+            .callTimeout(120, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .apply {
                 if (BuildConfig.DEBUG) {
                     addInterceptor(
                         HttpLoggingInterceptor().apply {
                             level = HttpLoggingInterceptor.Level.BODY
+                            redactHeader("Authorization")
                         },
                     )
                 }
@@ -59,7 +69,7 @@ class NetworkModule(
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BuildConfig.FLORA_API_BASE_URL)
+            .baseUrl(BackendUrlResolver.apiBaseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -77,6 +87,44 @@ class NetworkModule(
     val sellerFinanceApiService: SellerFinanceApiService by lazy { retrofit.create(SellerFinanceApiService::class.java) }
     val sellerVerificationApiService: SellerVerificationApiService by lazy { retrofit.create(SellerVerificationApiService::class.java) }
     val reviewApiService: ReviewApiService by lazy { retrofit.create(ReviewApiService::class.java) }
+}
+
+private class RetryInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): OkHttpResponse {
+        val request = chain.request()
+        val maxAttempts = if (request.isSafeToRetry()) 3 else 1
+        var attempt = 0
+        var lastException: IOException? = null
+
+        while (attempt < maxAttempts) {
+            attempt += 1
+
+            try {
+                val response = chain.proceed(request)
+                if (!request.isSafeToRetry() || response.code !in RETRIABLE_STATUS_CODES || attempt >= maxAttempts) {
+                    return response
+                }
+                response.close()
+            } catch (exception: IOException) {
+                lastException = exception
+                if (!request.isSafeToRetry() || attempt >= maxAttempts || exception is java.io.InterruptedIOException) {
+                    throw exception
+                }
+            }
+
+            Thread.sleep(RETRY_BACKOFF_MS * attempt)
+        }
+
+        throw lastException ?: IOException("Request failed after retry attempts.")
+    }
+
+    private fun Request.isSafeToRetry(): Boolean = method in SAFE_RETRY_METHODS
+
+    private companion object {
+        val SAFE_RETRY_METHODS = setOf("GET", "HEAD", "OPTIONS")
+        val RETRIABLE_STATUS_CODES = setOf(408, 425, 429, 500, 502, 503, 504)
+        const val RETRY_BACKOFF_MS = 1_500L
+    }
 }
 
 fun <T> Response<LaravelApiResponse<T>>.requireBody(gson: Gson): LaravelApiResponse<T> {
@@ -106,8 +154,17 @@ fun <T> Response<LaravelApiResponse<T>>.requireBody(gson: Gson): LaravelApiRespo
 
 fun Throwable.toApiException(): ApiException = when (this) {
     is ApiException -> this
-    is UnknownHostException, is SocketTimeoutException, is IOException -> ApiException(
-        message = "Unable to reach the server. Check Wi-Fi and confirm the backend is running at ${BuildConfig.FLORA_API_BASE_URL.removeSuffix("/")}.",
+    is SocketTimeoutException -> ApiException(
+        message = "The server is taking longer than expected to respond. Render may be waking up; please try again in a moment.",
+    )
+    is UnknownHostException -> ApiException(
+        message = "Unable to reach the server. Check your internet connection and try again.",
+    )
+    is SSLException -> ApiException(
+        message = "A secure connection to the server could not be established. Please try again.",
+    )
+    is IOException -> ApiException(
+        message = "Unable to reach the server right now. Please try again shortly.",
     )
     else -> ApiException(message = message ?: "Something went wrong while contacting the server.")
 }
@@ -134,7 +191,10 @@ private fun buildApiMessage(
     return when (statusCode) {
         401 -> "Your session has expired. Please sign in again."
         404 -> "This feature is not available on the current server route. Please verify the backend endpoint configuration."
+        408 -> "The server took too long to respond. Please try again."
+        429 -> "Too many requests were sent. Please wait a moment and try again."
         422 -> "Please review the submitted fields and try again."
+        502, 503, 504 -> "The server is temporarily unavailable or waking up. Please retry in a moment."
         500 -> "The server returned an unexpected error. Please try again later."
         else -> "Request failed${statusCode?.let { " ($it)" }.orEmpty()}."
     }

@@ -47,10 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.AuthTextField
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.PrimaryButton
 import com.example.myappmobile.core.theme.FloraBeige
 import com.example.myappmobile.core.theme.FloraBrown
@@ -122,6 +122,7 @@ fun PersonalInformationScreen(
                         onEmailChange = viewModel::onEmailChange,
                         onPhoneChange = viewModel::onPhoneChange,
                         onAddressChange = viewModel::onAddressChange,
+                        onStoreNameChange = viewModel::onStoreNameChange,
                         onSave = viewModel::saveProfile,
                     )
                 }
@@ -189,8 +190,8 @@ private fun AccountHeroCard(
                         .background(StoneFaint)
                         .clickable(onClick = onChangePhoto),
                 ) {
-                    AsyncImage(
-                        model = avatarUrl,
+                    FloraRemoteImage(
+                        imageUrl = avatarUrl,
                         contentDescription = fullName,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
@@ -251,6 +252,7 @@ private fun AccountInformationCard(
     onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
+    onStoreNameChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
     Card(
@@ -297,6 +299,15 @@ private fun AccountInformationCard(
                 onValueChange = onAddressChange,
                 placeholder = stringResource(R.string.personal_info_address_placeholder),
             )
+
+            if (uiState.isSeller) {
+                AuthTextField(
+                    label = "Store Name",
+                    value = uiState.storeName,
+                    onValueChange = onStoreNameChange,
+                    placeholder = "Enter your store name",
+                )
+            }
 
             ReadOnlyInfoRow(
                 icon = Icons.Outlined.Badge,

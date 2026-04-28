@@ -55,9 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.core.components.CircularIconButton
+import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.SellerVerificationStatusChip
 import com.example.myappmobile.core.components.SellerVerifiedIcon
 import com.example.myappmobile.core.components.SmallActionButton
@@ -152,9 +152,6 @@ private fun ProfileScreenContent(
             item {
                 ProfileCard(
                     user = uiState.user,
-                    phoneNumber = uiState.phoneNumber,
-                    address = uiState.address,
-                    sellerApprovalStatus = if (uiState.showSellerTools) uiState.sellerApprovalStatus else null,
                 )
             }
 
@@ -253,9 +250,6 @@ fun ProfileHeader(
 @Composable
 fun ProfileCard(
     user: com.example.myappmobile.domain.model.User?,
-    phoneNumber: String,
-    address: String,
-    sellerApprovalStatus: SellerApprovalStatus? = null,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -276,8 +270,8 @@ fun ProfileCard(
                     .background(StoneFaint)
                     .border(2.dp, FloraSelectedCard.copy(alpha = 0.7f), CircleShape),
             ) {
-                AsyncImage(
-                    model = user?.avatarUrl,
+                FloraRemoteImage(
+                    imageUrl = user?.avatarUrl,
                     contentDescription = user?.fullName ?: "Profile avatar",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
@@ -291,23 +285,27 @@ fun ProfileCard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    text = user?.fullName ?: "Elena Vance",
+                    text = user?.fullName?.ifBlank { "FLORA Member" } ?: "FLORA Member",
                     style = MaterialTheme.typography.headlineSmall,
                     color = FloraText,
                 )
-                if (sellerApprovalStatus == SellerApprovalStatus.APPROVED) {
+                if (user?.sellerApprovalStatus == SellerApprovalStatus.APPROVED ||
+                    user?.verificationStatus == SellerApprovalStatus.APPROVED
+                ) {
                     SellerVerifiedIcon()
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = user?.email ?: "elena.vance@flora.com",
+                text = user?.email?.ifBlank { "No email available" } ?: "No email available",
                 style = MaterialTheme.typography.bodyMedium,
                 color = FloraTextSecondary,
             )
-            sellerApprovalStatus?.let {
+            user?.let {
                 Spacer(modifier = Modifier.height(10.dp))
-                SellerVerificationStatusChip(status = it)
+                SellerVerificationStatusChip(
+                    status = if (it.isSeller) it.sellerApprovalStatus else it.verificationStatus,
+                )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -315,18 +313,26 @@ fun ProfileCard(
                 style = MaterialTheme.typography.labelMedium,
                 color = FloraBrown,
             )
-            if (phoneNumber.isNotBlank()) {
+            if (!user?.storeName.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = phoneNumber,
+                    text = user?.storeName.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FloraText,
+                )
+            }
+            if (!user?.phone.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = user?.phone.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color = FloraTextSecondary,
                 )
             }
-            if (address.isNotBlank()) {
+            if (!user?.address.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = address,
+                    text = user?.address.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color = FloraTextMuted,
                 )
@@ -655,9 +661,11 @@ private fun ProfileScreenPreview() {
     FloraTheme {
         ProfileScreenContent(
             uiState = ProfileUiState(
-                user = DummyUsers.elena.copy(membershipTier = "Authenticated Member"),
-                phoneNumber = DummyUsers.elena.phone,
-                address = "West Village, New York",
+                user = DummyUsers.elena.copy(
+                    membershipTier = "Authenticated Member",
+                    address = "West Village, New York",
+                    verificationStatus = SellerApprovalStatus.APPROVED,
+                ),
                 darkModeEnabled = true,
                 buyerSettings = emptyList(),
                 sellerSettings = emptyList(),

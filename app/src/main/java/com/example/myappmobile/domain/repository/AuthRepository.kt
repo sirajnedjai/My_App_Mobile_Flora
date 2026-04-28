@@ -27,6 +27,7 @@ interface AuthRepository {
         phoneNumber: String,
         address: String = "",
         avatarUrl: String = "",
+        storeName: String = "",
     ): Result<User>
 
     suspend fun updateCurrentUserPassword(
@@ -34,4 +35,6 @@ interface AuthRepository {
         newPassword: String,
         confirmPassword: String,
     ): Result<Unit>
+
+    suspend fun refreshCurrentUser(): Result<User>
 }

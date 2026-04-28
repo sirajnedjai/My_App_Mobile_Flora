@@ -9,6 +9,7 @@ import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.BannerData
 import com.example.myappmobile.domain.Category
 import com.example.myappmobile.domain.Product
+import com.example.myappmobile.domain.model.SellerApprovalStatus
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,11 +40,14 @@ class HomeViewModel : ViewModel() {
                 productRepository.favoriteMessage,
                 productRepository.favoriteOperationProductIds,
             ) { allProducts, user, favoriteMessage, pendingFavoriteIds ->
-                val access = RoleAccessManager.capabilities(user)
+                val safeUser = user.toSafeUiUser()
+                val access = RoleAccessManager.capabilities(safeUser)
                 val featuredProducts = allProducts.take(4)
                 val newArrivals = allProducts.takeLast(4).reversed().ifEmpty { allProducts.take(4) }
                 HomeUiState(
                     isLoading = _uiState.value.isLoading && allProducts.isEmpty(),
+                    currentUser = safeUser.takeIf { it.isAuthenticated },
+                    accountStatus = safeAccountStatus(safeUser),
                     banner = deriveBanner(
                         featuredProducts = featuredProducts,
                         newArrivals = newArrivals,
@@ -140,4 +144,24 @@ class HomeViewModel : ViewModel() {
             imageUrl = leadProduct.imageUrl,
         )
     }
+
+    private fun safeAccountStatus(user: com.example.myappmobile.domain.model.User): SellerApprovalStatus = when {
+        user.isSeller && user.sellerApprovalStatus != SellerApprovalStatus.UNKNOWN -> user.sellerApprovalStatus
+        user.isSeller && user.sellerApprovalStatus != SellerApprovalStatus.NOT_VERIFIED -> user.sellerApprovalStatus
+        user.verificationStatus != SellerApprovalStatus.UNKNOWN -> user.verificationStatus
+        else -> SellerApprovalStatus.NOT_VERIFIED
+    }
+
+    private fun com.example.myappmobile.domain.model.User.toSafeUiUser() = copy(
+        fullName = fullName.orEmpty(),
+        email = email.orEmpty(),
+        phone = phone.orEmpty(),
+        address = address.orEmpty(),
+        avatarUrl = avatarUrl.orEmpty(),
+        role = role.orEmpty(),
+        storeName = storeName.orEmpty(),
+        verificationStatus = runCatching { verificationStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        sellerApprovalStatus = runCatching { sellerApprovalStatus }.getOrDefault(SellerApprovalStatus.NOT_VERIFIED),
+        membershipTier = membershipTier.orEmpty(),
+    )
 }

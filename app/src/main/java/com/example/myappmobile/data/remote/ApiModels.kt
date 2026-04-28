@@ -39,6 +39,7 @@ data class UpdateProfileRequestDto(
     @SerializedName("email") val email: String,
     @SerializedName("phone") val phone: String,
     @SerializedName("address") val address: String? = null,
+    @SerializedName("store_name") val storeName: String? = null,
 )
 
 data class UserDto(
@@ -46,9 +47,17 @@ data class UserDto(
     @SerializedName(value = "name", alternate = ["full_name", "fullname"]) val name: String? = null,
     @SerializedName("email") val email: String? = null,
     @SerializedName(value = "phone", alternate = ["phone_number"]) val phone: String? = null,
-    @SerializedName(value = "avatar", alternate = ["avatar_url", "profile_photo_url", "image"]) val avatarUrl: String? = null,
+    @SerializedName(value = "avatar", alternate = ["avatar_url", "avatarUrl", "profile_photo_url", "profile_picture", "profile_picture_url", "avatar_image", "image", "photo"]) val avatarUrl: String? = null,
     @SerializedName(value = "role", alternate = ["user_type", "account_type"]) val role: String? = null,
-    @SerializedName(value = "is_seller", alternate = ["seller"]) val isSeller: Boolean? = null,
+    @SerializedName("is_seller") val isSeller: Boolean? = null,
+    @SerializedName(value = "address", alternate = ["street_address"]) val address: String? = null,
+    @SerializedName(value = "store_name", alternate = ["shop_name"]) val storeName: String? = null,
+    @SerializedName(value = "is_verified", alternate = ["verified"]) val isVerified: Boolean? = null,
+    @SerializedName(value = "approved", alternate = ["is_approved"]) val approved: Boolean? = null,
+    @SerializedName("verification_status") val verificationStatus: String? = null,
+    @SerializedName("store") val store: JsonElement? = null,
+    @SerializedName("seller") val seller: JsonElement? = null,
+    @SerializedName("profile") val profile: JsonElement? = null,
 )
 
 data class AuthPayloadDto(
@@ -61,8 +70,8 @@ data class ProductDto(
     @SerializedName(value = "name", alternate = ["title"]) val name: String? = null,
     @SerializedName(value = "description", alternate = ["details", "story"]) val description: String? = null,
     @SerializedName(value = "price", alternate = ["amount", "sale_price"]) val price: JsonElement? = null,
-    @SerializedName("image") val image: String? = null,
-    @SerializedName(value = "image_url", alternate = ["thumbnail", "photo"]) val imageUrl: String? = null,
+    @SerializedName(value = "image", alternate = ["image_path", "product_image", "store_image"]) val image: String? = null,
+    @SerializedName(value = "image_url", alternate = ["imageUrl", "thumbnail", "photo", "thumbnail_url"]) val imageUrl: String? = null,
     @SerializedName("images") val images: JsonElement? = null,
     @SerializedName("category") val category: JsonElement? = null,
     @SerializedName(value = "store_id", alternate = ["seller_id"]) val storeId: JsonElement? = null,
@@ -82,7 +91,7 @@ data class StoreDto(
     @SerializedName(value = "name", alternate = ["store_name", "shop_name"]) val name: String? = null,
     @SerializedName(value = "owner_name", alternate = ["seller_name"]) val ownerName: String? = null,
     @SerializedName(value = "description", alternate = ["bio"]) val description: String? = null,
-    @SerializedName(value = "logo", alternate = ["logo_url", "image"]) val logoUrl: String? = null,
+    @SerializedName(value = "logo", alternate = ["logo_url", "store_image", "avatar", "avatar_url", "profile_picture", "profile_picture_url", "image"]) val logoUrl: String? = null,
     @SerializedName(value = "banner", alternate = ["banner_url"]) val bannerUrl: String? = null,
 )
 
@@ -144,6 +153,9 @@ data class OrderDto(
     @SerializedName("status") val status: String? = null,
     @SerializedName(value = "total", alternate = ["grand_total"]) val total: JsonElement? = null,
     @SerializedName("items") val items: JsonElement? = null,
+    @SerializedName(value = "tracking_number", alternate = ["tracking_no", "awb_number"]) val trackingNumber: String? = null,
+    @SerializedName(value = "carrier", alternate = ["shipping_carrier", "courier"]) val carrier: String? = null,
+    @SerializedName(value = "shipment_status", alternate = ["shipping_status", "delivery_status", "tracking_status", "fulfillment_status"]) val shipmentStatus: String? = null,
 )
 
 data class SellerOrderStatusUpdateRequestDto(

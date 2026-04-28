@@ -31,8 +31,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +43,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.CircularIconButton
@@ -68,6 +72,17 @@ fun OrderTrackingScreen(
     viewModel: OrderTrackingViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Scaffold(
         containerColor = FloraBeige,
@@ -97,7 +112,7 @@ fun OrderTrackingScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item {
-                    TrackingHeroCard(customerName = uiState.customerName)
+                    TrackingHeroCard(customerName = uiState.customerName, isSellerView = uiState.isSellerView)
                 }
                 uiState.errorMessage?.takeIf { it.isNotBlank() }?.let { message ->
                     item {
@@ -138,7 +153,7 @@ private fun OrderTrackingTopBar(onBack: () -> Unit) {
 }
 
 @Composable
-private fun TrackingHeroCard(customerName: String) {
+private fun TrackingHeroCard(customerName: String, isSellerView: Boolean) {
     Card(
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = FloraSelectedCard.copy(alpha = 0.94f)),
@@ -166,10 +181,14 @@ private fun TrackingHeroCard(customerName: String) {
             }
             Column {
                 Text(
-                    text = stringResource(
-                        R.string.orders_progress_for,
-                        customerName.ifBlank { stringResource(R.string.orders_your_account) },
-                    ),
+                    text = if (isSellerView) {
+                        "Order activity for ${customerName.ifBlank { stringResource(R.string.orders_your_account) }}"
+                    } else {
+                        stringResource(
+                            R.string.orders_progress_for,
+                            customerName.ifBlank { stringResource(R.string.orders_your_account) },
+                        )
+                    },
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = FloraText,
                 )
@@ -229,8 +248,24 @@ private fun OrderTrackingCard(order: Order, onClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 InfoColumn(label = stringResource(R.string.orders_delivery), value = order.estimatedDelivery.ifBlank { stringResource(R.string.orders_preparing_timing) })
-                InfoColumn(label = stringResource(R.string.common_shipping), value = order.shippingMethod.ifBlank { stringResource(R.string.orders_standard_delivery) })
+                InfoColumn(
+                    label = if (order.carrier.isNotBlank()) "Carrier" else stringResource(R.string.common_shipping),
+                    value = if (order.carrier.isNotBlank()) order.carrier else order.shippingMethod.ifBlank { stringResource(R.string.orders_standard_delivery) },
+                )
                 InfoColumn(label = stringResource(R.string.common_total), value = "$${"%.2f".format(order.total)}")
+            }
+            if (order.trackingNumber.isNotBlank() || order.shipmentStatus.isNotBlank()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    if (order.trackingNumber.isNotBlank()) {
+                        InfoColumn(label = "Tracking", value = order.trackingNumber)
+                    }
+                    if (order.shipmentStatus.isNotBlank()) {
+                        InfoColumn(label = "Shipment Status", value = order.shipmentStatus.replace('_', ' '))
+                    }
+                }
             }
         }
     }

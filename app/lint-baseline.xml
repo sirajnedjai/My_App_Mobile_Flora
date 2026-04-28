@@ -1,0 +1,2970 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.1" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.1)" variant="all" version="9.0.1">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                text = String.format(&quot;%.1f&quot;, averageRating),"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/productdetails/ProductDetailsScreen.kt"
+            line="779"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="                        text = String.format(&quot;%.1f&quot;, pseudoRating(product)),"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/search/SearchScreen.kt"
+            line="919"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val timestampFormatter = DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/FloraFirebaseMessagingService.kt"
+            line="14"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                    createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/FloraFirebaseMessagingService.kt"
+            line="44"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                    createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                              ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/FloraFirebaseMessagingService.kt"
+            line="44"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                        createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)),"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/MainActivity.kt"
+            line="93"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                        createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)),"
+        errorLine2="                                                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/MainActivity.kt"
+            line="93"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="                        createdAt = LocalDateTime.now().format(DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)),"
+        errorLine2="                                                                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/MainActivity.kt"
+            line="93"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val timestampFormatter = DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="16"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="            updatedAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="61"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="            updatedAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                      ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="61"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val timestampFormatter = DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="15"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="33"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="33"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="61"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="61"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="91"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                createdAt = LocalDateTime.now().format(timestampFormatter),"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderNotificationService.kt"
+            line="91"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val timestampFormatter = DateTimeFormatter.ofPattern(&quot;MMM dd, yyyy • HH:mm&quot;)"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="69"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val displayTimestampFormatter = DateTimeFormatter.ofPattern(&quot;dd MMM yyyy, HH:mm&quot;)"
+        errorLine2="                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="70"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                if (entry.timestamp.isBlank()) entry.copy(timestamp = placedDate.ifBlank { formatTimestamp(LocalDateTime.now()) }) else entry"
+        errorLine2="                                                                                                                         ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="472"
+            column="122"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                timestamp = normalizedHistory.lastOrNull()?.timestamp.orEmpty().ifBlank { placedDate.ifBlank { formatTimestamp(LocalDateTime.now()) } },"
+        errorLine2="                                                                                                                                             ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="538"
+            column="142"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                timestamp = placedDate.ifBlank { formatTimestamp(LocalDateTime.now()) },"
+        errorLine2="                                                                               ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="653"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="    private fun formatTimestamp(dateTime: LocalDateTime): String = dateTime.format(timestampFormatter)"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="693"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="            timestamp = formatTimestamp(LocalDateTime.now()),"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="799"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="                timestamp = source.statusHistory.lastOrNull()?.timestamp.orEmpty().ifBlank { formatTimestamp(LocalDateTime.now()) },"
+        errorLine2="                                                                                                                           ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="811"
+            column="124"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#now`"
+        errorLine1="        val sanitizedTimestamp = timestamp.ifBlank { formatTimestamp(LocalDateTime.now()) }"
+        errorLine2="                                                                                   ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="829"
+            column="84"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#parse`"
+        errorLine1="                value.contains(&quot;T&quot;) -> Instant.parse(value)"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="852"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.Instant#atZone`"
+        errorLine1="                    .atZone(ZoneId.systemDefault())"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="853"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZoneId#systemDefault`"
+        errorLine1="                    .atZone(ZoneId.systemDefault())"
+        errorLine2="                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="853"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.ZonedDateTime#format`"
+        errorLine1="                    .format(displayTimestampFormatter)"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="854"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#format`"
+        errorLine1="                else -> LocalDateTime.parse(value).format(displayTimestampFormatter)"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="855"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDateTime#parse`"
+        errorLine1="                else -> LocalDateTime.parse(value).format(displayTimestampFormatter)"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="855"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#now`"
+        errorLine1="    private val today = LocalDate.now()"
+        errorLine2="                                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="18"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val monthFormatter = DateTimeFormatter.ofPattern(&quot;MMM&quot;, Locale.getDefault())"
+        errorLine2="                                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="19"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    private val monthCardFormatter = DateTimeFormatter.ofPattern(&quot;MMMM yyyy&quot;, Locale.getDefault())"
+        errorLine2="                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="20"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(11) to 1820f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="22"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(11) to 1820f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="22"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(10) to 1945f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="23"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(10) to 1945f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="23"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(9) to 2050f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="24"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(9) to 2050f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="24"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(8) to 2240f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="25"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(8) to 2240f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="25"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(7) to 2385f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="26"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(7) to 2385f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="26"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(6) to 2520f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="27"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(6) to 2520f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="27"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(5) to 2675f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="28"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(5) to 2675f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="28"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(4) to 2810f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="29"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(4) to 2810f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="29"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(3) to 2960f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="30"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(3) to 2960f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="30"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(2) to 3140f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="31"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(2) to 3140f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="31"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        YearMonth.now().minusMonths(1) to 3360f,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="32"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now().minusMonths(1) to 3360f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="32"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#now`"
+        errorLine1="        YearMonth.now() to 3495f,"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="33"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#format`"
+        errorLine1="            SalesBarUi(month.format(monthFormatter), amount)"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="53"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#format`"
+        errorLine1="            SalesBarUi(month.format(monthFormatter), amount)"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="56"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#format`"
+        errorLine1="            SalesBarUi(month.format(monthFormatter), amount)"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="59"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#getDayOfMonth`"
+        errorLine1="        val shouldIncludeCurrentMonth = today.dayOfMonth == today.lengthOfMonth()"
+        errorLine2="                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="109"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.LocalDate#lengthOfMonth`"
+        errorLine1="        val shouldIncludeCurrentMonth = today.dayOfMonth == today.lengthOfMonth()"
+        errorLine2="                                                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="109"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#from`"
+        errorLine1="        val latestClosedMonth = if (shouldIncludeCurrentMonth) YearMonth.from(today) else YearMonth.from(today).minusMonths(1)"
+        errorLine2="                                                                         ~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="110"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#from`"
+        errorLine1="        val latestClosedMonth = if (shouldIncludeCurrentMonth) YearMonth.from(today) else YearMonth.from(today).minusMonths(1)"
+        errorLine2="                                                                                                    ~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="110"
+            column="101"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#minusMonths`"
+        errorLine1="        val latestClosedMonth = if (shouldIncludeCurrentMonth) YearMonth.from(today) else YearMonth.from(today).minusMonths(1)"
+        errorLine2="                                                                                                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="110"
+            column="113"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#compareTo`"
+        errorLine1="            .filter { (month, _) -> month &lt;= latestClosedMonth }"
+        errorLine2="                                          ~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="112"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 24): `java.time.YearMonth#format`"
+        errorLine1="                    monthLabel = month.format(monthCardFormatter),"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/profile/seller/PaymentsPayoutsViewModel.kt"
+            line="115"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="AppBundleLocaleChanges"
+        message="Found dynamic locale changes, but did not find corresponding Play Core library calls for downloading languages and splitting by language is not disabled in the `bundle` configuration"
+        errorLine1="            setLocale(locale)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/core/localization/LanguageManager.kt"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="RedundantLabel"
+        message="Redundant label can be removed"
+        errorLine1="            android:label=&quot;@string/app_name&quot;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="35"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="VectorRaster"
+        message="Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more"
+        errorLine1="    android:width=&quot;440dp&quot;"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/res/drawable/flora_logo_vectorized.xml"
+            line="2"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of Gradle than 9.2.1 is available: 9.4.1"
+        errorLine1="distributionUrl=https\://services.gradle.org/distributions/gradle-9.2.1-bin.zip"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/wrapper/gradle-wrapper.properties"
+            line="5"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of com.android.application than 9.0.1 is available: 9.2.0"
+        errorLine1="agp = &quot;9.0.1&quot;"
+        errorLine2="      ~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="2"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.navigation:navigation-compose than 2.7.7 is available: 2.9.7"
+        errorLine1="    implementation(&quot;androidx.navigation:navigation-compose:2.7.7&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="75"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.2 is available: 2.10.0"
+        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="76"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.8.2 is available: 2.10.0"
+        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-runtime-compose:2.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="77"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.media3:media3-exoplayer than 1.4.1 is available: 1.10.0"
+        errorLine1="    implementation(&quot;androidx.media3:media3-exoplayer:1.4.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="79"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.media3:media3-ui than 1.4.1 is available: 1.10.0"
+        errorLine1="    implementation(&quot;androidx.media3:media3-ui:1.4.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="80"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.fragment:fragment-ktx than 1.8.2 is available: 1.8.9"
+        errorLine1="    implementation(&quot;androidx.fragment:fragment-ktx:1.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="93"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.17.0 is available: 1.18.0"
+        errorLine1="coreKtx = &quot;1.17.0&quot;"
+        errorLine2="          ~~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="3"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.6.1 is available: 2.10.0"
+        errorLine1="lifecycleRuntimeKtx = &quot;2.6.1&quot;"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="7"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.activity:activity-compose than 1.8.0 is available: 1.13.0"
+        errorLine1="activityCompose = &quot;1.8.0&quot;"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="8"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.compose:compose-bom than 2024.09.00 is available: 2026.03.01"
+        errorLine1="composeBom = &quot;2024.09.00&quot;"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="10"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.devtools.ksp than 2.0.21-1.0.28 is available: 2.3.6"
+        errorLine1="ksp = &quot;2.0.21-1.0.28&quot;"
+        errorLine2="      ~~~~~~~~~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="12"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.1 is available: 1.10.2"
+        errorLine1="    implementation(&quot;org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="81"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.retrofit2:retrofit than 2.11.0 is available: 3.0.0"
+        errorLine1="    implementation(&quot;com.squareup.retrofit2:retrofit:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="86"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.retrofit2:converter-gson than 2.11.0 is available: 3.0.0"
+        errorLine1="    implementation(&quot;com.squareup.retrofit2:converter-gson:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="87"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.okhttp3:okhttp than 4.12.0 is available: 5.3.2"
+        errorLine1="    implementation(&quot;com.squareup.okhttp3:okhttp:4.12.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="88"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.squareup.okhttp3:logging-interceptor than 4.12.0 is available: 5.3.2"
+        errorLine1="    implementation(&quot;com.squareup.okhttp3:logging-interceptor:4.12.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="89"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.google.code.gson:gson than 2.11.0 is available: 2.13.2"
+        errorLine1="    implementation(&quot;com.google.code.gson:gson:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="90"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.0.21 is available: 2.3.20"
+        errorLine1="kotlin = &quot;2.0.21&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/AndroidStudioProjects/MyAppMobile/gradle/libs.versions.toml"
+            line="9"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.media3.common.util.UnstableApi` or `@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)`"
+        errorLine1="                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/shop/ShopScreen.kt"
+            line="561"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.media3.common.util.UnstableApi` or `@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)`"
+        errorLine1="                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/shop/ShopScreen.kt"
+            line="561"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.media3.common.util.UnstableApi` or `@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)`"
+        errorLine1="                            resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/shop/ShopScreen.kt"
+            line="561"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.media3.common.util.UnstableApi` or `@OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)`"
+        errorLine1="                            setShutterBackgroundColor(android.graphics.Color.TRANSPARENT)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/shop/ShopScreen.kt"
+            line="563"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;notification_channel_orders&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;notification_channel_orders&quot;>orders&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="3"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_menu&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_menu&quot;>Menu&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="5"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_open_menu&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_open_menu&quot;>Open menu&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="6"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_cart&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_cart&quot;>Cart&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="7"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_shopping_cart&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_shopping_cart&quot;>Shopping cart&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="8"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_the_atelier&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_the_atelier&quot;>The Atelier&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="9"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_view_all&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_view_all&quot;>View all&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="10"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_browse_more&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_browse_more&quot;>Browse More&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="11"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_filter&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_filter&quot;>Filter&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="12"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_all&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_all&quot;>All&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="13"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_category&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_category&quot;>Category&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="14"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_sort&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_sort&quot;>Sort&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="15"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;common_email_address_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;common_email_address_placeholder&quot;>Your email address&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="16"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;product_review_restriction_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;product_review_restriction_message&quot;>Please order this product first and wait until it is marked as delivered before leaving a review.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="129"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;seller_status_not_verified_supporting&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;seller_status_not_verified_supporting&quot;>Complete seller verification to unlock trusted seller signals across FLORA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="160"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;seller_status_approved_supporting&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;seller_status_approved_supporting&quot;>Your seller account is approved and visible as trusted across FLORA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="161"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;seller_status_pending_supporting&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;seller_status_pending_supporting&quot;>Your seller verification is under review. You can update it again if the team requests changes.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="162"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;seller_status_rejected_supporting&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;seller_status_rejected_supporting&quot;>Your seller verification needs updates before full trust signals appear.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="163"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_submitted_at&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_submitted_at&quot;>Submitted %1$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="164"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_reviewed_at&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_reviewed_at&quot;>Reviewed %1$s&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="165"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_not_verified_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_not_verified_title&quot;>Verification Required&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="166"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_pending_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_pending_title&quot;>Verification In Review&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="167"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_approved_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_approved_title&quot;>Verification Approved&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="168"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_rejected_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_rejected_title&quot;>Verification Needs Attention&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="169"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_not_verified_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_not_verified_message&quot;>Submit your business details and identity document so FLORA can review and verify your seller account.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="170"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_pending_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_pending_message&quot;>Your verification request has been submitted successfully. The FLORA team is reviewing your details now.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="171"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_approved_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_approved_message&quot;>Your seller account is verified. Buyers will see the approved seller signal across FLORA.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="172"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_status_rejected_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_status_rejected_message&quot;>Your last verification request was rejected. Update the highlighted details and submit again.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="173"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_form_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_form_title&quot;>Seller Verification&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="174"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_form_subtitle&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_form_subtitle&quot;>Use your legal identity details and a readable supporting document. FLORA validates this information before approving your storefront.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="175"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_full_name_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_full_name_label&quot;>FULL LEGAL NAME&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="176"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_full_name_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_full_name_placeholder&quot;>Enter the name shown on your verification document&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="177"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_phone_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_phone_label&quot;>PHONE NUMBER&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="178"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_phone_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_phone_placeholder&quot;>Enter your phone number&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="179"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_document_number_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_document_number_label&quot;>NATIONAL ID / DOCUMENT NUMBER&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="180"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_document_number_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_document_number_placeholder&quot;>Enter your national ID or document number&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="181"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_address_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_address_label&quot;>ADDRESS&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="182"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_address_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_address_placeholder&quot;>Enter the address used for seller verification&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="183"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_document_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_document_label&quot;>VERIFICATION DOCUMENT&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="184"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_pick_document&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_pick_document&quot;>Choose Document&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="185"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_replace_document&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_replace_document&quot;>Replace Document&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="186"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_submit&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_submit&quot;>Submit Verification&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="187"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_resubmit&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_resubmit&quot;>Resubmit Verification&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="188"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_pending_button&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_pending_button&quot;>Under Review&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="189"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_approved_button&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_approved_button&quot;>Approved&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="190"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_hint_backend&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_hint_backend&quot;>Your verification status is loaded from the FLORA backend each time this screen opens.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="191"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;store_verification_hint_document&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;store_verification_hint_document&quot;>Upload a clear image or PDF of your identity document before submitting.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="192"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;payout_withdraw_funds&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;payout_withdraw_funds&quot;>Withdraw Funds&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="209"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;transfer_type_withdrawal&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;transfer_type_withdrawal&quot;>Withdrawal&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="210"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_screen_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_screen_title&quot;>Withdraw Funds&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="211"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_available_balance&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_available_balance&quot;>Available Balance&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="212"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_balance_hint&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_balance_hint&quot;>Only confirmed funds can be withdrawn from your seller wallet.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="213"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_form_title&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_form_title&quot;>Withdrawal Details&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="214"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_form_subtitle&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_form_subtitle&quot;>Enter the amount and choose how you would like this transaction to be processed.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="215"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_amount_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_amount_label&quot;>AMOUNT&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="216"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_amount_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_amount_placeholder&quot;>Enter amount&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="217"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_payment_method&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_payment_method&quot;>PAYMENT METHOD&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="218"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_method_bank_transfer&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_method_bank_transfer&quot;>Bank Transfer&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="219"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_method_cash&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_method_cash&quot;>Cash&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="220"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_card_holder_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_card_holder_label&quot;>CARD HOLDER NAME&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="221"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_card_holder_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_card_holder_placeholder&quot;>Enter card holder name&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="222"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_card_number_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_card_number_label&quot;>CARD NUMBER&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="223"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_card_number_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_card_number_placeholder&quot;>Enter 16-digit card number&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="224"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_expiry_date_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_expiry_date_label&quot;>EXPIRY DATE&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="225"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_expiry_date_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_expiry_date_placeholder&quot;>MM/YY&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="226"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_cvv_label&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_cvv_label&quot;>CVV&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="227"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_cvv_placeholder&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_cvv_placeholder&quot;>CVV&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="228"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_confirm_button&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_confirm_button&quot;>Complete Transaction&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="229"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_submitting&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_submitting&quot;>Processing...&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="230"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;withdrawal_success_message&quot; is not translated in &quot;ar&quot; (Arabic) or &quot;fr&quot; (French)"
+        errorLine1="    &lt;string name=&quot;withdrawal_success_message&quot;>Withdrawal completed successfully.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="231"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;pieces&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;search_results_count&quot;>%1$d pieces found&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="59"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;curated&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;shop_visible_count&quot;>%1$d of %2$d curated pieces currently in view&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="85"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;curated&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;cart_piece_count&quot;>%1$d curated pieces&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="93"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;items&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;cart_items_checkout&quot;>%1$d items prepared for checkout&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="96"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;views&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;product_gallery_count&quot;>%1$d of %2$d views&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="115"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;reviews&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;product_reviews_count&quot;>%1$d reviews&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="123"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;stars&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;product_rate_stars&quot;>Rate %1$d stars&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="126"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;reviews&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;storefront_reviews_count&quot;>%1$s  ·  %2$d reviews&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="247"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_200&quot;>#FFBB86FC&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="3"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_500` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_500&quot;>#FF6200EE&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="4"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.purple_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;purple_700&quot;>#FF3700B3&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="5"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_200` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_200&quot;>#FF03DAC5&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="6"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.teal_700` appears to be unused"
+        errorLine1="    &lt;color name=&quot;teal_700&quot;>#FF018786&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.black` appears to be unused"
+        errorLine1="    &lt;color name=&quot;black&quot;>#FF000000&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="8"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.white` appears to be unused"
+        errorLine1="    &lt;color name=&quot;white&quot;>#FFFFFFFF&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/colors.xml"
+            line="9"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.mipmap.flora_logo_foreground` appears to be unused">
+        <location
+            file="src/main/res/mipmap-hdpi/flora_logo_foreground.webp"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.common_language_code_format` appears to be unused"
+        errorLine1="    &lt;string name=&quot;common_language_code_format&quot;>(%1$s)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="28"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_find_handcrafted` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search_find_handcrafted&quot;>Find something handcrafted&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_placeholder` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search_placeholder&quot;>Search pieces, studios, or materials&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_no_results_title` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search_no_results_title&quot;>No results yet&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_no_results_blank` appears to be unused"
+        errorLine1="    &lt;string name=&quot;search_no_results_blank&quot;>Try a material, studio, or category to begin exploring.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.shop_search_subtitle` appears to be unused"
+        errorLine1="    &lt;string name=&quot;shop_search_subtitle&quot;>Search the atelier at your own pace. The bar now scrolls naturally with the collection.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="79"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_choose_logo` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_choose_logo&quot;>Choose Logo&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="146"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_store_details` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_store_details&quot;>Store Details&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="147"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_established_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_established_label&quot;>DATE OF ESTABLISHMENT&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="150"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_established_placeholder` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_established_placeholder&quot;>e.g. 2018-05-12&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="151"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_owner_name_label` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_owner_name_label&quot;>OWNER’S NAME&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="152"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_owner_name_placeholder` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_owner_name_placeholder&quot;>Enter the owner’s name&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="153"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_hint_identity` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_hint_identity&quot;>Your logo and description shape the first impression of your FLORA storefront.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="156"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_hint_date` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_hint_date&quot;>Use a clear establishment date to help buyers understand your atelier story.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="157"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_hint_saved` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_hint_saved&quot;>Saved details are preloaded each time you return to this page.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="158"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.store_config_save` appears to be unused"
+        errorLine1="    &lt;string name=&quot;store_config_save&quot;>Save Store Settings&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="159"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.period_week` appears to be unused"
+        errorLine1="    &lt;string name=&quot;period_week&quot;>Week&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="193"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.period_month` appears to be unused"
+        errorLine1="    &lt;string name=&quot;period_month&quot;>Month&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="194"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.period_three_months` appears to be unused"
+        errorLine1="    &lt;string name=&quot;period_three_months&quot;>3 Months&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="195"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.period_year` appears to be unused"
+        errorLine1="    &lt;string name=&quot;period_year&quot;>Year&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="196"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_established_placeholder&quot;>مثال: 2018-05-12&lt;/string>"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="137"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_established_placeholder&quot;>ex. 2018-05-12&lt;/string>"
+        errorLine2="                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="137"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_established_placeholder&quot;>e.g. 2018-05-12&lt;/string>"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="151"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;common_saving&quot;>Saving...&lt;/string>"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="26"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_refreshing_matches&quot;>جارٍ تحديث النتائج المنسقة...&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="34"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_refreshing_matches&quot;>Actualisation des correspondances sélectionnées...&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="34"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_page_placeholder&quot;>ابحثي عن منتجات مصنوعة يدويًا...&lt;/string>"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_page_placeholder&quot;>Rechercher des produits faits main...&lt;/string>"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_refreshing_matches&quot;>Refreshing curated matches...&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="58"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;search_page_placeholder&quot;>Search for handmade products...&lt;/string>"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="69"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;common_saving&quot;>جارٍ الحفظ...&lt;/string>"
+        errorLine2="                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="76"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;common_saving&quot;>Enregistrement...&lt;/string>"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="76"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;personal_info_loading&quot;>جارٍ تحميل تفاصيل الحساب...&lt;/string>"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="116"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;personal_info_loading&quot;>Chargement des détails du compte...&lt;/string>"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="116"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_loading&quot;>جارٍ تحميل تفاصيل المتجر...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="129"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_loading&quot;>Chargement des détails de la boutique...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="129"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;personal_info_loading&quot;>Loading account details...&lt;/string>"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="130"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;store_config_loading&quot;>Loading seller verification...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="143"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;orders_loading&quot;>جارٍ تحميل الطلبات...&lt;/string>"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="162"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;orders_loading&quot;>Chargement des commandes...&lt;/string>"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="162"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;withdrawal_submitting&quot;>Processing...&lt;/string>"
+        errorLine2="                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="230"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;orders_loading&quot;>Loading orders...&lt;/string>"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="232"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_SECURITY, encodeSecurityMap(updated)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AccountSettingsRepository.kt"
+            line="80"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_CARDS, encodeCardsMap(persisted)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AccountSettingsRepository.kt"
+            line="102"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_NOTIFICATIONS, encodeNotificationsMap(updated)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AccountSettingsRepository.kt"
+            line="111"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_ADDRESSES, encodeAddressMap(updated)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AccountSettingsRepository.kt"
+            line="123"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_CURRENT_USER, encodeUser(user)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AuthRepositoryImpl.kt"
+            line="283"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().remove(KEY_CURRENT_USER).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/AuthRepositoryImpl.kt"
+            line="287"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val imageUri = Uri.parse(value)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/CartRepositoryImpl.kt"
+            line="289"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val serverUri = Uri.parse(serverBaseUrl)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/CartRepositoryImpl.kt"
+            line="290"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_CURRENT_DEVICE_TOKEN, token).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="69"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_NOTIFICATIONS, encodeNotifications(notifications)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="84"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_DEVICE_REGISTRATIONS, encodeDeviceRegistrations(registrations)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/NotificationRepository.kt"
+            line="89"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val imageUri = Uri.parse(value)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="728"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val serverUri = Uri.parse(serverBaseUrl)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/OrderRepositoryImpl.kt"
+            line="729"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val imageUri = Uri.parse(trimmed)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/ProductRepositoryImpl.kt"
+            line="659"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val serverUri = Uri.parse(serverBaseUrl)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/ProductRepositoryImpl.kt"
+            line="660"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_HISTORY, encodeHistory(values)).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SearchHistoryRepository.kt"
+            line="35"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="        val imageUri = Uri.parse(trimmed)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerIdentityResolver.kt"
+            line="88"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="        val serverUri = Uri.parse(serverBaseUrl)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerIdentityResolver.kt"
+            line="89"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val imageUri = Uri.parse(value)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerManagementRepository.kt"
+            line="299"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="            val serverUri = Uri.parse(serverBaseUrl)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerManagementRepository.kt"
+            line="300"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="        val uri = Uri.parse(uriString)"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerManagementRepository.kt"
+            line="364"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="        val uri = Uri.parse(documentUri)"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/SellerVerificationRepository.kt"
+            line="249"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toUri` instead?"
+        errorLine1="        Uri.parse(&quot;asset:///$FLORA_PROMO_ASSET_PATH&quot;)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/presentation/shop/ShopScreen.kt"
+            line="493"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().putString(KEY_AUTH_TOKEN, token).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/remote/TokenStorage.kt"
+            line="15"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        prefs().edit().remove(KEY_AUTH_TOKEN).apply()"
+        errorLine2="        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/myappmobile/data/remote/TokenStorage.kt"
+            line="19"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        context.applicationContext"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="90"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="99"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="114"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="127"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="140"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="153"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `SharedPreferences.edit` instead?"
+        errorLine1="        requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/com/example/myappmobile/data/repository/UiPreferencesRepository.kt"
+            line="170"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.navigation:navigation-compose:2.7.7&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="75"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="76"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.lifecycle:lifecycle-runtime-compose:2.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="77"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.compose.material:material-icons-extended&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="78"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.media3:media3-exoplayer:1.4.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="79"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.media3:media3-ui:1.4.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="80"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="81"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;com.squareup.retrofit2:retrofit:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="86"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;com.squareup.retrofit2:converter-gson:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="87"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;com.squareup.okhttp3:okhttp:4.12.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="88"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;com.squareup.okhttp3:logging-interceptor:4.12.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="89"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;com.google.code.gson:gson:2.11.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="90"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;io.coil-kt:coil-compose:2.7.0&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="91"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UseTomlInstead"
+        message="Use version catalog instead"
+        errorLine1="    implementation(&quot;androidx.fragment:fragment-ktx:1.8.2&quot;)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="93"
+            column="20"/>
+    </issue>
+
+</issues>

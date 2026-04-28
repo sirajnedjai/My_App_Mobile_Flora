@@ -3,9 +3,13 @@ package com.example.myappmobile.presentation.home
 import com.example.myappmobile.domain.BannerData
 import com.example.myappmobile.domain.Category
 import com.example.myappmobile.domain.Product
+import com.example.myappmobile.domain.model.SellerApprovalStatus
+import com.example.myappmobile.domain.model.User
 
 data class HomeUiState(
     val isLoading: Boolean = true,
+    val currentUser: User? = null,
+    val accountStatus: SellerApprovalStatus = SellerApprovalStatus.NOT_VERIFIED,
     val banner: BannerData? = null,
     val categories: List<Category> = emptyList(),
     val featuredProducts: List<Product> = emptyList(),

@@ -27,7 +27,7 @@ android {
         buildConfigField(
             "String",
             "FLORA_API_BASE_URL",
-            "\"http://192.168.1.34:8001/api/\"",
+            "\"https://ecommerce-platform-7dc6.onrender.com/api/\"",
         )
         buildConfigField(
             "String",
@@ -45,10 +45,16 @@ android {
             )
         }
     }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -82,6 +88,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -91,6 +100,4 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation("io.coil-kt:coil-compose:2.7.0")
 }

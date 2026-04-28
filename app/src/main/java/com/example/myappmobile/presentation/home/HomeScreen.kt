@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.ShoppingBag
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +43,7 @@ import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.AtelierDivider
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.PrimaryButton
+import com.example.myappmobile.core.components.SellerApprovalBadge
 import com.example.myappmobile.core.components.ShimmerBox
 import com.example.myappmobile.core.catalog.FloraCatalog
 import com.example.myappmobile.core.navigation.AppBottomBar
@@ -49,6 +52,7 @@ import com.example.myappmobile.core.theme.*
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Category
 import com.example.myappmobile.domain.Product
+import com.example.myappmobile.domain.model.User
 import com.example.myappmobile.presentation.home.components.BannerSection
 import com.example.myappmobile.presentation.home.components.CategoriesRow
 import com.example.myappmobile.presentation.home.components.FeaturedProductsSection
@@ -366,6 +370,16 @@ private fun HomeContent(
             .background(Cream),
         contentPadding = PaddingValues(bottom = 32.dp),
     ) {
+        uiState.currentUser?.let { user ->
+            item {
+                HomeAccountCard(
+                    user = user,
+                    status = uiState.accountStatus,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                )
+            }
+        }
+
         uiState.error?.let { message ->
             item {
                 HomeInlineErrorCard(
@@ -453,6 +467,73 @@ private fun HomeContent(
                 onSubscribe = onSubscribe,
                 modifier = Modifier.padding(horizontal = 20.dp),
             )
+        }
+    }
+}
+
+@Composable
+private fun HomeAccountCard(
+    user: User,
+    status: com.example.myappmobile.domain.model.SellerApprovalStatus,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = White,
+        tonalElevation = 3.dp,
+        shadowElevation = 6.dp,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FloraRemoteImage(
+                imageUrl = user.avatarUrl,
+                contentDescription = user.fullName,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(CreamDark),
+                contentScale = ContentScale.Crop,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = user.fullName.ifBlank { "FLORA Member" },
+                    style = MaterialTheme.typography.titleLarge,
+                    color = CharcoalDark,
+                )
+                Text(
+                    text = user.email.ifBlank { "No email available" },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = StoneGray,
+                )
+                if (user.storeName.isNotBlank()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Storefront,
+                            contentDescription = null,
+                            tint = Terracotta,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Text(
+                            text = user.storeName,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Terracotta,
+                        )
+                    }
+                }
+            }
+            SellerApprovalBadge(status = status)
         }
     }
 }

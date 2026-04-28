@@ -98,7 +98,6 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import coil.compose.AsyncImage
 import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.R
 import com.example.myappmobile.core.components.BuyersOnlyNotice
@@ -720,8 +719,8 @@ private fun FloraPromoFallbackCardContent(
             ),
     ) {
         if (posterModel != null) {
-            AsyncImage(
-                model = posterModel,
+            FloraRemoteImage(
+                imageUrl = posterModel,
                 contentDescription = "FLORA promo poster",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),

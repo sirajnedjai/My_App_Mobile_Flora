@@ -1,11 +1,10 @@
 package com.example.myappmobile.data.repository
 
-import android.net.Uri
 import android.util.Log
-import com.example.myappmobile.BuildConfig
 import com.example.myappmobile.data.mapper.ProductMapper
 import com.example.myappmobile.data.remote.AddToCartRequestDto
 import com.example.myappmobile.data.remote.ApiException
+import com.example.myappmobile.data.remote.BackendUrlResolver
 import com.example.myappmobile.data.remote.CartApiService
 import com.example.myappmobile.data.remote.CartDto
 import com.example.myappmobile.data.remote.CartItemDto
@@ -43,7 +42,6 @@ class CartRepositoryImpl(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val serverBaseUrl = BuildConfig.FLORA_API_BASE_URL.removeSuffix("/api/")
     private val _cartItems = MutableStateFlow(emptyList<CartItem>())
     override val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
     private val _cartId = MutableStateFlow<String?>(null)
@@ -234,7 +232,7 @@ class CartRepositoryImpl(
         val resolvedImageUrl = normalizeImageUrl(
             productDto?.imageUrl
             ?: productDto?.image
-            ?: productPayload?.asObjectOrNull()?.string("image_url", "image", "thumbnail", "photo")
+            ?: productPayload?.asObjectOrNull()?.string("image_url", "image", "image_path", "product_image", "thumbnail", "thumbnail_url", "photo")
             ?: productPayload?.asObjectOrNull()?.arrayAt("images")?.firstOrNull()?.asStringOrNull()
             ?: "",
         )
@@ -282,28 +280,5 @@ class CartRepositoryImpl(
         return false
     }
 
-    private fun normalizeImageUrl(raw: String): String {
-        val value = raw.trim()
-        if (value.isBlank()) return value
-        if (value.startsWith("http://") || value.startsWith("https://")) {
-            val imageUri = Uri.parse(value)
-            val serverUri = Uri.parse(serverBaseUrl)
-            val host = imageUri.host.orEmpty()
-            if (host.equals("localhost", ignoreCase = true) ||
-                host == "127.0.0.1" ||
-                host == "10.0.2.2" ||
-                host == "10.0.3.2"
-            ) {
-                val rebuilt = imageUri.buildUpon()
-                    .scheme(serverUri.scheme)
-                    .encodedAuthority(serverUri.encodedAuthority)
-                    .build()
-                    .toString()
-                Log.d(TAG, "Rewriting cart image host from $value to $rebuilt")
-                return rebuilt
-            }
-            return value
-        }
-        return if (value.startsWith("/")) "$serverBaseUrl$value" else "$serverBaseUrl/$value"
-    }
+    private fun normalizeImageUrl(raw: String): String = BackendUrlResolver.normalizeImageUrl(raw)
 }
