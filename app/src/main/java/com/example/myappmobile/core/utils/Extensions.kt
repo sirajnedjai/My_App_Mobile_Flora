@@ -4,9 +4,9 @@ import com.example.myappmobile.domain.model.OrderStatus
 import com.example.myappmobile.core.theme.*
 import androidx.compose.ui.graphics.Color
 
-fun Double.formatPrice(): String = "$%.2f".format(this)
+fun Double.formatPrice(): String = formatPriceDzd(this)
 
-fun Int.formatPrice(): String = "$$this"
+fun Int.formatPrice(): String = formatPriceDzd(this.toDouble())
 
 fun OrderStatus.statusColor(): Color = when (this) {
     OrderStatus.PENDING -> StatusAmber

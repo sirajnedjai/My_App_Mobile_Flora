@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.data.local.room.entity.ProductEntity
@@ -108,7 +109,7 @@ private fun ProductListContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "$${"%.2f".format(product.price)}",
+                        text = formatPriceDzd(product.price),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(modifier = Modifier.height(12.dp))

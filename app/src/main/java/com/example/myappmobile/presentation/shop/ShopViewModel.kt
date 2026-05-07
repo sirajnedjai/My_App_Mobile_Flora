@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.access.RoleAccessManager
 import com.example.myappmobile.core.catalog.FloraCatalog
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.data.remote.rethrowIfCancellation
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.data.repository.ShopFilterSelection
 import com.example.myappmobile.domain.Product
+import com.example.myappmobile.core.utils.formatPriceDzd
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class ShopViewModel : ViewModel() {
@@ -28,6 +31,7 @@ class ShopViewModel : ViewModel() {
     private val authRepository = AppContainer.authRepository
     private val filterRepository = AppContainer.shopFilterRepository
     private val remoteProducts = MutableStateFlow<List<Product>>(emptyList())
+    private var refreshJob: Job? = null
 
     private val sortOptions = listOf(
         ShopSortUi.POPULAR,
@@ -147,7 +151,8 @@ class ShopViewModel : ViewModel() {
     }
 
     private fun refreshProducts() {
-        viewModelScope.launch {
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
             val snapshot = controlsState.value
             val filters = filterRepository.filters.value
             val apiCategory = resolveApiCategory(snapshot, filters)
@@ -156,13 +161,14 @@ class ShopViewModel : ViewModel() {
                 "Refreshing shop products. query='${snapshot.searchQuery}' apiCategory='$apiCategory' filters=$filters",
             )
             controlsState.update { it.copy(isLoading = true, error = null) }
-            runCatching {
+            try {
                 val products = AppContainer.searchProductsUseCase(snapshot.searchQuery, apiCategory)
                 Log.d(TAG, "Shop API success. products=${products.size}")
                 Log.d(TAG, "Shop pagination metadata not provided by current endpoint.")
                 remoteProducts.value = products
                 controlsState.update { it.copy(isLoading = false, error = null) }
-            }.onFailure { error ->
+            } catch (error: Throwable) {
+                error.rethrowIfCancellation()
                 val apiError = error.toApiException()
                 Log.d(TAG, "Shop API failed: ${apiError.message}")
                 remoteProducts.value = emptyList()
@@ -178,7 +184,12 @@ class ShopViewModel : ViewModel() {
 
     private fun loadCategories() {
         viewModelScope.launch {
-            val catalog = runCatching { productRepository.getAllProducts() }.getOrDefault(emptyList())
+            val catalog = try {
+                productRepository.getAllProducts()
+            } catch (error: Throwable) {
+                error.rethrowIfCancellation()
+                emptyList()
+            }
             controlsState.update { state ->
                 state.copy(categories = buildCategoryOptions(catalog))
             }
@@ -250,7 +261,11 @@ class ShopViewModel : ViewModel() {
         if (categoryId.isNotBlank()) add(FloraCatalog.categoryLabel(categoryId))
         if (subcategoryId.isNotBlank()) add(FloraCatalog.subcategoryLabel(categoryId, subcategoryId))
         if (type != "All") add(type)
-        if (minPrice.isNotBlank() || maxPrice.isNotBlank()) add("$${minPrice.ifBlank { "0" }} - $${maxPrice.ifBlank { "∞" }}")
+        if (minPrice.isNotBlank() || maxPrice.isNotBlank()) {
+            val minLabel = minPrice.toDoubleOrNull()?.let(::formatPriceDzd) ?: formatPriceDzd(0.0)
+            val maxLabel = maxPrice.toDoubleOrNull()?.let(::formatPriceDzd) ?: "Open"
+            add("$minLabel - $maxLabel")
+        }
     }.filter { it.isNotBlank() }
 
     private data class FavoriteUiState(

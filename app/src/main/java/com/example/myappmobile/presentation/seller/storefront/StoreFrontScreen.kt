@@ -3,6 +3,7 @@ package com.example.myappmobile.presentation.seller.storefront
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.Window
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +63,7 @@ import com.example.myappmobile.core.theme.FloraTheme
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneGray
 import com.example.myappmobile.core.theme.Terracotta
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.Product
 import com.example.myappmobile.domain.model.Review
 import com.example.myappmobile.domain.model.SellerApprovalStatus
@@ -101,8 +104,6 @@ private fun SellerFrontScreenContent(
     selectedRoute: String,
     onBottomNavClick: (String) -> Unit,
 ) {
-    val store = uiState.store ?: return
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -119,6 +120,54 @@ private fun SellerFrontScreenContent(
             )
         },
     ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
+
+        if (uiState.errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = uiState.errorMessage,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            return@Scaffold
+        }
+
+        val store = uiState.store
+        if (store == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Store details are unavailable right now.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            return@Scaffold
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -209,13 +258,13 @@ private fun SellerFrontTopBar(
 private fun SellerHeaderSection(
     store: Store,
     onContactSeller: () -> Unit,
-) {
+    ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         FloraRemoteImage(
-            imageUrl = store.logoUrl.ifBlank { store.bannerUrl },
+            imageUrl = store.logoUrl,
             contentDescription = store.name,
             modifier = Modifier
                 .size(124.dp)
@@ -299,7 +348,7 @@ private fun SellerHeroImageSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
     ) {
         FloraRemoteImage(
-            imageUrl = store.bannerUrl.ifBlank { store.logoUrl },
+            imageUrl = store.bannerUrl,
             contentDescription = "${store.name} banner",
             modifier = Modifier
                 .fillMaxWidth()
@@ -457,7 +506,7 @@ private fun EditorialProductCard(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = "$${"%.2f".format(product.price)}",
+                        text = formatPriceDzd(product.price),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                         color = Terracotta,
                     )
@@ -540,7 +589,7 @@ private fun ProductWorkCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "$${"%.2f".format(product.price)}",
+                        text = formatPriceDzd(product.price),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = Terracotta,
                     )

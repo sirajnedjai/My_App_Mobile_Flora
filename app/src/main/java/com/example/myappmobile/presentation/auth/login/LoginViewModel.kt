@@ -69,11 +69,15 @@ class LoginViewModel : ViewModel() {
             }
 
             LoginEvent.SignInWithApple -> {
-                // TODO: Integrate Apple Sign In
+                _uiState.update {
+                    it.copy(generalError = "Apple Sign-In is not available yet in this build.")
+                }
             }
 
             LoginEvent.SignInWithGoogle -> {
-                // TODO: Integrate Google Sign In
+                _uiState.update {
+                    it.copy(generalError = "Google Sign-In is not available yet in this build.")
+                }
             }
 
             LoginEvent.NavigateToRegister -> {

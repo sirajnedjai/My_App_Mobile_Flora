@@ -78,6 +78,7 @@ import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneFaint
 import com.example.myappmobile.core.theme.StoneGray
 import com.example.myappmobile.core.theme.Terracotta
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.repository.ShopFilterSelection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -361,14 +362,14 @@ fun ShopFilterScreen(
 
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             CurrencyField(
-                                label = "Minimum",
+                                label = "Minimum (DA)",
                                 value = uiState.minPrice,
                                 placeholder = "0",
                                 onValueChange = viewModel::onMinPriceChanged,
                                 modifier = Modifier.weight(1f),
                             )
                             CurrencyField(
-                                label = "Maximum",
+                                label = "Maximum (DA)",
                                 value = uiState.maxPrice,
                                 placeholder = "1000",
                                 onValueChange = viewModel::onMaxPriceChanged,
@@ -514,7 +515,10 @@ private fun FilterHeroCard(
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SummaryPill(title = "Range", value = "$$minPrice - $$maxPrice")
+                SummaryPill(
+                    title = "Range",
+                    value = "${formatPriceDzd(minPrice.toDouble())} - ${formatPriceDzd(maxPrice.toDouble())}",
+                )
                 SummaryPill(title = "Mood", value = if (activeSelectionCount == 0) "Open" else "Curated")
             }
         }
@@ -654,12 +658,12 @@ private fun PriceRangeHighlight(
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         PriceBadge(
             label = "From",
-            value = "$$minPrice",
+            value = formatPriceDzd(minPrice.toDouble()),
             modifier = Modifier.weight(1f),
         )
         PriceBadge(
             label = "To",
-            value = "$$maxPrice",
+            value = formatPriceDzd(maxPrice.toDouble()),
             modifier = Modifier.weight(1f),
         )
     }
@@ -724,7 +728,7 @@ private fun CurrencyField(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "$",
+                        text = "DA",
                         style = MaterialTheme.typography.labelLarge,
                         color = Terracotta,
                     )

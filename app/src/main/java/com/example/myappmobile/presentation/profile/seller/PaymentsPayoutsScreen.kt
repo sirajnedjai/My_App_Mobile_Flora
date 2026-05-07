@@ -45,6 +45,7 @@ import com.example.myappmobile.core.theme.FloraSelectedCard
 import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.StoneGray
+import com.example.myappmobile.core.utils.formatPriceDzd
 
 @Composable
 fun PaymentsPayoutsScreen(
@@ -129,7 +130,7 @@ private fun WalletSummaryCard(
                     color = FloraBeige.copy(alpha = 0.82f),
                 )
                 Text(
-                    text = "$${"%.2f".format(walletSummary.availableBalance)}",
+                    text = formatPriceDzd(walletSummary.availableBalance),
                     style = MaterialTheme.typography.displaySmall,
                     color = FloraBeige,
                 )
@@ -147,13 +148,13 @@ private fun WalletSummaryCard(
                 WalletMetricCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.payout_pending),
-                    value = "$${"%.2f".format(walletSummary.pendingBalance)}",
+                    value = formatPriceDzd(walletSummary.pendingBalance),
                     icon = Icons.Outlined.Schedule,
                 )
                 WalletMetricCard(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.payout_withdrawn),
-                    value = "$${"%.2f".format(walletSummary.totalWithdrawn)}",
+                    value = formatPriceDzd(walletSummary.totalWithdrawn),
                     icon = Icons.Outlined.SouthWest,
                 )
             }
@@ -313,7 +314,7 @@ private fun MonthlyStatisticsSection(
                     ) {
                         TransferMetric(
                             label = "Revenue",
-                            value = "$${"%.2f".format(statistic.revenue)}",
+                            value = formatPriceDzd(statistic.revenue),
                             modifier = Modifier.weight(1f),
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -325,7 +326,7 @@ private fun MonthlyStatisticsSection(
                     }
                     TransferMetric(
                         label = "Balance Snapshot",
-                        value = "$${"%.2f".format(statistic.balanceSnapshot)}",
+                        value = formatPriceDzd(statistic.balanceSnapshot),
                     )
                 }
             }
@@ -383,7 +384,7 @@ private fun SalesBarChart(chartData: List<SalesBarUi>) {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Text(
-                        text = "$${bar.amount.toInt()}",
+                        text = formatPriceDzd(bar.amount.toDouble()),
                         style = MaterialTheme.typography.labelSmall,
                         color = StoneGray,
                     )
@@ -483,7 +484,7 @@ private fun TransferRecordRow(record: TransferRecordUi) {
                 Spacer(modifier = Modifier.width(12.dp))
                 TransferMetric(
                     label = stringResource(R.string.payout_amount_sent),
-                    value = "$${"%.2f".format(record.amountSent)}",
+                    value = formatPriceDzd(record.amountSent),
                     modifier = Modifier.weight(1f),
                 )
             }

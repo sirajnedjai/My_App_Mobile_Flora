@@ -28,7 +28,6 @@ import com.example.myappmobile.core.components.PrimaryButton
 @Composable
 fun ForgotPasswordScreen(
     onBack: () -> Unit = {},
-    onContinue: () -> Unit = {},
     viewModel: ForgotPasswordViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -55,7 +54,7 @@ fun ForgotPasswordScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Enter your account email and we will continue to verification.",
+                text = "Enter your account email. Password reset is currently unavailable in this build.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Spacer(modifier = Modifier.height(24.dp))
@@ -72,10 +71,18 @@ fun ForgotPasswordScreen(
                     }
                 },
             )
+            uiState.message?.let { message ->
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
             Spacer(modifier = Modifier.height(24.dp))
             PrimaryButton(
-                text = "Continue",
-                onClick = onContinue,
+                text = "Not Available Yet",
+                onClick = viewModel::onContinueUnavailable,
                 enabled = uiState.isValid && emailError == null,
             )
         }

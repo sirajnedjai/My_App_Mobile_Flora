@@ -19,8 +19,9 @@ class PersonalInformationViewModel : ViewModel() {
 
     val uiState: StateFlow<PersonalInformationUiState> = combine(
         AppContainer.authRepository.currentUser,
+        AppContainer.authRepository.profileSyncState,
         editorState,
-    ) { user, editor ->
+    ) { user, profileSyncState, editor ->
         val safeUser = user.toSafeUiUser()
         val shouldHydrate = editor.fullName.isBlank() && editor.email.isBlank() && !editor.isSaving && !editor.hasUserEdits
         if (shouldHydrate && safeUser.isAuthenticated) {
@@ -34,7 +35,8 @@ class PersonalInformationViewModel : ViewModel() {
                 membershipTier = safeUser.membershipTier,
                 avatarUrl = resolvedAvatarUrl(editor = editor, fallback = safeUser.avatarUrl),
                 isSeller = safeUser.isSeller,
-                isLoading = false,
+                isLoading = profileSyncState.isLoading && safeUser.id.isBlank() && safeUser.fullName.isBlank(),
+                profileErrorMessage = profileSyncState.errorMessage,
             )
         } else {
             editor.copy(
@@ -44,7 +46,8 @@ class PersonalInformationViewModel : ViewModel() {
                 storeName = if (editor.storeName.isBlank()) safeUser.storeName else editor.storeName,
                 avatarUrl = resolvedAvatarUrl(editor = editor, fallback = safeUser.avatarUrl),
                 isSeller = safeUser.isSeller,
-                isLoading = false,
+                isLoading = profileSyncState.isLoading && safeUser.id.isBlank() && safeUser.fullName.isBlank(),
+                profileErrorMessage = profileSyncState.errorMessage,
             )
         }
     }.stateIn(
@@ -52,6 +55,29 @@ class PersonalInformationViewModel : ViewModel() {
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PersonalInformationUiState(),
     )
+
+    init {
+        refreshProfileIfNeeded()
+    }
+
+    fun refreshProfileIfNeeded() {
+        viewModelScope.launch {
+            val user = AppContainer.authRepository.currentUser.value
+            val syncState = AppContainer.authRepository.profileSyncState.value
+            val shouldRefresh = user.isAuthenticated &&
+                !syncState.isLoading &&
+                !syncState.hasLoaded &&
+                (
+                    user.id.isBlank() ||
+                        user.fullName.isBlank() ||
+                        user.email.isBlank() ||
+                        (user.isSeller && user.storeName.isBlank())
+                    )
+            if (shouldRefresh) {
+                AppContainer.authRepository.refreshCurrentUser()
+            }
+        }
+    }
 
     fun onFullNameChange(value: String) {
         editorState.update { it.copy(fullName = value, errorMessage = null, successMessage = null, hasUserEdits = true) }
@@ -104,6 +130,7 @@ class PersonalInformationViewModel : ViewModel() {
 
             result.fold(
                 onSuccess = {
+                    AppContainer.authRepository.refreshCurrentUser()
                     editorState.update {
                         it.copy(
                             isSaving = false,

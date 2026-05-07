@@ -1,6 +1,7 @@
 package com.example.myappmobile.core.catalog
 
 import com.example.myappmobile.domain.Product
+import com.example.myappmobile.core.utils.formatPriceDzd
 
 data class FloraSubcategory(
     val id: String,
@@ -54,7 +55,9 @@ object FloraCatalog {
         ),
     )
 
-    val quickFilterTypes = listOf("All", "Limited Edition", "New Arrival", "Under $100", "Premium")
+    private val underBudgetLabel = "Under ${formatPriceDzd(100.0)}"
+
+    val quickFilterTypes = listOf("All", "Limited Edition", "New Arrival", underBudgetLabel, "Premium")
 
     fun groupFor(categoryId: String): FloraCategoryGroup? = categoryGroups.firstOrNull { it.id == categoryId }
 
@@ -97,7 +100,7 @@ object FloraCatalog {
             "Limited Edition" -> product.tags.any { it.equals("Limited", ignoreCase = true) }
             "New Arrival" -> product.tags.any { it.equals("New Arrival", ignoreCase = true) } ||
                 product.name.contains("new", ignoreCase = true)
-            "Under $100" -> product.price <= 100.0
+            underBudgetLabel -> product.price <= 100.0
             "Premium" -> product.price >= 180.0
             else -> true
         }

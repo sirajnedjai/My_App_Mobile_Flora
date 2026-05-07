@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -92,6 +93,7 @@ fun ProfileScreen(
     ProfileScreenContent(
         uiState = uiState,
         onBack = onBack,
+        onProfileRetry = viewModel::refreshProfileIfNeeded,
         onSettingClick = { settingId ->
             if (settingId == "application_language") {
                 showLanguageDialog.value = true
@@ -121,6 +123,7 @@ fun ProfileScreen(
 private fun ProfileScreenContent(
     uiState: ProfileUiState,
     onBack: () -> Unit,
+    onProfileRetry: () -> Unit,
     onSettingClick: (String) -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
     onLogoutClick: () -> Unit,
@@ -152,6 +155,9 @@ private fun ProfileScreenContent(
             item {
                 ProfileCard(
                     user = uiState.user,
+                    isLoading = uiState.profileLoading,
+                    errorMessage = uiState.profileError,
+                    onRetry = onProfileRetry,
                 )
             }
 
@@ -250,6 +256,9 @@ fun ProfileHeader(
 @Composable
 fun ProfileCard(
     user: com.example.myappmobile.domain.model.User?,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    onRetry: () -> Unit = {},
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -263,79 +272,111 @@ fun ProfileCard(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(88.dp)
-                    .clip(CircleShape)
-                    .background(StoneFaint)
-                    .border(2.dp, FloraSelectedCard.copy(alpha = 0.7f), CircleShape),
-            ) {
-                FloraRemoteImage(
-                    imageUrl = user?.avatarUrl,
-                    contentDescription = user?.fullName ?: "Profile avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
+            if (isLoading && user == null) {
+                androidx.compose.material3.CircularProgressIndicator(color = FloraBrown)
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = user?.fullName?.ifBlank { "FLORA Member" } ?: "FLORA Member",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = FloraText,
-                )
-                if (user?.sellerApprovalStatus == SellerApprovalStatus.APPROVED ||
-                    user?.verificationStatus == SellerApprovalStatus.APPROVED
-                ) {
-                    SellerVerifiedIcon()
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = user?.email?.ifBlank { "No email available" } ?: "No email available",
-                style = MaterialTheme.typography.bodyMedium,
-                color = FloraTextSecondary,
-            )
-            user?.let {
-                Spacer(modifier = Modifier.height(10.dp))
-                SellerVerificationStatusChip(
-                    status = if (it.isSeller) it.sellerApprovalStatus else it.verificationStatus,
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = user?.membershipTier ?: stringResource(R.string.profile_authenticated_member),
-                style = MaterialTheme.typography.labelMedium,
-                color = FloraBrown,
-            )
-            if (!user?.storeName.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = user?.storeName.orEmpty(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FloraText,
-                )
-            }
-            if (!user?.phone.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = user?.phone.orEmpty(),
-                    style = MaterialTheme.typography.bodySmall,
+                    text = stringResource(R.string.personal_info_loading),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = FloraTextSecondary,
                 )
-            }
-            if (!user?.address.isNullOrBlank()) {
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(88.dp)
+                        .clip(CircleShape)
+                        .background(StoneFaint)
+                        .border(2.dp, FloraSelectedCard.copy(alpha = 0.7f), CircleShape),
+                ) {
+                    FloraRemoteImage(
+                        imageUrl = user?.avatarUrl,
+                        contentDescription = user?.fullName ?: "Profile avatar",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = user?.fullName?.ifBlank { "FLORA Member" } ?: "FLORA Member",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = FloraText,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (user?.sellerApprovalStatus == SellerApprovalStatus.APPROVED ||
+                        user?.verificationStatus == SellerApprovalStatus.APPROVED
+                    ) {
+                        SellerVerifiedIcon()
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = user?.address.orEmpty(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FloraTextMuted,
+                    text = user?.email?.ifBlank { "No email available" } ?: "No email available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FloraTextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
+                Text(
+                    text = user?.membershipTier ?: stringResource(R.string.profile_authenticated_member),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = FloraBrown,
+                )
+                user?.let {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    SellerVerificationStatusChip(
+                        status = if (it.isSeller) it.sellerApprovalStatus else it.verificationStatus,
+                    )
+                }
+                if (!user?.storeName.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = user?.storeName.orEmpty(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (!user?.phone.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = user?.phone.orEmpty(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraTextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (!user?.address.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = user?.address.orEmpty(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraTextMuted,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (!errorMessage.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FloraTextSecondary,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SmallActionButton(
+                        text = "Retry",
+                        onClick = onRetry,
+                    )
+                }
             }
         }
     }
@@ -671,6 +712,7 @@ private fun ProfileScreenPreview() {
                 sellerSettings = emptyList(),
             ),
             onBack = {},
+            onProfileRetry = {},
             onSettingClick = {},
             onDarkModeToggle = {},
             onLogoutClick = {},

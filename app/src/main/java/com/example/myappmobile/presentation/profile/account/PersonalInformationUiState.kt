@@ -11,6 +11,7 @@ data class PersonalInformationUiState(
     val avatarUrl: String = "",
     val isSeller: Boolean = false,
     val isLoading: Boolean = true,
+    val profileErrorMessage: String? = null,
     val isSaving: Boolean = false,
     val hasUserEdits: Boolean = false,
     val errorMessage: String? = null,

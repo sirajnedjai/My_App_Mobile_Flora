@@ -71,6 +71,7 @@ import com.example.myappmobile.core.theme.FloraTheme
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneFaint
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Product
 
@@ -368,7 +369,7 @@ fun WishlistItemCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "$${"%.0f".format(product.price)}",
+                        text = formatPriceDzd(product.price),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.SemiBold,
                         ),

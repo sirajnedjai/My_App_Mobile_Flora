@@ -2,12 +2,13 @@ package com.example.myappmobile.data.repository
 
 import android.util.Log
 import com.example.myappmobile.core.di.AppContainer
-import com.example.myappmobile.data.local.dummy.DummyProducts
-import com.example.myappmobile.data.local.dummy.DummyStores
+import com.example.myappmobile.data.local.room.DatabaseProvider
+import com.example.myappmobile.data.remote.ApiException
 import com.example.myappmobile.data.remote.StoreApiService
 import com.example.myappmobile.data.remote.asObjectOrNull
 import com.example.myappmobile.data.remote.extractDataElement
 import com.example.myappmobile.data.remote.requireBody
+import com.example.myappmobile.data.remote.rethrowIfCancellation
 import com.example.myappmobile.data.remote.string
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.model.Review
@@ -20,27 +21,41 @@ class StoreRepositoryImpl(
     private val storeApiService: StoreApiService,
     private val gson: Gson,
 ) : StoreRepository {
-    private val allStoreProducts = (
-        DummyProducts.allProducts +
-            DummyProducts.sellerProducts +
-            DummyProducts.curatedWorks +
-            DummyProducts.wishlistProducts
-        ).distinctBy { it.id }
+    private val productDao by lazy { DatabaseProvider.getDatabase().productDao() }
 
     override suspend fun getStoreDetails(storeId: String): Store {
         val normalizedStoreId = AppContainer.uiPreferencesRepository.normalizeSellerStoreId(storeId)
         return fetchRemoteStore(storeId, normalizedStoreId)
-            ?: buildLocalFallback(storeId = storeId, normalizedStoreId = normalizedStoreId)
+            ?: buildLocalFallback(normalizedStoreId)
+            ?: throw ApiException("Store details are unavailable right now. Please try again later.")
     }
 
     override suspend fun getStoreProducts(storeId: String): List<com.example.myappmobile.domain.model.Product> {
         val normalizedStoreId = AppContainer.uiPreferencesRepository.normalizeSellerStoreId(storeId)
-        return allStoreProducts.filter { product ->
-            AppContainer.uiPreferencesRepository.normalizeSellerStoreId(product.storeId) == normalizedStoreId
-        }
+        return productDao.getAllOnce()
+            .filter { product ->
+                AppContainer.uiPreferencesRepository.normalizeSellerStoreId(product.sellerId) == normalizedStoreId
+            }
+            .map { entity ->
+                com.example.myappmobile.domain.model.Product(
+                    id = entity.id,
+                    name = entity.name,
+                    price = entity.price,
+                    imageUrl = entity.imageUrl,
+                    studio = entity.studio,
+                    storeId = entity.sellerId,
+                    category = entity.category,
+                    description = entity.description,
+                    stockCount = entity.stockCount,
+                    isFavorited = entity.isFavorited,
+                    collectionLabel = entity.category,
+                    story = entity.description,
+                    images = listOf(entity.imageUrl).filter { it.isNotBlank() },
+                )
+            }
     }
 
-    override suspend fun getStoreReviews(storeId: String): List<Review> = DummyStores.storeReviews
+    override suspend fun getStoreReviews(storeId: String): List<Review> = emptyList()
 
     private suspend fun fetchRemoteStore(
         storeId: String,
@@ -100,7 +115,7 @@ class StoreRepositoryImpl(
             name = store.name.ifBlank { normalizedStoreId },
             ownerName = store.ownerName,
             logoUrl = store.logoUrl,
-            bannerUrl = store.bannerUrl.ifBlank { store.logoUrl },
+            bannerUrl = store.bannerUrl,
         )
     }
 
@@ -120,6 +135,7 @@ class StoreRepositoryImpl(
                     if (payload != null && !payload.isJsonNull) return payload
                 }
                 .onFailure { error ->
+                    error.rethrowIfCancellation()
                     val apiError = error.toApiException()
                     Log.d(TAG, "Store fetch attempt ${index + 1} failed for $storeId: ${apiError.message}")
                     if (apiError.statusCode != 404) return null
@@ -129,53 +145,47 @@ class StoreRepositoryImpl(
     }
 
     private suspend fun buildLocalFallback(
-        storeId: String,
         normalizedStoreId: String,
-    ): Store {
+    ): Store? {
         val savedConfiguration = AppContainer.uiPreferencesRepository.getStoreConfiguration(normalizedStoreId)
         val accountProfile = AppContainer.uiPreferencesRepository.getAccountProfile(normalizedStoreId)
-        val baseStore = if (storeId == "s1" || normalizedStoreId == "1") DummyStores.floraCeramics else null
-
         val storeProducts = getStoreProducts(normalizedStoreId)
-        val leadProduct = storeProducts.firstOrNull()
-
-        val derivedStore = if (leadProduct != null) {
-            Store(
-                id = normalizedStoreId,
-                name = leadProduct.studio,
-                ownerName = "",
-                description = "",
-                bannerUrl = leadProduct.imageUrl,
-                logoUrl = leadProduct.imageUrl,
-                location = "",
-                contactEmail = accountProfile.email,
-                rating = 0f,
-                reviewCount = 0,
-                practisingSince = "",
-                activeProducts = storeProducts.size,
-                categories = storeProducts.map { it.category }.distinct(),
-                story = "",
-                approvalStatus = AppContainer.uiPreferencesRepository.findSellerApprovalStatus(normalizedStoreId)
-                    ?: SellerApprovalStatus.UNKNOWN,
-            )
-        } else {
-            (baseStore ?: DummyStores.floraCeramics.copy(id = normalizedStoreId)).copy(
-                approvalStatus = AppContainer.uiPreferencesRepository.findSellerApprovalStatus(normalizedStoreId)
-                    ?: SellerApprovalStatus.UNKNOWN,
-            )
+        val hasLocalStoreData = savedConfiguration.shopName.isNotBlank() ||
+            savedConfiguration.description.isNotBlank() ||
+            savedConfiguration.logoUri.isNotBlank() ||
+            accountProfile.fullName.isNotBlank() ||
+            accountProfile.email.isNotBlank() ||
+            storeProducts.isNotEmpty()
+        if (!hasLocalStoreData) {
+            return null
         }
 
-        return derivedStore.copy(
+        val derivedName = savedConfiguration.shopName.ifBlank {
+            storeProducts.firstOrNull()?.studio.orEmpty()
+        }
+        val derivedOwner = savedConfiguration.ownerName.ifBlank {
+            accountProfile.fullName
+        }
+        val derivedLogo = normalizeImageUrl(
+            accountProfile.avatarUri.ifBlank { savedConfiguration.logoUri },
+        )
+        val derivedBanner = normalizeImageUrl(savedConfiguration.logoUri)
+
+        return Store(
             id = normalizedStoreId,
-            name = savedConfiguration.shopName.ifBlank { derivedStore.name },
-            ownerName = savedConfiguration.ownerName.ifBlank { accountProfile.fullName.ifBlank { derivedStore.ownerName } },
-            description = savedConfiguration.description.ifBlank { derivedStore.description },
-            logoUrl = normalizeImageUrl(
-                accountProfile.avatarUri.ifBlank { savedConfiguration.logoUri.ifBlank { derivedStore.logoUrl } },
-            ),
-            bannerUrl = normalizeImageUrl(savedConfiguration.logoUri.ifBlank { derivedStore.bannerUrl }),
-            contactEmail = accountProfile.email.ifBlank { derivedStore.contactEmail },
-            practisingSince = savedConfiguration.establishmentDate.ifBlank { derivedStore.practisingSince },
+            name = derivedName,
+            ownerName = derivedOwner,
+            description = savedConfiguration.description,
+            logoUrl = derivedLogo,
+            bannerUrl = derivedBanner,
+            location = accountProfile.address,
+            contactEmail = accountProfile.email,
+            rating = 0f,
+            reviewCount = 0,
+            practisingSince = savedConfiguration.establishmentDate,
+            activeProducts = storeProducts.size,
+            categories = storeProducts.map { it.category }.distinct(),
+            story = savedConfiguration.description,
             approvalStatus = AppContainer.uiPreferencesRepository.findSellerApprovalStatus(normalizedStoreId)
                 ?: SellerApprovalStatus.UNKNOWN,
         )

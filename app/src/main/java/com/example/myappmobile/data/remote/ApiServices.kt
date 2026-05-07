@@ -31,7 +31,19 @@ interface AuthApiService {
     suspend fun logout(): Response<LaravelApiResponse<JsonElement>>
 
     @GET("auth/me")
-    suspend fun me(): Response<LaravelApiResponse<JsonElement>>
+    suspend fun me(): Response<JsonElement>
+
+    @GET("user")
+    suspend fun currentUser(): Response<JsonElement>
+
+    @GET("profile")
+    suspend fun profile(): Response<JsonElement>
+
+    @GET("me")
+    suspend fun plainMe(): Response<JsonElement>
+
+    @GET("account/profile")
+    suspend fun accountProfile(): Response<JsonElement>
 
     @POST("account/profile")
     suspend fun updateProfile(

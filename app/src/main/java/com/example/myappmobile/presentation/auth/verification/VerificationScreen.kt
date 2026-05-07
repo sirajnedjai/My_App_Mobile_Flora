@@ -58,7 +58,7 @@ fun VerificationScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Enter the OTP code to continue.",
+                text = "Verification is currently unavailable in this build.",
                 style = MaterialTheme.typography.bodyLarge
             )
 
@@ -83,10 +83,19 @@ fun VerificationScreen(
                 )
             }
 
+            state.message?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             PrimaryButton(
-                text = "VERIFY",
+                text = "Not Available Yet",
                 onClick = { viewModel.onEvent(VerificationEvent.Submit) },
             )
         }

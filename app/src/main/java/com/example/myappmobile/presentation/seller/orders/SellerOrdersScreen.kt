@@ -44,8 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.PrimaryButton
-import java.text.NumberFormat
-import java.util.Locale
 import com.example.myappmobile.core.theme.FloraBeige
 import com.example.myappmobile.core.theme.FloraBrown
 import com.example.myappmobile.core.theme.FloraError
@@ -54,6 +52,7 @@ import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.Order
 import com.example.myappmobile.domain.model.OrderStatus
 
@@ -309,7 +308,7 @@ private fun SellerOrderCard(
 }
 
 private fun formatMoney(amount: Double): String =
-    NumberFormat.getCurrencyInstance(Locale.US).format(amount)
+    formatPriceDzd(amount)
 
 @Composable
 private fun CompactInfoChip(

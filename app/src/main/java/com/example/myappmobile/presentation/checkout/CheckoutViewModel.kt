@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.model.Address
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +25,8 @@ class CheckoutViewModel : ViewModel() {
     private val createOrderUseCase = AppContainer.createOrderUseCase
 
     val shippingOptions = listOf(
-        ShippingOptionUi("home_delivery", "Home Delivery", "Delivered directly to your shipping address.", "300", 300.0),
-        ShippingOptionUi("office_pickup", "Office Pickup", "Collect your order from the seller pickup point.", "150", 150.0),
+        ShippingOptionUi("home_delivery", "Home Delivery", "Delivered directly to your shipping address.", formatPriceDzd(300.0), 300.0),
+        ShippingOptionUi("office_pickup", "Office Pickup", "Collect your order from the seller pickup point.", formatPriceDzd(150.0), 150.0),
     )
 
     val paymentOptions = listOf(

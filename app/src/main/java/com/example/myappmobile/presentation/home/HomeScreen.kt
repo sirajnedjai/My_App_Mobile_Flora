@@ -34,8 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,12 +43,13 @@ import com.example.myappmobile.core.components.FloraRemoteImage
 import com.example.myappmobile.core.components.AtelierDivider
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.components.PrimaryButton
-import com.example.myappmobile.core.components.SellerApprovalBadge
 import com.example.myappmobile.core.components.ShimmerBox
+import com.example.myappmobile.core.components.safePainterResourceOrNull
 import com.example.myappmobile.core.catalog.FloraCatalog
 import com.example.myappmobile.core.navigation.AppBottomBar
 import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.*
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Category
 import com.example.myappmobile.domain.Product
@@ -57,6 +58,7 @@ import com.example.myappmobile.presentation.home.components.BannerSection
 import com.example.myappmobile.presentation.home.components.CategoriesRow
 import com.example.myappmobile.presentation.home.components.FeaturedProductsSection
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 @Composable
 fun HomeScreen(
@@ -80,8 +82,11 @@ fun HomeScreen(
 
     LaunchedEffect(uiState.favoriteMessage) {
         val message = uiState.favoriteMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(message)
-        onFavoriteMessageShown()
+        try {
+            snackbarHostState.showSnackbar(message)
+            onFavoriteMessageShown()
+        } catch (_: CancellationException) {
+        }
     }
 
     ModalNavigationDrawer(
@@ -243,7 +248,7 @@ private fun HomeCategoryDrawer(
                             selectedCategoryId = group.id
                         },
                         icon = {
-                            val painter = category?.let { runCatching { painterResource(it.iconRes) }.getOrNull() }
+                            val painter = category?.let { safePainterResourceOrNull(it.iconRes) }
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Terracotta.copy(alpha = 0.12f),
@@ -370,13 +375,22 @@ private fun HomeContent(
             .background(Cream),
         contentPadding = PaddingValues(bottom = 32.dp),
     ) {
-        uiState.currentUser?.let { user ->
+        if (uiState.currentUser != null || uiState.isProfileLoading || !uiState.profileError.isNullOrBlank()) {
             item {
-                HomeAccountCard(
-                    user = user,
-                    status = uiState.accountStatus,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-                )
+                when {
+                    uiState.currentUser != null -> HomeAccountCard(
+                        user = uiState.currentUser,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                    )
+                    uiState.isProfileLoading -> HomeAccountCardLoading(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                    )
+                    else -> HomeInlineErrorCard(
+                        message = uiState.profileError.orEmpty(),
+                        onRetry = onRetry,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+                    )
+                }
             }
         }
 
@@ -474,48 +488,70 @@ private fun HomeContent(
 @Composable
 private fun HomeAccountCard(
     user: User,
-    status: com.example.myappmobile.domain.model.SellerApprovalStatus,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        color = White,
-        tonalElevation = 3.dp,
-        shadowElevation = 6.dp,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 8.dp,
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+        ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
+                .padding(horizontal = 18.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FloraRemoteImage(
-                imageUrl = user.avatarUrl,
-                contentDescription = user.fullName,
+            Surface(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(CreamDark),
-                contentScale = ContentScale.Crop,
-            )
+                    .size(56.dp),
+                shape = CircleShape,
+                color = Terracotta.copy(alpha = 0.10f),
+            ) {
+                FloraRemoteImage(
+                    imageUrl = user.avatarUrl,
+                    contentDescription = user.fullName.ifBlank { "Profile avatar" },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                        .background(CreamDark.copy(alpha = 0.18f)),
+                    contentScale = ContentScale.Crop,
+                )
+            }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
+                Text(
+                    text = if (user.storeName.isNotBlank()) "Your FLORA storefront" else "Welcome back to FLORA",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Terracotta,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Text(
                     text = user.fullName.ifBlank { "FLORA Member" },
                     style = MaterialTheme.typography.titleLarge,
                     color = CharcoalDark,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = user.email.ifBlank { "No email available" },
                     style = MaterialTheme.typography.bodyMedium,
                     color = StoneGray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (user.storeName.isNotBlank()) {
                     Row(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -529,11 +565,51 @@ private fun HomeAccountCard(
                             text = user.storeName,
                             style = MaterialTheme.typography.bodySmall,
                             color = Terracotta,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
             }
-            SellerApprovalBadge(status = status)
+        }
+    }
+}
+
+@Composable
+private fun HomeAccountCardLoading(
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
+        shadowElevation = 8.dp,
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ShimmerBox(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape),
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ShimmerBox(modifier = Modifier.fillMaxWidth(0.35f).height(14.dp).clip(RoundedCornerShape(999.dp)))
+                ShimmerBox(modifier = Modifier.fillMaxWidth(0.52f).height(20.dp).clip(RoundedCornerShape(999.dp)))
+                ShimmerBox(modifier = Modifier.fillMaxWidth(0.68f).height(16.dp).clip(RoundedCornerShape(999.dp)))
+            }
         }
     }
 }
@@ -639,7 +715,7 @@ private fun NewArrivalCard(
             color = CharcoalDark,
         )
         Text(
-            text = "$${product.price.toInt()}",
+            text = formatPriceDzd(product.price),
             style = MaterialTheme.typography.bodySmall,
             color = StoneGray,
         )

@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.FloraDivider
@@ -52,6 +51,7 @@ fun SocialButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
+            val fallbackIconPainter = iconPainter ?: safePainterResourceOrNull(R.drawable.flora_logo_vectorized)
             when {
                 icon != null -> Icon(
                     imageVector = icon,
@@ -60,8 +60,8 @@ fun SocialButton(
                     tint = iconTint,
                 )
 
-                else -> Icon(
-                    painter = iconPainter ?: painterResource(id = R.drawable.flora_logo_vectorized),
+                fallbackIconPainter != null -> Icon(
+                    painter = fallbackIconPainter,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                     tint = Color.Unspecified,

@@ -40,8 +40,6 @@ object Routes {
     const val CHECKOUT_SHIPPING = "checkout/shipping"
     const val CHECKOUT_PAYMENT = "checkout/payment"
     const val CHECKOUT_CONFIRMATION = "checkout/confirmation"
-    const val ROOM_USERS_TEST = "testing/room/users"
-    const val ROOM_PRODUCTS_TEST = "testing/room/products"
     const val PRODUCT_DETAILS = "product_details/{productId}?orderId={orderId}"
 
     fun sellerStorefront(sellerId: String): String = "seller/storefront/$sellerId"

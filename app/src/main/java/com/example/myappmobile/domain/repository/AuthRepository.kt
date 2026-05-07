@@ -3,8 +3,16 @@ package com.example.myappmobile.domain.repository
 import com.example.myappmobile.domain.model.User
 import kotlinx.coroutines.flow.StateFlow
 
+data class AuthProfileSyncState(
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val endpointUsed: String? = null,
+    val hasLoaded: Boolean = false,
+)
+
 interface AuthRepository {
     val currentUser: StateFlow<User>
+    val profileSyncState: StateFlow<AuthProfileSyncState>
 
     suspend fun login(email: String, password: String): Result<User>
 

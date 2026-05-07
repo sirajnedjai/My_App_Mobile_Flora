@@ -12,6 +12,14 @@ class ForgotPasswordViewModel : ViewModel() {
     val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
 
     fun onEmailChange(email: String) {
-        _uiState.update { it.copy(email = email) }
+        _uiState.update { it.copy(email = email, message = null) }
+    }
+
+    fun onContinueUnavailable() {
+        _uiState.update {
+            it.copy(
+                message = "Password reset is not available yet because the backend endpoint is not implemented.",
+            )
+        }
     }
 }

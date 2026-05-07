@@ -60,6 +60,7 @@ import com.example.myappmobile.core.theme.StatusAmber
 import com.example.myappmobile.core.theme.StatusBlue
 import com.example.myappmobile.core.theme.StatusGreen
 import com.example.myappmobile.core.theme.StatusRed
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.Order
 import com.example.myappmobile.domain.model.OrderItem
 import com.example.myappmobile.domain.model.OrderStatus
@@ -252,7 +253,7 @@ private fun OrderTrackingCard(order: Order, onClick: () -> Unit) {
                     label = if (order.carrier.isNotBlank()) "Carrier" else stringResource(R.string.common_shipping),
                     value = if (order.carrier.isNotBlank()) order.carrier else order.shippingMethod.ifBlank { stringResource(R.string.orders_standard_delivery) },
                 )
-                InfoColumn(label = stringResource(R.string.common_total), value = "$${"%.2f".format(order.total)}")
+                InfoColumn(label = stringResource(R.string.common_total), value = formatPriceDzd(order.total))
             }
             if (order.trackingNumber.isNotBlank() || order.shipmentStatus.isNotBlank()) {
                 Row(

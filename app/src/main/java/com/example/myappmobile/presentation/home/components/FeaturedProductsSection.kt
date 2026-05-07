@@ -21,6 +21,7 @@ import com.example.myappmobile.R
 import com.example.myappmobile.core.components.FavoriteButton
 import com.example.myappmobile.core.components.SectionHeader
 import com.example.myappmobile.core.theme.*
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Product
 
@@ -135,7 +136,7 @@ fun FeaturedProductCard(
                 )
             }
             Text(
-                text = "$${product.price.toInt()}",
+                text = formatPriceDzd(product.price),
                 style = MaterialTheme.typography.titleLarge.copy(color = FloraWhite),
             )
         }

@@ -1,47 +1,63 @@
 package com.example.myappmobile.core.components
 
-import android.util.Log
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.VectorDrawable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.myappmobile.R
-import com.example.myappmobile.data.remote.BackendUrlResolver
+import com.example.myappmobile.data.remote.ImageUrlResolver
 
 @Composable
 fun FloraRemoteImage(
-    imageUrl: String?,
+    imageUrl: Any?,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop,
 ) {
     val context = LocalContext.current
-    val resolvedModel = BackendUrlResolver.resolveImageUrlOrNull(imageUrl)
-    val fallbackPainter = painterResource(R.drawable.flora_logo_vectorized)
-    val imageRequest = resolvedModel?.let { model ->
+    val fallbackPainter = safePainterResourceOrNull(R.drawable.image_placeholder)
+    val model: Any? = when (imageUrl) {
+        is Int -> imageUrl
+        is String -> ImageUrlResolver.resolveOrNull(imageUrl)
+        else -> null
+    }
+    val request = model?.let { source ->
         ImageRequest.Builder(context)
-            .data(model)
+            .data(source)
             .crossfade(true)
             .build()
     }
 
-    LaunchedEffect(resolvedModel, contentDescription) {
-        Log.d(TAG, "Rendering image. description=$contentDescription finalUrl=${resolvedModel.orEmpty()}")
-    }
-
     AsyncImage(
-        model = imageRequest ?: resolvedModel,
+        model = request ?: model,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale,
-        fallback = fallbackPainter,
-        error = fallbackPainter,
         placeholder = fallbackPainter,
+        error = fallbackPainter,
+        fallback = fallbackPainter,
     )
 }
 
-private const val TAG = "FloraRemoteImage"
+@Composable
+fun safePainterResourceOrNull(resId: Int): Painter? {
+    val context = LocalContext.current
+    val isSupportedPainterResource = remember(resId) {
+        runCatching {
+            when (val drawable = context.getDrawable(resId)) {
+                is BitmapDrawable,
+                is VectorDrawable -> true
+                else -> false
+            }
+        }.getOrDefault(false)
+    }
+
+    return if (isSupportedPainterResource) painterResource(id = resId) else null
+}

@@ -2,6 +2,7 @@ package com.example.myappmobile.presentation.checkout.address
 
 data class AddressUiState(
     val fullName: String = "",
+    val phoneNumber: String = "",
     val state: String = "",
     val municipality: String = "",
     val neighborhood: String = "",
@@ -11,6 +12,7 @@ data class AddressUiState(
 ) {
     val isValid: Boolean
         get() = fullName.isNotBlank() &&
+            phoneNumber.isNotBlank() &&
             state.isNotBlank() &&
             municipality.isNotBlank() &&
             neighborhood.isNotBlank() &&

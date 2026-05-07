@@ -56,6 +56,7 @@ import com.example.myappmobile.core.components.SmallActionButton
 import com.example.myappmobile.core.components.StarRatingRow
 import com.example.myappmobile.R
 import com.example.myappmobile.core.theme.*
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.ArtistProfile
 import com.example.myappmobile.domain.Product
@@ -304,7 +305,7 @@ private fun ProductDetailsContent(
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "$%.2f".format(product.price),
+                    text = formatPriceDzd(product.price),
                     style = MaterialTheme.typography.titleLarge,
                     color = CharcoalMid,
                 )
@@ -1036,7 +1037,7 @@ private fun SimilarProductCard(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = "$${product.price.toInt()}",
+                        text = formatPriceDzd(product.price),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = Terracotta,
                     )

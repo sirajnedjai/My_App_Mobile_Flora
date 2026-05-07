@@ -68,6 +68,7 @@ import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.FloraTheme
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.CartItem
 import com.example.myappmobile.domain.model.Product as CartProduct
 
@@ -625,7 +626,7 @@ private fun CartStatusCard(message: String) {
     }
 }
 
-private fun formatCurrency(amount: Double): String = "$${"%.2f".format(amount)}"
+private fun formatCurrency(amount: Double): String = formatPriceDzd(amount)
 
 @Preview(showBackground = true)
 @Composable

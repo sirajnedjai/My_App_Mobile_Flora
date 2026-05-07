@@ -9,4 +9,6 @@ data class StoreFrontUiState(
     val products: List<Product> = emptyList(),
     val reviews: List<Review> = emptyList(),
     val isAlternateProductLayout: Boolean = false,
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
 )

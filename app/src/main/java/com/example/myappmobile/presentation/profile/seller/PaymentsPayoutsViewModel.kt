@@ -3,6 +3,7 @@ package com.example.myappmobile.presentation.profile.seller
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.core.utils.formatPriceDzd
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -128,7 +129,7 @@ class PaymentsPayoutsViewModel : ViewModel() {
     ): String {
         val peak = chartData.maxByOrNull { it.amount }
         return when (period) {
-            SalesPeriodUi.WEEK -> "This week peaked on ${peak?.label.orEmpty()} with ${peak?.amount?.toInt() ?: 0} in sales."
+            SalesPeriodUi.WEEK -> "This week peaked on ${peak?.label.orEmpty()} with ${formatPriceDzd(peak?.amount?.toDouble() ?: 0.0)} in sales."
             SalesPeriodUi.MONTH -> "Your monthly run rate is stable across all weeks."
             SalesPeriodUi.THREE_MONTHS -> "The last quarter shows consistent growth across each month."
             SalesPeriodUi.SIX_MONTHS -> "Six-month performance confirms steady demand and stronger repeat orders."

@@ -93,6 +93,7 @@ import com.example.myappmobile.core.theme.SearchGradientTop
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneGray
 import com.example.myappmobile.core.theme.Terracotta
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.Product
 import kotlin.math.absoluteValue
 
@@ -922,7 +923,7 @@ private fun SearchProductCard(
                     )
                 }
                 Text(
-                    text = "$${"%.2f".format(product.price)}",
+                    text = formatPriceDzd(product.price),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = PriceGreen,
                 )

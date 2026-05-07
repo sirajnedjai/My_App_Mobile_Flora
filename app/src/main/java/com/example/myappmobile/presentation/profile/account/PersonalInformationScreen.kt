@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -113,6 +114,15 @@ fun PersonalInformationScreen(
                         avatarUrl = uiState.avatarUrl,
                         onChangePhoto = { imagePickerLauncher.launch(arrayOf("image/*")) },
                     )
+                }
+
+                if (!uiState.profileErrorMessage.isNullOrBlank()) {
+                    item {
+                        ProfileSyncErrorCard(
+                            message = uiState.profileErrorMessage.orEmpty(),
+                            onRetry = viewModel::refreshProfileIfNeeded,
+                        )
+                    }
                 }
 
                 item {
@@ -229,18 +239,50 @@ private fun AccountHeroCard(
                     text = fullName,
                     style = MaterialTheme.typography.headlineSmall,
                     color = FloraText,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = email,
                     style = MaterialTheme.typography.bodyMedium,
                     color = FloraTextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = membershipTier,
                     style = MaterialTheme.typography.labelMedium,
                     color = FloraBrown,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProfileSyncErrorCard(
+    message: String,
+    onRetry: () -> Unit,
+) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FloraCardBg),
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = FloraTextSecondary,
+            )
+            PrimaryButton(
+                text = "Retry profile sync",
+                onClick = onRetry,
+            )
         }
     }
 }

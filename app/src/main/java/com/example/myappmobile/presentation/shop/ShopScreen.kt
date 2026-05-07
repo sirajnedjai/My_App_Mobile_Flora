@@ -71,7 +71,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,11 +87,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -124,8 +125,10 @@ import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneFaint
 import com.example.myappmobile.core.theme.StoneGray
 import com.example.myappmobile.core.theme.Terracotta
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Product
+import kotlinx.coroutines.CancellationException
 
 @Composable
 fun ShopScreen(
@@ -138,13 +141,16 @@ fun ShopScreen(
     onBottomNavClick: (String) -> Unit = {},
     viewModel: ShopViewModel = viewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.favoriteMessage) {
         val message = uiState.favoriteMessage ?: return@LaunchedEffect
-        snackbarHostState.showSnackbar(message)
-        viewModel.clearFavoriteMessage()
+        try {
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearFavoriteMessage()
+        } catch (_: CancellationException) {
+        }
     }
 
     ShopScreenContent(
@@ -1066,8 +1072,11 @@ private fun SelectionChip(
             )
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                 color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -1368,7 +1377,7 @@ private fun LuxuryProductCard(
                             color = StoneGray,
                         )
                         Text(
-                            text = "$${"%.0f".format(product.price)}",
+                            text = formatPriceDzd(product.price),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontFamily = SerifFontFamily,
                                 fontStyle = FontStyle.Italic,
@@ -1444,11 +1453,11 @@ private fun Product.previewRating(): Float {
 @Composable
 private fun localizedShopCategoryLabel(category: ShopCategoryUi): String = when (category.id) {
     ShopCategoryUi.ALL.id -> stringResource(R.string.shop_category_handmade)
-    "jewelry" -> stringResource(R.string.category_jewelry)
+    "jewelry" -> "Accessories"
     "home" -> stringResource(R.string.category_home)
     "textiles" -> stringResource(R.string.category_textiles)
     "ceramics" -> stringResource(R.string.category_ceramics)
-    else -> category.title
+    else -> category.title.replaceFirst("accesoires", "Accessories", ignoreCase = true)
 }
 
 @Composable

@@ -47,6 +47,7 @@ import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 
 @Composable
 fun SellerProductDetailScreen(
@@ -213,7 +214,7 @@ private fun SellerProductDetailContent(
         item {
             DetailCard(title = "Catalog Summary") {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SummaryRow(label = "Price", value = "$${"%.2f".format(product.price)}")
+                    SummaryRow(label = "Price", value = formatPriceDzd(product.price))
                     SummaryRow(label = "Stock", value = product.stockCount.toString())
                     SummaryRow(label = "Status", value = details.status.ifBlank { "Not provided" })
                     SummaryRow(label = "Seller", value = details.sellerName.ifBlank { product.studio.ifBlank { "Not provided" } })

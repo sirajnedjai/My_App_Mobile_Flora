@@ -3,9 +3,9 @@ package com.example.myappmobile.core.navigation
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
@@ -20,7 +20,7 @@ import com.example.myappmobile.presentation.auth.login.LoginScreen
 import com.example.myappmobile.presentation.auth.register.RegisterScreen
 import com.example.myappmobile.presentation.auth.verification.VerificationScreen
 import com.example.myappmobile.presentation.cart.CartScreen
-import com.example.myappmobile.presentation.checkout.CheckoutScreen
+import com.example.myappmobile.presentation.checkout.address.AddressScreen
 import com.example.myappmobile.presentation.checkout.confirmation.ConfirmationScreen
 import com.example.myappmobile.presentation.checkout.payment.PaymentScreen
 import com.example.myappmobile.presentation.checkout.shipping.ShippingScreen
@@ -57,8 +57,6 @@ import com.example.myappmobile.presentation.seller.orders.SellerOrderDetailScree
 import com.example.myappmobile.presentation.seller.products.StoreProductsScreen
 import com.example.myappmobile.presentation.seller.reviews.StoreReviewsScreen
 import com.example.myappmobile.presentation.seller.storefront.StoreFrontScreen
-import com.example.myappmobile.presentation.testing.product.ProductTestScreen
-import com.example.myappmobile.presentation.testing.user.UserTestScreen
 import com.example.myappmobile.presentation.wishlist.WishlistScreen
 
 private const val APP_NAV_GRAPH_TAG = "LOGIN_DEBUG"
@@ -69,8 +67,8 @@ fun AppNavGraph(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val currentUser by AppContainer.authRepository.currentUser.collectAsState()
-    val pendingNotificationTarget by AppContainer.notificationNavigationRepository.pendingTarget.collectAsState()
+    val currentUser by AppContainer.authRepository.currentUser.collectAsStateWithLifecycle()
+    val pendingNotificationTarget by AppContainer.notificationNavigationRepository.pendingTarget.collectAsStateWithLifecycle()
     val authRoutes = remember {
         setOf(
             Routes.LOGIN,
@@ -154,13 +152,12 @@ fun AppNavGraph(
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
                 onBack = { navController.popBackStack() },
-                onContinue = { navController.navigate(Routes.VERIFICATION) },
             )
         }
 
         composable(Routes.HOME) {
             val viewModel: HomeViewModel = viewModel()
-            val uiState by viewModel.uiState.collectAsState()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             HomeScreen(
                 uiState = uiState,
                 selectedRoute = currentRoute ?: Routes.HOME,
@@ -222,12 +219,16 @@ fun AppNavGraph(
             StoreFrontScreen(
                 onBack = { navController.popBackStack() },
                 onOpenAbout = {
-                    val sellerId = it.arguments?.getString("sellerId").orEmpty().ifBlank { "s1" }
-                    navController.navigate(Routes.sellerAbout(sellerId))
+                    val sellerId = it.arguments?.getString("sellerId").orEmpty()
+                    if (sellerId.isNotBlank()) {
+                        navController.navigate(Routes.sellerAbout(sellerId))
+                    }
                 },
                 onOpenReviews = {
-                    val sellerId = it.arguments?.getString("sellerId").orEmpty().ifBlank { "s1" }
-                    navController.navigate(Routes.sellerReviews(sellerId))
+                    val sellerId = it.arguments?.getString("sellerId").orEmpty()
+                    if (sellerId.isNotBlank()) {
+                        navController.navigate(Routes.sellerReviews(sellerId))
+                    }
                 },
                 onProductClick = { productId ->
                     navController.navigate(Routes.productDetails(productId))
@@ -429,13 +430,8 @@ fun AppNavGraph(
         }
 
         composable(Routes.CHECKOUT) {
-            CheckoutScreen(
-                onBack = { navController.popBackStack() },
-                onPlaceOrderSuccess = {
-                    navController.navigate(Routes.CHECKOUT_CONFIRMATION) {
-                        launchSingleTop = true
-                    }
-                },
+            AddressScreen(
+                onContinue = { navController.navigate(Routes.CHECKOUT_SHIPPING) },
             )
         }
 
@@ -463,18 +459,6 @@ fun AppNavGraph(
                         launchSingleTop = true
                     }
                 },
-            )
-        }
-
-        composable(Routes.ROOM_USERS_TEST) {
-            UserTestScreen(
-                onBack = { navController.popBackStack() },
-            )
-        }
-
-        composable(Routes.ROOM_PRODUCTS_TEST) {
-            ProductTestScreen(
-                onBack = { navController.popBackStack() },
             )
         }
 
@@ -525,7 +509,7 @@ fun AppNavGraph(
             ),
         ) {
             val viewModel: ProductDetailsViewModel = viewModel()
-            val uiState by viewModel.uiState.collectAsState()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ProductDetailsScreen(
                 uiState = uiState,
                 onBack = { navController.popBackStack() },

@@ -32,15 +32,14 @@ import com.example.myappmobile.domain.model.OrderStatusEntry
 import com.example.myappmobile.domain.model.Product
 import com.example.myappmobile.domain.repository.CartRepository
 import com.example.myappmobile.domain.repository.OrderRepository
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -67,7 +66,6 @@ class OrderRepositoryImpl(
 
     private val timestampFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy • HH:mm")
     private val displayTimestampFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
-    private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val _checkoutDraft = MutableStateFlow(CheckoutDraft())
@@ -139,7 +137,6 @@ class OrderRepositoryImpl(
             TAG,
             "Checkout request shipping/payment mapping: shipping='${_checkoutDraft.value.shippingMethod}' payment='${_checkoutDraft.value.paymentMethod}' localPreviewTotal=$total",
         )
-        Log.d(TAG, "Checkout request body: ${gson.toJson(request)}")
         val response = runCatching {
             orderApiService.checkout(request).requireBody(gson)
         }.getOrElse { error ->
@@ -838,7 +835,7 @@ class OrderRepositoryImpl(
         return withoutExisting
     }
 
-    fun formatMoney(amount: Double): String = currencyFormatter.format(amount)
+    fun formatMoney(amount: Double): String = formatPriceDzd(amount)
 
     fun formatOrderTimestamp(raw: String): String {
         val value = raw.trim()

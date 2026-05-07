@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myappmobile.core.di.AppContainer
@@ -20,9 +21,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 
 @Composable
 fun AtelierApp() {
-    val isDarkMode by AppContainer.uiPreferencesRepository.isDarkMode.collectAsState()
-    val languageCode by AppContainer.uiPreferencesRepository.languageCode.collectAsState()
-    val currentUser by AppContainer.authRepository.currentUser.collectAsState()
+    val isDarkMode by AppContainer.uiPreferencesRepository.isDarkMode.collectAsStateWithLifecycle()
+    val languageCode by AppContainer.uiPreferencesRepository.languageCode.collectAsStateWithLifecycle()
+    val currentUser by AppContainer.authRepository.currentUser.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {

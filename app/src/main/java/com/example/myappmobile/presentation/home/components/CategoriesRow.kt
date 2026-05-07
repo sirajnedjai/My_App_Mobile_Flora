@@ -13,10 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.myappmobile.core.components.safePainterResourceOrNull
 import com.example.myappmobile.core.theme.*
 import com.example.myappmobile.data.MockData
 import com.example.myappmobile.domain.Category
@@ -36,7 +38,7 @@ fun CategoriesRow(
     ) {
         items(categories) { category ->
             CategoryChip(
-                label = category.name,
+                label = localizedCategoryLabel(category),
                 iconRes = category.iconRes,
                 onClick = { onCategoryClick(category.id) },
             )
@@ -53,7 +55,7 @@ private fun CategoryChip(
 ) {
     Surface(
         modifier = modifier
-            .width(94.dp)
+            .width(104.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
@@ -66,8 +68,10 @@ private fun CategoryChip(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = 122.dp)
                 .padding(horizontal = 10.dp, vertical = 14.dp),
         ) {
             Surface(
@@ -81,15 +85,13 @@ private fun CategoryChip(
                         .background(color = Terracotta.copy(alpha = 0.04f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    val painter = runCatching { painterResource(id = iconRes) }
-                        .onFailure { throwable ->
-                            Log.e(
-                                LOGIN_DEBUG,
-                                "Category icon load failed for label=$label iconRes=$iconRes. Falling back safely.",
-                                throwable,
-                            )
-                        }
-                        .getOrNull()
+                    val painter = safePainterResourceOrNull(iconRes)
+                    if (painter == null) {
+                        Log.e(
+                            LOGIN_DEBUG,
+                            "Category icon load failed for label=$label iconRes=$iconRes. Falling back safely.",
+                        )
+                    }
 
                     if (painter != null) {
                         Icon(
@@ -108,15 +110,25 @@ private fun CategoryChip(
                     }
                 }
             }
-            Spacer(Modifier.height(10.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
+}
+
+private fun localizedCategoryLabel(category: Category): String = when {
+    category.id == "jewelry" -> "Accessories"
+    category.name.equals("accesoires", ignoreCase = true) -> "Accessories"
+    else -> category.name
+        .lowercase()
+        .replaceFirstChar { it.titlecase() }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF5F0E8)

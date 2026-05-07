@@ -91,6 +91,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation("androidx.fragment:fragment-ktx:1.8.2")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -22,6 +22,7 @@ import com.example.myappmobile.data.remote.extractDataElement
 import com.example.myappmobile.data.remote.int
 import com.example.myappmobile.data.remote.objectAt
 import com.example.myappmobile.data.remote.requireBody
+import com.example.myappmobile.data.remote.rethrowIfCancellation
 import com.example.myappmobile.data.remote.string
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.ArtistProfile
@@ -67,6 +68,8 @@ class ProductRepositoryImpl(
     override val favoriteOperationProductIds: StateFlow<Set<String>> = _favoriteOperationProductIds.asStateFlow()
     private val _isRefreshingFavorites = MutableStateFlow(false)
     override val isRefreshingFavorites: StateFlow<Boolean> = _isRefreshingFavorites.asStateFlow()
+    @Volatile
+    private var hasTriggeredInitialSync = false
 
     private companion object {
         const val TAG = "ProductRepository"
@@ -164,6 +167,7 @@ class ProductRepositoryImpl(
             Log.d(TAG, "Search/filter results mapped. count=${categoryFiltered.size}")
             categoryFiltered
         }.getOrElse { error ->
+            error.rethrowIfCancellation()
             val apiError = error.toApiException()
             Log.d(TAG, "Search/filter endpoint failed. keyword=$normalizedQuery category=$normalizedCategory error=${apiError.message}")
             val local = getAllProducts().filter { product ->
@@ -188,6 +192,7 @@ class ProductRepositoryImpl(
         val response = runCatching {
             productApiService.getProductDetails(productId).requireBody(gson)
         }.getOrElse { error ->
+            error.rethrowIfCancellation()
             val apiError = error.toApiException()
             Log.d(TAG, "Product details endpoint failed. productId=$productId error=${apiError.message}")
             return buildCachedDetails(productId) ?: throw apiError
@@ -265,8 +270,7 @@ class ProductRepositoryImpl(
             normalizeImageUrl(
                 storeDto?.logoUrl
                     ?: storeDto?.bannerUrl
-                    ?: storeObject?.string("logo", "logo_url", "avatar", "avatar_url", "image", "banner", "banner_url")
-                    ?: entity.imageUrl,
+                    ?: storeObject?.string("logo", "logo_url", "avatar", "avatar_url", "image", "banner", "banner_url"),
             )
         }
 
@@ -331,6 +335,7 @@ class ProductRepositoryImpl(
                 )
                 _favoriteMessage.value = response.message
             }.onFailure { throwable ->
+                throwable.rethrowIfCancellation()
                 val apiError = throwable.toApiException()
                 setFavoriteFlag(productId, previousValue)
                 if (apiError.statusCode == 401) {
@@ -360,6 +365,7 @@ class ProductRepositoryImpl(
 
         favoriteMutex.withLock {
             runCatching { syncFavoritesLocked() }
+                .onFailure { error -> error.rethrowIfCancellation() }
         }
     }
 
@@ -385,6 +391,7 @@ class ProductRepositoryImpl(
             applyFavoriteFlags(favoritePayload.productIds)
             favoritePayload
         } catch (throwable: Throwable) {
+            throwable.rethrowIfCancellation()
             val apiError = throwable.toApiException()
             if (apiError.statusCode == 401) {
                 clearFavoriteFlags()
@@ -397,6 +404,8 @@ class ProductRepositoryImpl(
     }
 
     private fun triggerSync() {
+        if (hasTriggeredInitialSync) return
+        hasTriggeredInitialSync = true
         repositoryScope.launch {
             Log.d(TAG, "triggerSync launched")
             refreshProducts()
@@ -410,7 +419,6 @@ class ProductRepositoryImpl(
                 val remoteProducts = extractProducts(response.data)
                 if (remoteProducts.isNotEmpty()) {
                     val favoritesById = productDao.getAllOnce().associate { it.id to it.isFavorited }
-                    productDao.deleteAll()
                     productDao.insertAll(
                         remoteProducts.mapIndexed { index, dto ->
                             dto.toEntity(existingFavorite = favoritesById[dto.id.asStringOrNull().orEmpty()] == true, index = index)
@@ -424,6 +432,7 @@ class ProductRepositoryImpl(
                     Log.d(TAG, "Products endpoint returned no items.")
                 }
             }.onFailure { error ->
+                error.rethrowIfCancellation()
                 Log.d(TAG, "Products endpoint failed: ${error.toApiException().message}")
             }
         }
@@ -458,7 +467,10 @@ class ProductRepositoryImpl(
             }.orEmpty()
             else -> emptyList()
         }
-    }.getOrDefault(emptyList())
+    }.getOrElse { error ->
+        error.rethrowIfCancellation()
+        emptyList()
+    }
 
     private suspend fun applyFavoriteFlags(favoriteIds: Set<String>) {
         val current = productDao.getAllOnce()
@@ -565,7 +577,7 @@ class ProductRepositoryImpl(
             artist = ArtistProfile(
                 id = target.sellerId,
                 name = target.studio.ifBlank { "FLORA Seller" },
-                avatarUrl = target.imageUrl,
+                avatarUrl = "",
                 rating = 0f,
                 reviewCount = reviews.size,
                 studioName = target.studio.ifBlank { "FLORA Seller" },

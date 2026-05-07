@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myappmobile.core.access.RoleAccessManager
 import com.example.myappmobile.core.di.AppContainer
+import com.example.myappmobile.data.remote.rethrowIfCancellation
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.BannerData
 import com.example.myappmobile.domain.Category
@@ -16,6 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
@@ -23,12 +26,14 @@ class HomeViewModel : ViewModel() {
     private companion object {
         const val TAG = "HomeViewModel"
     }
+    private var loadJob: Job? = null
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         observeHomeState()
+        refreshProfileIfNeeded()
         loadHomeData()
     }
 
@@ -37,15 +42,17 @@ class HomeViewModel : ViewModel() {
             combine(
                 productRepository.observeAllProducts(),
                 AppContainer.authRepository.currentUser,
+                AppContainer.authRepository.profileSyncState,
                 productRepository.favoriteMessage,
                 productRepository.favoriteOperationProductIds,
-            ) { allProducts, user, favoriteMessage, pendingFavoriteIds ->
+            ) { allProducts, user, profileSyncState, favoriteMessage, pendingFavoriteIds ->
                 val safeUser = user.toSafeUiUser()
                 val access = RoleAccessManager.capabilities(safeUser)
                 val featuredProducts = allProducts.take(4)
                 val newArrivals = allProducts.takeLast(4).reversed().ifEmpty { allProducts.take(4) }
                 HomeUiState(
                     isLoading = _uiState.value.isLoading && allProducts.isEmpty(),
+                    isProfileLoading = profileSyncState.isLoading,
                     currentUser = safeUser.takeIf { it.isAuthenticated },
                     accountStatus = safeAccountStatus(safeUser),
                     banner = deriveBanner(
@@ -60,6 +67,7 @@ class HomeViewModel : ViewModel() {
                     isSubscribed = _uiState.value.isSubscribed,
                     canUseWishlist = access.canUseWishlist,
                     error = _uiState.value.error,
+                    profileError = profileSyncState.errorMessage,
                     favoriteMessage = favoriteMessage,
                     pendingFavoriteIds = pendingFavoriteIds,
                 )
@@ -70,9 +78,10 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadHomeData() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            runCatching {
+            try {
                 val allProducts = productRepository.getAllProducts()
                 Log.d(
                     TAG,
@@ -84,7 +93,8 @@ class HomeViewModel : ViewModel() {
                         error = null,
                     )
                 }
-            }.onFailure { throwable ->
+            } catch (throwable: Throwable) {
+                throwable.rethrowIfCancellation()
                 val apiError = throwable.toApiException()
                 Log.d(TAG, "Home API load failed: ${apiError.message}")
                 val access = RoleAccessManager.capabilities(AppContainer.authRepository.currentUser.value)
@@ -95,6 +105,25 @@ class HomeViewModel : ViewModel() {
                         error = apiError.message,
                     )
                 }
+            }
+        }
+    }
+
+    private fun refreshProfileIfNeeded() {
+        viewModelScope.launch {
+            val user = AppContainer.authRepository.currentUser.value
+            val syncState = AppContainer.authRepository.profileSyncState.value
+            val shouldRefresh = user.isAuthenticated &&
+                !syncState.isLoading &&
+                !syncState.hasLoaded &&
+                (
+                    user.id.isBlank() ||
+                        user.fullName.isBlank() ||
+                        user.email.isBlank() ||
+                        (user.isSeller && user.storeName.isBlank())
+                    )
+            if (shouldRefresh) {
+                AppContainer.authRepository.refreshCurrentUser()
             }
         }
     }

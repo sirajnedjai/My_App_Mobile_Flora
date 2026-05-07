@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.core.components.CircularIconButton
 import com.example.myappmobile.core.theme.Cream
 import com.example.myappmobile.core.theme.FloraCardBg
@@ -41,11 +43,37 @@ fun SellerBinaryProductsScreen(
     viewModel: SellerBinaryProductsViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val errorMessage = uiState.errorMessage
 
     Scaffold(
         containerColor = Cream,
         topBar = { SellerBinaryProductsTopBar(onBack = onBack) },
     ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Cream)
+                    .padding(paddingValues),
+            ) {
+                CircularProgressIndicator(modifier = Modifier.padding(20.dp))
+            }
+            return@Scaffold
+        }
+
+        if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Cream)
+                    .padding(paddingValues)
+                    .padding(20.dp),
+            ) {
+                Text(errorMessage, color = MaterialTheme.colorScheme.error)
+            }
+            return@Scaffold
+        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,7 +142,7 @@ private fun BinaryProductCard(product: Product) {
             BinaryLine("id", product.id)
             BinaryLine("storeId", product.storeId.ifBlank { "unknown" })
             BinaryLine("studio", product.studio)
-            BinaryLine("price", "$${"%.2f".format(product.price)}")
+            BinaryLine("price", formatPriceDzd(product.price))
             BinaryLine("stockCount", product.stockCount.toString())
             BinaryLine("category", product.category.ifBlank { "uncategorized" })
             BinaryLine("binaryId", product.id.encodeAsBinary())

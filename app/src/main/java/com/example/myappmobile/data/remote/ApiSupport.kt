@@ -16,6 +16,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
+import kotlinx.coroutines.CancellationException
 
 class ApiException(
     override val message: String,
@@ -153,6 +154,7 @@ fun <T> Response<LaravelApiResponse<T>>.requireBody(gson: Gson): LaravelApiRespo
 }
 
 fun Throwable.toApiException(): ApiException = when (this) {
+    is CancellationException -> throw this
     is ApiException -> this
     is SocketTimeoutException -> ApiException(
         message = "The server is taking longer than expected to respond. Render may be waking up; please try again in a moment.",
@@ -167,6 +169,10 @@ fun Throwable.toApiException(): ApiException = when (this) {
         message = "Unable to reach the server right now. Please try again shortly.",
     )
     else -> ApiException(message = message ?: "Something went wrong while contacting the server.")
+}
+
+fun Throwable.rethrowIfCancellation() {
+    if (this is CancellationException) throw this
 }
 
 fun extractDataElement(payload: JsonElement?): JsonElement? {

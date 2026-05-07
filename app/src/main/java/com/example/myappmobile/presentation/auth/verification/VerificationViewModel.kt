@@ -18,7 +18,8 @@ class VerificationViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         code = filtered,
-                        codeError = null
+                        codeError = null,
+                        message = null,
                     )
                 }
             }
@@ -28,22 +29,11 @@ class VerificationViewModel : ViewModel() {
     }
 
     private fun verifyCode() {
-        val code = _uiState.value.code
-
-        if (code.length != 4 && code.length != 6) {
-            _uiState.update {
-                it.copy(
-                    codeError = "Enter a 4-digit or 6-digit code",
-                    isVerified = false
-                )
-            }
-            return
-        }
-
         _uiState.update {
             it.copy(
-                codeError = null,
-                isVerified = true
+                codeError = "Verification is not available yet because the backend endpoint is not implemented.",
+                isVerified = false,
+                message = "Verification codes are not connected to a server in this build.",
             )
         }
     }

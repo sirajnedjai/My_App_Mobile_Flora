@@ -70,10 +70,9 @@ import com.example.myappmobile.core.theme.StatusGreenLight
 import com.example.myappmobile.core.theme.StatusRed
 import com.example.myappmobile.core.theme.StatusRedLight
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.Order
 import com.example.myappmobile.domain.model.OrderStatus
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun SellerOrderDetailScreen(
@@ -930,4 +929,4 @@ private fun statusTimelineNote(status: OrderStatus): String = when (status) {
 }
 
 private fun formatMoney(amount: Double): String =
-    NumberFormat.getCurrencyInstance(Locale.US).format(amount)
+    formatPriceDzd(amount)

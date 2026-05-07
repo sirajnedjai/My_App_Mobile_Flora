@@ -47,6 +47,7 @@ import com.example.myappmobile.core.theme.FloraCardBg
 import com.example.myappmobile.core.theme.FloraSelectedCard
 import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.Order
 
 @Composable
@@ -194,10 +195,10 @@ private fun OrderDetailContent(
             DetailCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Summary", style = MaterialTheme.typography.titleMedium, color = FloraText)
-                    InfoRow("Subtotal", "$${"%.2f".format(order.subtotal)}")
-                    InfoRow("Shipping", "$${"%.2f".format(order.shippingCost)}")
-                    InfoRow("Tax", "$${"%.2f".format(order.tax)}")
-                    InfoRow("Total", "$${"%.2f".format(order.total)}")
+                    InfoRow("Subtotal", formatPriceDzd(order.subtotal))
+                    InfoRow("Shipping", formatPriceDzd(order.shippingCost))
+                    InfoRow("Tax", formatPriceDzd(order.tax))
+                    InfoRow("Total", formatPriceDzd(order.total))
                 }
             }
         }
@@ -241,8 +242,8 @@ private fun OrderDetailItemRow(item: com.example.myappmobile.domain.model.OrderI
             Text(item.product.name, style = MaterialTheme.typography.titleMedium, color = FloraText)
             Text("Qty ${item.quantity}", color = FloraTextSecondary, style = MaterialTheme.typography.bodySmall)
             Text(item.variant.ifBlank { item.product.category.ifBlank { "FLORA selection" } }, color = FloraTextSecondary, style = MaterialTheme.typography.bodySmall)
-            Text("Unit: $${"%.2f".format(item.unitPrice)}", color = FloraTextSecondary, style = MaterialTheme.typography.bodySmall)
-            Text("Line total: $${"%.2f".format(item.lineTotal)}", color = FloraText, style = MaterialTheme.typography.bodySmall)
+            Text("Unit: ${formatPriceDzd(item.unitPrice)}", color = FloraTextSecondary, style = MaterialTheme.typography.bodySmall)
+            Text("Line total: ${formatPriceDzd(item.lineTotal)}", color = FloraText, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

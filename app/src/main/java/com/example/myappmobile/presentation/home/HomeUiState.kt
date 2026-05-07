@@ -8,6 +8,7 @@ import com.example.myappmobile.domain.model.User
 
 data class HomeUiState(
     val isLoading: Boolean = true,
+    val isProfileLoading: Boolean = false,
     val currentUser: User? = null,
     val accountStatus: SellerApprovalStatus = SellerApprovalStatus.NOT_VERIFIED,
     val banner: BannerData? = null,
@@ -18,6 +19,7 @@ data class HomeUiState(
     val isSubscribed: Boolean = false,
     val canUseWishlist: Boolean = true,
     val error: String? = null,
+    val profileError: String? = null,
     val favoriteMessage: String? = null,
     val pendingFavoriteIds: Set<String> = emptySet(),
 ) {

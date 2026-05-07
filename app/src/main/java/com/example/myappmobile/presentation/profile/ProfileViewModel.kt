@@ -22,6 +22,7 @@ import com.example.myappmobile.core.localization.LanguageManager
 import com.example.myappmobile.data.remote.toApiException
 import com.example.myappmobile.domain.model.SellerApprovalStatus
 import com.example.myappmobile.domain.model.User
+import com.example.myappmobile.core.utils.formatCompactPriceDzd
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,10 +46,11 @@ class ProfileViewModel(
 
     val uiState: StateFlow<ProfileUiState> = combine(
         AppContainer.authRepository.currentUser,
+        AppContainer.authRepository.profileSyncState,
         AppContainer.uiPreferencesRepository.isDarkMode,
         AppContainer.uiPreferencesRepository.languageCode,
         sellerSummaryState,
-    ) { user, isDarkMode, languageCode, sellerSummary ->
+    ) { user, profileSyncState, isDarkMode, languageCode, sellerSummary ->
         val (sellerDashboard, sellerVerification) = sellerSummary
         val safeUser = user.toSafeUiUser()
         val resolvedUser = safeUser.takeIf { it.isAuthenticated }?.let {
@@ -64,6 +66,8 @@ class ProfileViewModel(
         }
         ProfileUiState(
             user = resolvedUser,
+            profileLoading = profileSyncState.isLoading,
+            profileError = profileSyncState.errorMessage,
             darkModeEnabled = isDarkMode,
             buyerSettings = buyerSettings(),
             sellerSettings = if (safeUser.isSeller) sellerSettings(sellerDashboard.summary) else emptyList(),
@@ -80,8 +84,28 @@ class ProfileViewModel(
     )
 
     init {
+        refreshProfileIfNeeded()
         refreshSellerDashboard()
         refreshSellerVerification()
+    }
+
+    fun refreshProfileIfNeeded() {
+        viewModelScope.launch {
+            val user = AppContainer.authRepository.currentUser.value
+            val syncState = AppContainer.authRepository.profileSyncState.value
+            val shouldRefresh = user.isAuthenticated &&
+                !syncState.isLoading &&
+                !syncState.hasLoaded &&
+                (
+                    user.id.isBlank() ||
+                        user.fullName.isBlank() ||
+                        user.email.isBlank() ||
+                        (user.isSeller && user.storeName.isBlank())
+                    )
+            if (shouldRefresh) {
+                AppContainer.authRepository.refreshCurrentUser()
+            }
+        }
     }
 
     fun onDarkModeToggled(enabled: Boolean) {
@@ -201,7 +225,7 @@ class ProfileViewModel(
             subtitleRes = R.string.profile_payments_payouts_subtitle,
             icon = Icons.Outlined.Payments,
             subtitleOverride = summary?.let {
-                "Balance ${formatCompactCurrency(it.availableBalance)} · Lifetime ${formatCompactCurrency(it.lifetimeEarnings)}"
+                "Balance ${formatCompactPriceDzd(it.availableBalance)} · Lifetime ${formatCompactPriceDzd(it.lifetimeEarnings)}"
             },
         ),
         ProfileSettingItemUi(
@@ -233,15 +257,6 @@ class ProfileViewModel(
             subtitleOverride = summary?.let { "${it.totalOrders} total · ${it.deliveredOrders} delivered" },
         ),
     )
-
-    private fun formatCompactCurrency(value: Double): String {
-        val absolute = kotlin.math.abs(value)
-        return when {
-            absolute >= 1_000_000 -> "${"%.1f".format(value / 1_000_000)}M"
-            absolute >= 1_000 -> "${"%.1f".format(value / 1_000)}K"
-            else -> "%.0f".format(value)
-        }
-    }
 
     private data class SellerDashboardState(
         val isLoading: Boolean = false,

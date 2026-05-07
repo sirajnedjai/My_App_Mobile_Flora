@@ -41,6 +41,7 @@ import com.example.myappmobile.core.theme.FloraError
 import com.example.myappmobile.core.theme.FloraSelectedCard
 import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
+import com.example.myappmobile.core.utils.formatPriceDzd
 
 @Composable
 fun SellerWithdrawalScreen(
@@ -117,7 +118,7 @@ private fun WithdrawalBalanceCard(availableBalance: Double) {
                 color = FloraBeige.copy(alpha = 0.84f),
             )
             Text(
-                text = "$${"%.2f".format(availableBalance)}",
+                text = formatPriceDzd(availableBalance),
                 style = MaterialTheme.typography.displaySmall,
                 color = FloraBeige,
             )

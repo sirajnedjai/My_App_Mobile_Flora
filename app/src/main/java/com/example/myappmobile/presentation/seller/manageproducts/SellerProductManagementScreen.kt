@@ -72,6 +72,8 @@ import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.StoneFaint
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
+import com.example.myappmobile.core.utils.formatRawPriceInputPreview
 import com.example.myappmobile.domain.model.Product
 
 @Composable
@@ -389,7 +391,7 @@ private fun SellerProductCard(
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                         Text(
-                            text = "$${"%.2f".format(product.price)}",
+                            text = formatPriceDzd(product.price),
                             style = MaterialTheme.typography.titleMedium,
                             color = FloraText,
                         )
@@ -580,7 +582,7 @@ private fun SellerProductEditorDialog(
                             FloralInput(
                                 value = uiState.price,
                                 onValueChange = onPriceChanged,
-                                label = "Price",
+                                label = "Price (DA)",
                                 errorMessage = uiState.fieldErrors.price,
                             )
                         }
@@ -707,7 +709,7 @@ private fun SellerPreviewCard(
                     color = FloraText,
                 )
                 Text(
-                    text = if (price.isBlank()) "$0.00" else "$$price",
+                    text = formatRawPriceInputPreview(price),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FloraTextSecondary,
                 )

@@ -64,6 +64,7 @@ import com.example.myappmobile.core.theme.FloraText
 import com.example.myappmobile.core.theme.FloraTextSecondary
 import com.example.myappmobile.core.theme.SerifFontFamily
 import com.example.myappmobile.core.theme.White
+import com.example.myappmobile.core.utils.formatPriceDzd
 import com.example.myappmobile.domain.model.CartItem
 
 @Composable
@@ -483,7 +484,7 @@ private fun CheckoutItemRow(item: CartItem) {
             )
         }
         Text(
-            text = "$${"%.2f".format(item.product.price * item.quantity)}",
+            text = formatPriceDzd(item.product.price * item.quantity),
             style = MaterialTheme.typography.titleMedium,
             color = FloraText,
         )
@@ -510,7 +511,7 @@ private fun PriceLine(
             color = FloraTextSecondary,
         )
         Text(
-            text = "$${"%.2f".format(amount)}",
+            text = formatPriceDzd(amount),
             style = if (emphasize) {
                 MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             } else {

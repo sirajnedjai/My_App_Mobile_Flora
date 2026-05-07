@@ -18,10 +18,12 @@ import com.example.myappmobile.data.remote.asBooleanOrNull
 import com.example.myappmobile.data.remote.asObjectOrNull
 import com.example.myappmobile.data.remote.asStringOrNull
 import com.example.myappmobile.data.remote.boolean
+import com.example.myappmobile.data.remote.extractDataElement
 import com.example.myappmobile.data.remote.objectAt
 import com.example.myappmobile.data.remote.requireBody
 import com.example.myappmobile.data.remote.string
 import com.example.myappmobile.data.remote.toApiException
+import com.example.myappmobile.domain.repository.AuthProfileSyncState
 import com.example.myappmobile.domain.model.SellerApprovalStatus
 import com.example.myappmobile.domain.model.User
 import com.example.myappmobile.domain.repository.AuthRepository
@@ -39,6 +41,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Response
 
 class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
@@ -50,14 +53,22 @@ class AuthRepositoryImpl(
 
     private val _currentUser = MutableStateFlow(guestUser())
     override val currentUser: StateFlow<User> = _currentUser.asStateFlow()
+    private val _profileSyncState = MutableStateFlow(AuthProfileSyncState())
+    override val profileSyncState: StateFlow<AuthProfileSyncState> = _profileSyncState.asStateFlow()
     private var currentPassword: String = ""
 
     fun initialize(context: Context) {
         appContext = context.applicationContext
         tokenStorage.initialize(context)
-        _currentUser.value = prefs().getString(KEY_CURRENT_USER, null)?.let(::decodeUser)?.sanitized() ?: guestUser()
+        val hasToken = tokenStorage.getToken().isNotBlank()
+        val persistedUser = prefs().getString(KEY_CURRENT_USER, null)?.let(::decodeUser)?.sanitized() ?: guestUser()
+        _currentUser.value = if (hasToken) persistedUser else guestUser()
 
-        if (tokenStorage.getToken().isNotBlank()) {
+        if (!hasToken) {
+            clearPersistedUser()
+        }
+
+        if (hasToken) {
             scope.launch {
                 refreshCurrentUser()
             }
@@ -85,6 +96,7 @@ class AuthRepositoryImpl(
         val sanitizedUser = user.sanitized()
         _currentUser.value = sanitizedUser
         persistCurrentUser(sanitizedUser)
+        scope.launch { refreshCurrentUser() }
         sanitizedUser
     }.fold(
         onSuccess = { Result.success(it) },
@@ -97,6 +109,7 @@ class AuthRepositoryImpl(
         tokenStorage.clear()
         clearPersistedUser()
         _currentUser.value = guestUser()
+        _profileSyncState.value = AuthProfileSyncState()
 
         if (hadToken) {
             scope.launch {
@@ -128,7 +141,6 @@ class AuthRepositoryImpl(
             storeAddress = address.trim().ifBlank { null },
             postalCode = postalCode.trim().ifBlank { null },
         )
-        Log.d(TAG, "Registration request body: ${gson.toJson(requestBody)}")
         val response = authApiService.register(
             requestBody,
         ).requireBody(gson)
@@ -190,6 +202,7 @@ class AuthRepositoryImpl(
             val sanitizedUser = updatedUser.sanitized()
             _currentUser.value = sanitizedUser
             persistCurrentUser(sanitizedUser)
+            scope.launch { refreshCurrentUser() }
             sanitizedUser
         }.fold(
             onSuccess = { Result.success(it) },
@@ -232,16 +245,55 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun refreshCurrentUser(): Result<User> = runCatching {
-        val response = authApiService.me().requireBody(gson)
-        val payload = response.data ?: throw ApiException(response.message ?: "Missing current user payload.")
-        val user = parseUser(payload).copy(isAuthenticated = true).sanitized()
-        _currentUser.value = user
-        persistCurrentUser(user)
-        user
-    }.onFailure {
-        tokenStorage.clear()
-        clearPersistedUser()
-        _currentUser.value = guestUser()
+        if (tokenStorage.getToken().isBlank()) {
+            throw ApiException("No authentication token found.", statusCode = 401)
+        }
+        if (_profileSyncState.value.isLoading) {
+            return@runCatching _currentUser.value
+        }
+
+        _profileSyncState.value = _profileSyncState.value.copy(
+            isLoading = true,
+            errorMessage = null,
+        )
+
+        var lastApiError: ApiException? = null
+        CURRENT_USER_ENDPOINTS.forEach { endpoint ->
+            val response = endpoint.request.invoke(authApiService)
+            if (response.isSuccessful) {
+                val payload = extractCurrentUserPayload(response.body())
+                    ?: throw ApiException("Missing current user payload from ${endpoint.route}.")
+                val user = parseUser(payload).copy(isAuthenticated = true).sanitized()
+                _currentUser.value = user
+                persistCurrentUser(user)
+                Log.d(TAG, "Current user refreshed via ${endpoint.route}. userId=${user.id}")
+                _profileSyncState.value = AuthProfileSyncState(
+                    isLoading = false,
+                    errorMessage = null,
+                    endpointUsed = endpoint.route,
+                    hasLoaded = true,
+                )
+                return@runCatching user
+            }
+
+            val apiError = response.toCurrentUserApiException(endpoint.route)
+            lastApiError = apiError
+            if (apiError.statusCode == 401) {
+                logout()
+                throw apiError
+            }
+        }
+
+        throw lastApiError ?: ApiException("Unable to load the current profile from the API.")
+    }.onFailure { error ->
+        val apiError = error.toApiException()
+        Log.e(TAG, "Current user refresh failed. message=${apiError.message} code=${apiError.statusCode}")
+        if (apiError.statusCode != 401) {
+            _profileSyncState.value = _profileSyncState.value.copy(
+                isLoading = false,
+                errorMessage = apiError.message,
+            )
+        }
     }
 
     private suspend fun updateProfileOnBackend(
@@ -427,6 +479,65 @@ class AuthRepositoryImpl(
         const val BUYER_ROLE = "buyer"
         const val SELLER_ROLE = "seller"
         val AVATAR_PART_NAMES = listOf("avatar", "profile_photo", "profile_picture", "image", "photo")
+        val CURRENT_USER_ENDPOINTS = listOf(
+            CurrentUserEndpoint("GET /api/auth/me") { me() },
+            CurrentUserEndpoint("GET /api/user") { currentUser() },
+            CurrentUserEndpoint("GET /api/profile") { profile() },
+            CurrentUserEndpoint("GET /api/me") { plainMe() },
+            CurrentUserEndpoint("GET /api/account/profile") { accountProfile() },
+        )
+    }
+
+    private data class CurrentUserEndpoint(
+        val route: String,
+        val request: suspend AuthApiService.() -> Response<JsonElement>,
+    )
+
+    private fun extractCurrentUserPayload(body: JsonElement?): JsonElement? {
+        if (body == null || body.isJsonNull) return null
+        val root = body.asObjectOrNull()
+        val nestedPayload = listOf("data", "user", "profile", "me")
+            .firstNotNullOfOrNull { key -> root?.get(key)?.takeIf { !it.isJsonNull } }
+        if (nestedPayload != null) return nestedPayload
+        if (root?.looksLikeUserObject() == true) return body
+        return extractDataElement(body)
+    }
+
+    private fun JsonObject.looksLikeUserObject(): Boolean = has("id") ||
+        has("email") ||
+        has("name") ||
+        has("full_name") ||
+        has("phone") ||
+        has("store_name") ||
+        has("shop_name") ||
+        has("avatar") ||
+        has("avatar_url")
+
+    private fun Response<JsonElement>.toCurrentUserApiException(route: String): ApiException {
+        val rawErrorBody = errorBody()?.string().orEmpty()
+        Log.e(
+            TAG,
+            "Current user request failed. route=$route code=${code()} body=$rawErrorBody",
+        )
+        val errorMessage = runCatching {
+            rawErrorBody
+                .takeIf { it.isNotBlank() }
+                ?.let { gson.fromJson(it, JsonObject::class.java) }
+                ?.string("message")
+        }.getOrNull()
+        val message = errorMessage
+            ?.takeIf { it.isNotBlank() }
+            ?: when (code()) {
+                401 -> "Your session has expired. Please sign in again."
+                404 -> "Profile endpoint $route is not available on the current backend."
+                422 -> "The profile response could not be processed."
+                500 -> "The server returned an unexpected profile error."
+                else -> "Current profile request failed${code().let { " ($it)" }}."
+            }
+        return ApiException(
+            message = message,
+            statusCode = code(),
+        )
     }
 
     private fun resolveVerificationStatus(

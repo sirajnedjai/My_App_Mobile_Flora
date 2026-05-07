@@ -6,6 +6,8 @@ import com.example.myappmobile.domain.model.User
 
 data class ProfileUiState(
     val user: User? = null,
+    val profileLoading: Boolean = false,
+    val profileError: String? = null,
     val darkModeEnabled: Boolean = false,
     val buyerSettings: List<ProfileSettingItemUi> = emptyList(),
     val sellerSettings: List<ProfileSettingItemUi> = emptyList(),

@@ -20,6 +20,7 @@ class AddressViewModel : ViewModel() {
         repository.checkoutDraft.value.address?.let { address ->
             _uiState.value = AddressUiState(
                 fullName = address.fullName,
+                phoneNumber = address.phoneNumber,
                 state = address.state,
                 municipality = address.municipality,
                 neighborhood = address.neighborhood,
@@ -31,6 +32,7 @@ class AddressViewModel : ViewModel() {
     }
 
     fun onFullNameChange(value: String) = _uiState.update { it.copy(fullName = value) }
+    fun onPhoneNumberChange(value: String) = _uiState.update { it.copy(phoneNumber = value) }
     fun onStateChange(value: String) = _uiState.update { it.copy(state = value) }
     fun onMunicipalityChange(value: String) = _uiState.update { it.copy(municipality = value) }
     fun onNeighborhoodChange(value: String) = _uiState.update { it.copy(neighborhood = value) }
@@ -46,6 +48,7 @@ class AddressViewModel : ViewModel() {
                     id = "checkout_address",
                     label = "Checkout",
                     fullName = state.fullName,
+                    phoneNumber = state.phoneNumber,
                     state = state.state,
                     municipality = state.municipality,
                     neighborhood = state.neighborhood,
